@@ -136,7 +136,7 @@ fn handle_install(sub_args: &ArgMatches) -> ! {
     }
 
     log::info!("Files & configuration for mdbook-admonish are installed. You can start using it in your book.");
-    let codeblock = r#"```admonish-warning
+    let codeblock = r#"```admonish warning
 A beautifully styled message.
 ```"#;
     log::info!("Add a code block like:\n{}", codeblock);

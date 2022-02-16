@@ -2,6 +2,7 @@ use mdbook::book::{Book, BookItem, Chapter};
 use mdbook::errors::Result;
 use mdbook::preprocess::{Preprocessor, PreprocessorContext};
 use pulldown_cmark::{CodeBlockKind::*, Event, Options, Parser, Tag};
+use std::str::FromStr;
 
 pub struct Admonish;
 
@@ -46,62 +47,80 @@ fn escape_html(s: &str) -> String {
     output
 }
 
-fn add_admonish(content: &str) -> Result<String> {
-    let mut admonish_content = String::new();
-    let mut in_admonish_block = false;
+#[derive(Debug, PartialEq)]
+enum Directive {
+    Note,
+    Warning,
+}
 
+impl FromStr for Directive {
+    type Err = ();
+
+    fn from_str(string: &str) -> std::result::Result<Self, ()> {
+        match string {
+            "note" => Ok(Self::Note),
+            "warn" => Ok(Self::Warning),
+            "warning" => Ok(Self::Warning),
+            _ => Err(()),
+        }
+    }
+}
+
+fn parse_info_string(info_string: &str) -> Option<Option<Directive>> {
+    if info_string == "admonish" {
+        return Some(None);
+    }
+
+    match info_string.split_once(' ') {
+        Some(("admonish", directive)) => Some(Directive::from_str(directive).ok()),
+        _ => None,
+    }
+}
+
+fn add_admonish(content: &str) -> Result<String> {
     let mut opts = Options::empty();
     opts.insert(Options::ENABLE_TABLES);
     opts.insert(Options::ENABLE_FOOTNOTES);
     opts.insert(Options::ENABLE_STRIKETHROUGH);
     opts.insert(Options::ENABLE_TASKLISTS);
 
-    let mut admonish_start = 0..0;
-
     let mut admonish_blocks = vec![];
 
     let events = Parser::new_ext(content, opts);
     for (e, span) in events.into_offset_iter() {
-        if let Event::Start(Tag::CodeBlock(Fenced(code))) = e.clone() {
-            log::debug!("e={:?}, span={:?}", e, span);
-            if &*code == "admonish" {
-                admonish_start = span;
-                in_admonish_block = true;
-                admonish_content.clear();
-            }
-            continue;
-        }
+        if let Event::Start(Tag::CodeBlock(Fenced(info_string))) = e.clone() {
+            let directive = match parse_info_string(info_string.as_ref()) {
+                Some(directive) => directive.unwrap_or(Directive::Note),
+                None => continue,
+            };
 
-        if !in_admonish_block {
-            continue;
-        }
+            const PRE_START: &str = "```";
+            const PRE_END: &str = "\n";
+            const POST: &str = "```";
 
-        if let Event::End(Tag::CodeBlock(Fenced(code))) = e {
-            assert_eq!(
-                "admonish", &*code,
-                "After an opening admonish code block we expect it to close again"
-            );
-            in_admonish_block = false;
-            let pre = "```admonish\n";
-            let post = "```";
+            let start_index = span.start + PRE_START.len() + info_string.len() + PRE_END.len();
+            let end_index = span.end - POST.len();
 
-            let admonish_content =
-                &content[admonish_start.start + pre.len()..span.end - post.len()];
+            let admonish_content = &content[start_index..end_index];
             let admonish_content = escape_html(admonish_content);
             let admonish_content = admonish_content.trim();
+            let (directive_classname, directive_title) = match directive {
+                Directive::Note => ("note", "Note"),
+                Directive::Warning => ("warning", "Warning"),
+            };
             let admonish_code = format!(
-                r#"<div class="admonition note">
-  <p class="admonition-title">Note</p>
+                r#"<div class="admonition {directive_classname}">
+  <p class="admonition-title">{directive_title}</p>
   <p>{admonish_content}</p>
 </div>"#
             );
-            admonish_blocks.push((admonish_start.start..span.end, admonish_code.clone()));
+            admonish_blocks.push((span, admonish_code.clone()));
         }
     }
 
     let mut content = content.to_string();
     for (span, block) in admonish_blocks.iter().rev() {
-        let pre_content = &content[0..span.start];
+        let pre_content = &content[..span.start];
         let post_content = &content[span.end..];
         content = format!("{}\n{}{}", pre_content, block, post_content);
     }
@@ -118,7 +137,24 @@ impl Admonish {
 mod test {
     use pretty_assertions::assert_eq;
 
-    use super::add_admonish;
+    use super::*;
+
+    #[test]
+    fn test_parse_info_string() {
+        assert_eq!(parse_info_string(""), None);
+        assert_eq!(parse_info_string("adm"), None);
+        assert_eq!(parse_info_string("admonish"), Some(None));
+        assert_eq!(parse_info_string("admonish "), Some(None));
+        assert_eq!(parse_info_string("admonish unknown"), Some(None));
+        assert_eq!(
+            parse_info_string("admonish note"),
+            Some(Some(Directive::Note))
+        );
+        assert_eq!(
+            parse_info_string("admonish warning"),
+            Some(Some(Directive::Warning))
+        );
+    }
 
     #[test]
     fn adds_admonish() {
@@ -133,6 +169,27 @@ Text
 
 <div class="admonition note">
   <p class="admonition-title">Note</p>
+  <p>A simple admonition.</p>
+</div>
+Text
+"#;
+
+        assert_eq!(expected, add_admonish(content).unwrap());
+    }
+
+    #[test]
+    fn adds_admonish_directive() {
+        let content = r#"# Chapter
+```admonish warning
+A simple admonition.
+```
+Text
+"#;
+
+        let expected = r#"# Chapter
+
+<div class="admonition warning">
+  <p class="admonition-title">Warning</p>
   <p>A simple admonition.</p>
 </div>
 Text
@@ -207,7 +264,6 @@ Text
 
     #[test]
     fn escape_in_admonish_block() {
-        env_logger::init();
         let content = r#"
 ```admonish
 classDiagram
