@@ -1,0 +1,108 @@
+/*
+ * Based on Admonitions for MkDocs, which is based on MUI design.
+ *
+ * https://squidfunk.github.io/mkdocs-material/reference/admonitions/#supported-types
+ */
+
+/*
+ * Base classes for admonitions.
+ */
+.admonition {
+    background-color: var(--bg);
+    border: 0 solid var(--fg);
+    border-left-width: 0.4rem;
+    border-radius: 0.2rem;
+    box-shadow: 0 0.4rem 1.0rem #0000000d,0 0 0.1rem rgba(0,0,0,.1);
+    color: var(--fg);
+    display: flow-root;
+    margin: 1.5625em 0;
+    padding: 0 1.2rem;
+    page-break-inside: avoid;
+}
+
+
+.admonition-title {
+    border-top-left-radius: 0.2rem;
+    border-left-width: 0.4rem;
+    padding-left: 4rem;
+    padding-right: 1.2rem;
+    margin-left: -1.6rem;
+    margin-right: -1.2rem;
+    font-weight: bold;
+    margin-bottom: 0;
+    margin-top: 0;
+    padding-bottom: 0.8rem;
+    padding-top: 0.8rem;
+    position: relative;
+}
+
+.admonition-title:before {
+  content: "";
+  display: block;
+  background-color: var(--fg);
+  mask-image: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"></svg>');
+  -webkit-mask-image: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"></svg>');
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+  mask-size: contain;
+  -webkit-mask-size: contain;
+  content: "";
+  height: 2rem;
+  position: absolute;
+  top: 0.625em;
+  width: 2rem;
+  left: 1.2rem;
+}
+
+
+/*
+ * Overrides for the different types of admonitions.
+ */
+
+/*
+ * note
+ */
+:root {
+  --md-admonition-icon--note: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>');
+  --md-admonition-color--note: #448aff;
+  --md-admonition-color-rgb--note: 68, 138, 255;
+}
+
+.admonition.note {
+    border-color: var(--md-admonition-color--note);
+}
+
+:is(.note)>:is(.admonition-title) {
+    background-color: rgba(var(--md-admonition-color-rgb--note), .1);
+}
+
+:is(.note)>:is(.admonition-title):before {
+  background-color: var(--md-admonition-color--note);
+  mask-image: var(--md-admonition-icon--note);
+  -webkit-mask-image: var(--md-admonition-icon--note);
+}
+
+
+/*
+ * warning
+ */
+:root {
+  --md-admonition-icon--warning: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14h-2V9h2m0 9h-2v-2h2M1 21h22L12 2 1 21z"/></svg>');
+  --md-admonition-color--warning: #ff9100;
+  --md-admonition-color-rgb--warning: 255, 145, 0;
+}
+
+.admonition.warning {
+    border-color: var(--md-admonition-color--warning);
+}
+
+:is(.warning)>:is(.admonition-title) {
+    background-color: rgba(var(--md-admonition-color-rgb--warning), .1);
+}
+
+:is(.warning)>:is(.admonition-title):before {
+  background-color: var(--md-admonition-color--warning);
+  mask-image: var(--md-admonition-icon--warning);
+  -webkit-mask-image: var(--md-admonition-icon--warning);
+}
+
