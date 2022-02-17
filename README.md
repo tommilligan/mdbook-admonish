@@ -16,18 +16,48 @@ into this:
 
 Styling is based on [mkdocs-material](https://github.com/squidfunk/mkdocs-material).
 
+## Usage
+
+Use any [fenced code-block](https://spec.commonmark.org/0.30/#fenced-code-blocks) as you normally would, but annotate it with `admonish <admonition type>`:
+
+````
+```admonish example
+My example is the best!
+```
+````
+
+You can also leave out the admonition type, in which case it will default to `note`:
+
+````
+```admonish
+A plain note.
+```
+````
+
+See the [mkdocs-material docs](https://squidfunk.github.io/mkdocs-material/reference/admonitions/#supported-types) for a list of supported admonitions. You'll fine:
+
+- `info`
+- `warning`
+- `danger`
+- `example`
+
+and quite a few more!
+
 ## Installation
 
 Install the tool:
 
-```
+```bash
 cargo install mdbook-admonish
 ```
 
 Then let `mdbook-admonish` add the required files and configuration:
 
-```
+```bash
 mdbook-admonish install path/to/your/book
+
+# optionally, specify a directory where CSS files live, relative to the book root
+mdbook-admonish install --css-dir ./assets/css .
 ```
 
 This will add the following configuration to your `book.toml`:
@@ -37,14 +67,14 @@ This will add the following configuration to your `book.toml`:
 command = "mdbook-admonish"
 
 [output.html]
-additional-css = ["mdbook-admonish.css"]
+additional-css = ["./mdbook-admonish.css"]
 ```
 
 and copy the file `mdbook-admonish.css` into your book's directory.
 
 Then, build your book as usual:
 
-```
+```bash
 mdbook path/to/book
 ```
 
