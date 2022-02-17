@@ -48,7 +48,15 @@ Then, build your book as usual:
 mdbook path/to/book
 ```
 
-# Thanks
+## Development
+
+Project design
+
+- Compiled CSS styles are built and committed from SCSS sources. See the `compile_assets` folder for details.
+- `mdbook-admonish install` is responsible for delivering additional assets and configuration to a client book.
+- `mdbook-admonish` is responsible for preprocessing book data, adding HTML that references compiled classnames.
+
+## Thanks
 
 This utility is heavily drawn from and inspired by other projects, namely:
 
