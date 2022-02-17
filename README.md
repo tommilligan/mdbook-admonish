@@ -33,7 +33,7 @@ A plain note.
 ```
 ````
 
-See the [mkdocs-material docs](https://squidfunk.github.io/mkdocs-material/reference/admonitions/#supported-types) for a list of supported admonitions. You'll fine:
+See the [mkdocs-material docs](https://squidfunk.github.io/mkdocs-material/reference/admonitions/#supported-types) for a list of supported admonitions. You'll find:
 
 - `info`
 - `warning`
