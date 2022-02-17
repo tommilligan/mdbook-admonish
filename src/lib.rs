@@ -96,7 +96,9 @@ fn parse_info_string(info_string: &str) -> Option<Option<&str>> {
     }
 }
 
-// https://stackoverflow.com/a/38406885
+/// Make the first letter of `input` upppercase.
+///
+/// source: https://stackoverflow.com/a/38406885
 fn ucfirst(input: &str) -> String {
     let mut chars = input.chars();
     match chars.next() {
@@ -192,7 +194,6 @@ mod test {
         assert_eq!(parse_info_string("admonish "), Some(Some("")));
         assert_eq!(parse_info_string("admonish unknown"), Some(Some("unknown")));
         assert_eq!(parse_info_string("admonish note"), Some(Some("note")));
-        assert_eq!(parse_info_string("admonish warning"), Some(Some("warning")));
     }
 
     #[test]

@@ -91,13 +91,26 @@ mod install {
         path::PathBuf,
         process,
     };
+    use toml_edit::{self, Array, Document, Item, Table, Value};
 
     const ADMONISH_CSS_FILES: &[(&str, &[u8])] = &[(
         "mdbook-admonish.css",
         include_bytes!("assets/mdbook-admonish.css"),
     )];
 
-    use toml_edit::{value, Array, Document, Item, Table, Value};
+    trait ArrayExt {
+        fn contains_str(&self, value: &str) -> bool;
+    }
+
+    impl ArrayExt for Array {
+        fn contains_str(&self, value: &str) -> bool {
+            self.iter().any(|element| match element.as_str() {
+                None => false,
+                Some(element_str) => element_str == value,
+            })
+        }
+    }
+
     pub fn handle_install(sub_args: &ArgMatches) -> () {
         let dir = sub_args.value_of("dir").expect("Required argument");
         let css_dir = sub_args.value_of("css-dir").expect("Required argument");
@@ -115,7 +128,7 @@ mod install {
             .parse::<Document>()
             .expect("configuration is not valid TOML");
 
-        if preprocessor(&mut doc).is_none() {
+        if preprocessor(&mut doc).is_err() {
             log::info!("Unexpected configuration, not updating prereprocessor configuration");
         };
 
@@ -124,8 +137,8 @@ mod install {
             let filepath = proj_dir.join(css_dir).join(name);
             let filepath_str = filepath.to_str().expect("non-utf8 filepath");
 
-            if let Some(ref mut additional_css) = additional_css {
-                if !has_file(additional_css, filepath_str) {
+            if let Ok(ref mut additional_css) = additional_css {
+                if !additional_css.contains_str(filepath_str) {
                     log::info!("Adding '{filepath_str}' to 'additional-css'");
                     additional_css.push(filepath_str);
                 }
@@ -162,39 +175,46 @@ A beautifully styled message.
         process::exit(0);
     }
 
-    fn additional_css<'a>(doc: &'a mut Document) -> Option<&'a mut Array> {
+    /// Return the `additional-css` field, initializing if required.
+    ///
+    /// Return `Err` if the existing configuration is unknown.
+    fn additional_css<'a>(doc: &'a mut Document) -> Result<&'a mut Array, ()> {
         let doc = doc.as_table_mut();
 
         let empty_table = Item::Table(Table::default());
         let empty_array = Item::Value(Value::Array(Array::default()));
 
-        let item = doc.entry("output").or_insert(empty_table.clone());
-        let item = item.as_table_mut()?.entry("html").or_insert(empty_table);
-        item.as_table_mut()?
-            .entry("additional-css")
-            .or_insert(empty_array)
-            .as_value_mut()?
-            .as_array_mut()
+        Ok(doc
+            .entry("output")
+            .or_insert(empty_table.clone())
+            .as_table_mut()
+            .map(|item| {
+                item.entry("html")
+                    .or_insert(empty_table)
+                    .as_table_mut()?
+                    .entry("additional-css")
+                    .or_insert(empty_array)
+                    .as_value_mut()?
+                    .as_array_mut()
+            })
+            .flatten()
+            .ok_or(())?)
     }
 
-    // TODO(tommilligan) make error handling nicer
-    fn preprocessor(doc: &mut Document) -> Option<()> {
+    /// Return the preprocessor table for admonish, initializing if required.
+    ///
+    /// Return `Err` if the existing configuration is unknown.
+    fn preprocessor(doc: &mut Document) -> Result<&mut Item, ()> {
         let doc = doc.as_table_mut();
 
         let empty_table = Item::Table(Table::default());
         let item = doc.entry("preprocessor").or_insert(empty_table.clone());
         let item = item
-            .as_table_mut()?
+            .as_table_mut()
+            .ok_or(())?
             .entry("admonish")
             .or_insert(empty_table);
-        item["command"] = value("mdbook-admonish");
-        Some(())
-    }
-
-    fn has_file(elem: &Array, file: &str) -> bool {
-        elem.iter().any(|elem| match elem.as_str() {
-            None => false,
-            Some(s) => s == file,
-        })
+        item["command"] = toml_edit::value("mdbook-admonish");
+        Ok(item)
     }
 }
