@@ -1,6 +1,7 @@
 # mdbook-admonish
 
-A preprocessor for [mdbook](https://github.com/rust-lang-nursery/mdBook) to add Material UI admonishments.
+A preprocessor for [mdbook](https://github.com/rust-lang-nursery/mdBook) to add [Material Design](https://material.io/design) admonishments,
+on the [mkdocs-material](https://squidfunk.github.io/mkdocs-material/reference/admonitions/) implementation.
 
 It turns this:
 
@@ -13,8 +14,6 @@ A beautifully styled message.
 into this:
 
 ![Simple Message](simple-message.png)
-
-Styling is based on [mkdocs-material](https://github.com/squidfunk/mkdocs-material).
 
 ## Usage
 
