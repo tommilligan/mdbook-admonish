@@ -50,7 +50,17 @@ fn escape_html(s: &str) -> String {
 #[derive(Debug, PartialEq)]
 enum Directive {
     Note,
+    Abstract,
+    Info,
+    Tip,
+    Success,
+    Question,
     Warning,
+    Failure,
+    Danger,
+    Bug,
+    Example,
+    Quote,
 }
 
 impl FromStr for Directive {
@@ -59,21 +69,39 @@ impl FromStr for Directive {
     fn from_str(string: &str) -> std::result::Result<Self, ()> {
         match string {
             "note" => Ok(Self::Note),
-            "warn" => Ok(Self::Warning),
-            "warning" => Ok(Self::Warning),
+            "abstract" | "summary" | "tldr" => Ok(Self::Abstract),
+            "info" | "todo" => Ok(Self::Info),
+            "tip" | "hint" | "important" => Ok(Self::Tip),
+            "success" | "check" | "done" => Ok(Self::Success),
+            "question" | "help" | "faq" => Ok(Self::Question),
+            "warning" | "caution" | "attention" => Ok(Self::Warning),
+            "failure" | "fail" | "missing" => Ok(Self::Failure),
+            "danger" | "error" => Ok(Self::Danger),
+            "bug" => Ok(Self::Bug),
+            "example" => Ok(Self::Example),
+            "quote" | "cite" => Ok(Self::Quote),
             _ => Err(()),
         }
     }
 }
 
-fn parse_info_string(info_string: &str) -> Option<Option<Directive>> {
+fn parse_info_string(info_string: &str) -> Option<Option<&str>> {
     if info_string == "admonish" {
         return Some(None);
     }
 
     match info_string.split_once(' ') {
-        Some(("admonish", directive)) => Some(Directive::from_str(directive).ok()),
+        Some(("admonish", directive)) => Some(Some(directive)),
         _ => None,
+    }
+}
+
+// https://stackoverflow.com/a/38406885
+fn ucfirst(input: &str) -> String {
+    let mut chars = input.chars();
+    match chars.next() {
+        None => String::new(),
+        Some(f) => f.to_uppercase().collect::<String>() + chars.as_str(),
     }
 }
 
@@ -89,10 +117,14 @@ fn add_admonish(content: &str) -> Result<String> {
     let events = Parser::new_ext(content, opts);
     for (e, span) in events.into_offset_iter() {
         if let Event::Start(Tag::CodeBlock(Fenced(info_string))) = e.clone() {
-            let directive = match parse_info_string(info_string.as_ref()) {
-                Some(directive) => directive.unwrap_or(Directive::Note),
+            let directive_raw = match parse_info_string(info_string.as_ref()) {
+                Some(directive) => directive,
                 None => continue,
             };
+            let directive = directive_raw
+                .map(|directive| Directive::from_str(directive).ok())
+                .flatten()
+                .unwrap_or(Directive::Note);
 
             const PRE_START: &str = "```";
             const PRE_END: &str = "\n";
@@ -104,9 +136,22 @@ fn add_admonish(content: &str) -> Result<String> {
             let admonish_content = &content[start_index..end_index];
             let admonish_content = escape_html(admonish_content);
             let admonish_content = admonish_content.trim();
-            let (directive_classname, directive_title) = match directive {
-                Directive::Note => ("note", "Note"),
-                Directive::Warning => ("warning", "Warning"),
+            let directive_title = directive_raw
+                .map(ucfirst)
+                .unwrap_or_else(|| "Note".to_owned());
+            let directive_classname = match directive {
+                Directive::Note => "note",
+                Directive::Abstract => "abstract",
+                Directive::Info => "info",
+                Directive::Tip => "tip",
+                Directive::Success => "success",
+                Directive::Question => "question",
+                Directive::Warning => "warning",
+                Directive::Failure => "failure",
+                Directive::Danger => "danger",
+                Directive::Bug => "bug",
+                Directive::Example => "example",
+                Directive::Quote => "quote",
             };
             let admonish_code = format!(
                 r#"<div class="admonition {directive_classname}">
@@ -144,16 +189,10 @@ mod test {
         assert_eq!(parse_info_string(""), None);
         assert_eq!(parse_info_string("adm"), None);
         assert_eq!(parse_info_string("admonish"), Some(None));
-        assert_eq!(parse_info_string("admonish "), Some(None));
-        assert_eq!(parse_info_string("admonish unknown"), Some(None));
-        assert_eq!(
-            parse_info_string("admonish note"),
-            Some(Some(Directive::Note))
-        );
-        assert_eq!(
-            parse_info_string("admonish warning"),
-            Some(Some(Directive::Warning))
-        );
+        assert_eq!(parse_info_string("admonish "), Some(Some("")));
+        assert_eq!(parse_info_string("admonish unknown"), Some(Some("unknown")));
+        assert_eq!(parse_info_string("admonish note"), Some(Some("note")));
+        assert_eq!(parse_info_string("admonish warning"), Some(Some("warning")));
     }
 
     #[test]

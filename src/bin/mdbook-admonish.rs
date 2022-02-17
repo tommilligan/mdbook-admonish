@@ -114,25 +114,17 @@ fn handle_install(sub_args: &ArgMatches) -> ! {
     let mut printed = false;
     for (name, content) in ADMONISH_FILES {
         let filepath = proj_dir.join(name);
-        if filepath.exists() {
-            log::debug!(
-                "'{}' already exists (Path: {}). Skipping.",
-                name,
-                filepath.display()
+        if !printed {
+            printed = true;
+            log::info!(
+                "Writing additional files to project directory at {}",
+                proj_dir.display()
             );
-        } else {
-            if !printed {
-                printed = true;
-                log::info!(
-                    "Writing additional files to project directory at {}",
-                    proj_dir.display()
-                );
-            }
-            log::debug!("Writing content for '{}' into {}", name, filepath.display());
-            let mut file = File::create(filepath).expect("can't open file for writing");
-            file.write_all(content)
-                .expect("can't write content to file");
         }
+        log::debug!("Writing content for '{}' into {}", name, filepath.display());
+        let mut file = File::create(filepath).expect("can't open file for writing");
+        file.write_all(content)
+            .expect("can't write content to file");
     }
 
     log::info!("Files & configuration for mdbook-admonish are installed. You can start using it in your book.");
@@ -148,13 +140,13 @@ fn add_additional_files(doc: &mut Document) -> bool {
     let mut changed = false;
 
     let file = "mdbook-admonish.css";
-    let additional_js = additional(doc, "js");
+    let additional_js = additional(doc, "css");
     if has_file(&additional_js, file) {
         log::debug!("'{}' already in 'additional-js'. Skipping", file)
     } else {
         log::info!("Adding additional files to configuration");
         log::debug!("Adding '{}' to 'additional-js'", file);
-        insert_additional(doc, "js", file);
+        insert_additional(doc, "css", file);
         changed = true;
     }
 
