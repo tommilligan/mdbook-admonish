@@ -1,14 +1,12 @@
 # mdbook-admonish
 
-A preprocessor for [mdbook][] to add visual support for admonishments.
-
-[mdbook]: https://github.com/rust-lang-nursery/mdBook
+A preprocessor for [mdbook](https://github.com/rust-lang-nursery/mdBook) to add Material UI admonishments.
 
 It turns this:
 
 ````
-```admonish
-A simple message.
+```admonish info
+A beautifully styled message.
 ```
 ````
 
@@ -16,13 +14,11 @@ into this:
 
 ![Simple Message](simple-message.png)
 
-in your book.
-
-(Styling based on [mkdocs-material](https://github.com/squidfunk/mkdocs-material))
+Styling is based on [mkdocs-material](https://github.com/squidfunk/mkdocs-material).
 
 ## Installation
 
-If you want to use only this preprocessor, install the tool:
+Install the tool:
 
 ```
 cargo install mdbook-admonish
@@ -41,12 +37,12 @@ This will add the following configuration to your `book.toml`:
 command = "mdbook-admonish"
 
 [output.html]
-additional-js = ["mdbook-admonish.css"]
+additional-css = ["mdbook-admonish.css"]
 ```
 
-Additionally it copies the files `mdbook-admonish.css` into your book's directory.
+and copy the file `mdbook-admonish.css` into your book's directory.
 
-Finally, build your book:
+Then, build your book as usual:
 
 ```
 mdbook path/to/book

@@ -1,0 +1,13 @@
+{
+  "name": "precompile",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "sass --no-source-map mdbook-admonish.scss ../src/bin/assets/mdbook-admonish.css"
+  },
+  "dependencies": {
+    "material-design-color": "^1.0.0",
+    "sass": "^1.49.7"
+  }
+}
