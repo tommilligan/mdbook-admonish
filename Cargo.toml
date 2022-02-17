@@ -3,6 +3,15 @@ name = "mdbook-admonish"
 version = "1.0.0"
 edition = "2021"
 
+authors = ["Tom Milligan <code@tommilligan.net>"]
+description = "A preprocessor for mdbook to add Material UI admonishments."
+repository = "https://github.com/tommilligan/mdbook-admonish"
+documentation = "https://docs.rs/mdbook-admonish"
+
+license = "MIT"
+keywords = ["mdbook", "markdown", "mui", "material-ui"]
+readme = "README.md"
+
 [[bin]]
 name = "mdbook-admonish"
 path = "src/bin/mdbook-admonish.rs"
