@@ -47,3 +47,13 @@ Then, build your book as usual:
 ```
 mdbook path/to/book
 ```
+
+# Thanks
+
+This utility is heavily drawn from and inspired by other projects, namely:
+
+- [mdbook-mermaid](https://github.com/badboy/mdbook-mermaid)
+- [mkdocs-material](https://github.com/squidfunk/mkdocs-material)
+- [material-design-icons](https://github.com/google/material-design-icons)
+
+The licences for these projects are included in the `licences` folder.
