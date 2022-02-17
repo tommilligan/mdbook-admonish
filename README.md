@@ -1,7 +1,7 @@
 # mdbook-admonish
 
 A preprocessor for [mdbook](https://github.com/rust-lang-nursery/mdBook) to add [Material Design](https://material.io/design) admonishments,
-on the [mkdocs-material](https://squidfunk.github.io/mkdocs-material/reference/admonitions/) implementation.
+based on the [mkdocs-material](https://squidfunk.github.io/mkdocs-material/reference/admonitions/) implementation.
 
 It turns this:
 
