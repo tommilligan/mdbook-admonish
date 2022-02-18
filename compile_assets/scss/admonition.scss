@@ -186,3 +186,28 @@ $admonitions: (
     }
   }
 }
+
+// ----------------------------------------------------------------------------
+// Rules: themes
+// ----------------------------------------------------------------------------
+//
+// One rule per builtin theme in mdbook, overriding the default fg/bg if matched
+
+.navy {
+  & :is(.admonition) {
+    background-color: var(--sidebar-bg);
+  }
+}
+
+.ayu, .coal {
+  & :is(.admonition) {
+    background-color: var(--theme-hover);
+  }
+}
+
+.rust {
+  & :is(.admonition) {
+    background-color: var(--sidebar-bg);
+    color: var(--sidebar-fg);
+  }
+}
