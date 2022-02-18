@@ -1,6 +1,6 @@
 [package]
 name = "mdbook-admonish"
-version = "1.0.1"
+version = "1.1.0"
 edition = "2021"
 
 authors = ["Tom Milligan <code@tommilligan.net>"]
@@ -9,7 +9,7 @@ repository = "https://github.com/tommilligan/mdbook-admonish"
 documentation = "https://docs.rs/mdbook-admonish"
 
 license = "MIT"
-keywords = ["mdbook", "markdown", "material", "design"]
+keywords = ["mdbook", "markdown", "material", "design", "ui"]
 readme = "README.md"
 
 [[bin]]

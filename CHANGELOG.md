@@ -1,5 +1,11 @@
 ## Changelog
 
+## 1.1.0
+
+### Added
+
+- CSS rules for the builtin mdbook themes, to adjust card background color
+
 ## 1.0.1
 
 ### Fixed
