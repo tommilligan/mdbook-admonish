@@ -1,5 +1,11 @@
 ## Changelog
 
+## 1.2.0
+
+### Added
+
+- Support custom title text
+
 ## 1.1.0
 
 ### Added

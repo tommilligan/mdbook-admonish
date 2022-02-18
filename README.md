@@ -28,7 +28,15 @@ My example is the best!
 ```
 ````
 
-You can also leave out the admonition type, in which case it will default to `note`:
+An custom title can be provided, contained in a double quoted JSON string:
+
+````
+```admonish example "Simply the best"
+My example is the best!
+```
+````
+
+You can also leave out the admonition type altogether, in which case it will default to `note`:
 
 ````
 ```admonish
