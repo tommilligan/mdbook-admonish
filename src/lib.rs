@@ -150,13 +150,23 @@ fn parse_info_string(info_string: &str) -> Option<Option<AdmonitionInfo>> {
         return Some(None);
     }
 
-    match info_string.split_once(' ') {
-        Some(("admonish", directive)) => Some(Some(AdmonitionInfo {
-            directive,
+    let directive_title = match info_string.split_once(' ') {
+        Some(("admonish", rest)) => rest,
+        _ => return None,
+    };
+
+    let info = if let Some((directive, title)) = directive_title.split_once(' ') {
+        // The title is expected to be a quoted JSON string
+        let title = serde_json::from_str(title).ok();
+        AdmonitionInfo { directive, title }
+    } else {
+        AdmonitionInfo {
+            directive: directive_title,
             title: None,
-        })),
-        _ => None,
-    }
+        }
+    };
+
+    Some(Some(info))
 }
 
 /// Make the first letter of `input` upppercase.
@@ -307,6 +317,31 @@ Text
 
 <div class="admonition warning">
   <p class="admonition-title">Warning</p>
+  <p>
+
+  A simple admonition.
+
+  </p>
+</div>
+Text
+"#;
+
+        assert_eq!(expected, add_admonish(content).unwrap());
+    }
+
+    #[test]
+    fn adds_admonish_directive_title() {
+        let content = r#"# Chapter
+```admonish warning "Read **this**!"
+A simple admonition.
+```
+Text
+"#;
+
+        let expected = r#"# Chapter
+
+<div class="admonition warning">
+  <p class="admonition-title">Read **this**!</p>
   <p>
 
   A simple admonition.
