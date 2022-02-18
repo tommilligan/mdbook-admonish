@@ -155,10 +155,18 @@ fn add_admonish(content: &str) -> Result<String> {
                 Directive::Example => "example",
                 Directive::Quote => "quote",
             };
+
+            // Note that the additional whitespace around the content are deliberate
+            // In line with the commonmark spec, this allows the inner content to be
+            // rendered as markdown again.
             let admonish_code = format!(
                 r#"<div class="admonition {directive_classname}">
   <p class="admonition-title">{directive_title}</p>
-  <p>{admonish_content}</p>
+  <p>
+
+  {admonish_content}
+
+  </p>
 </div>"#
             );
             admonish_blocks.push((span, admonish_code.clone()));
@@ -209,7 +217,11 @@ Text
 
 <div class="admonition note">
   <p class="admonition-title">Note</p>
-  <p>A simple admonition.</p>
+  <p>
+
+  A simple admonition.
+
+  </p>
 </div>
 Text
 "#;
@@ -230,7 +242,11 @@ Text
 
 <div class="admonition warning">
   <p class="admonition-title">Warning</p>
-  <p>A simple admonition.</p>
+  <p>
+
+  A simple admonition.
+
+  </p>
 </div>
 Text
 "#;
@@ -319,11 +335,15 @@ hello
 
 <div class="admonition note">
   <p class="admonition-title">Note</p>
-  <p>classDiagram
+  <p>
+
+  classDiagram
     class PingUploader {
         &lt;&lt;interface&gt;&gt;
         +Upload() UploadResult
-    }</p>
+    }
+
+  </p>
 </div>
 hello
 "#;
