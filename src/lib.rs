@@ -1,7 +1,8 @@
 use mdbook::book::{Book, BookItem, Chapter};
-use mdbook::errors::Result;
+use mdbook::errors::Result as MdbookResult;
 use mdbook::preprocess::{Preprocessor, PreprocessorContext};
 use pulldown_cmark::{CodeBlockKind::*, Event, Options, Parser, Tag};
+use std::borrow::Cow;
 use std::str::FromStr;
 
 pub struct Admonish;
@@ -11,7 +12,7 @@ impl Preprocessor for Admonish {
         "admonish"
     }
 
-    fn run(&self, _ctx: &PreprocessorContext, mut book: Book) -> Result<Book> {
+    fn run(&self, _ctx: &PreprocessorContext, mut book: Book) -> MdbookResult<Book> {
         let mut res = None;
         book.for_each_mut(|item: &mut BookItem| {
             if let Some(Err(_)) = res {
@@ -66,7 +67,7 @@ enum Directive {
 impl FromStr for Directive {
     type Err = ();
 
-    fn from_str(string: &str) -> std::result::Result<Self, ()> {
+    fn from_str(string: &str) -> Result<Self, ()> {
         match string {
             "note" => Ok(Self::Note),
             "abstract" | "summary" | "tldr" => Ok(Self::Abstract),
@@ -85,13 +86,75 @@ impl FromStr for Directive {
     }
 }
 
-fn parse_info_string(info_string: &str) -> Option<Option<&str>> {
+impl Directive {
+    fn classname(&self) -> &'static str {
+        match self {
+            Directive::Note => "note",
+            Directive::Abstract => "abstract",
+            Directive::Info => "info",
+            Directive::Tip => "tip",
+            Directive::Success => "success",
+            Directive::Question => "question",
+            Directive::Warning => "warning",
+            Directive::Failure => "failure",
+            Directive::Danger => "danger",
+            Directive::Bug => "bug",
+            Directive::Example => "example",
+            Directive::Quote => "quote",
+        }
+    }
+}
+
+#[derive(Debug, PartialEq)]
+struct AdmonitionInfo<'a> {
+    directive: &'a str,
+    title: Option<&'a str>,
+}
+
+#[derive(Debug, PartialEq)]
+struct Admonition<'a> {
+    directive: Directive,
+    title: Cow<'a, str>,
+}
+
+impl<'a> Default for Admonition<'a> {
+    fn default() -> Self {
+        Self {
+            directive: Directive::Note,
+            title: Cow::Borrowed("Note"),
+        }
+    }
+}
+
+impl<'a> TryFrom<AdmonitionInfo<'a>> for Admonition<'a> {
+    type Error = ();
+
+    fn try_from(other: AdmonitionInfo<'a>) -> Result<Self, ()> {
+        let directive = Directive::from_str(other.directive)?;
+        Ok(Self {
+            directive,
+            title: other
+                .title
+                .map(Cow::Borrowed)
+                .unwrap_or_else(|| Cow::Owned(ucfirst(other.directive))),
+        })
+    }
+}
+
+/// Returns:
+/// - `None` if this is not an `admonish` block.
+/// - `Some(None)` if this is an `admonish` block, but no further configuration was given
+/// - `Some(AdmonitionInfo)` if this is an `admonish` block, and further configuration was given
+fn parse_info_string(info_string: &str) -> Option<Option<AdmonitionInfo>> {
     if info_string == "admonish" {
         return Some(None);
     }
 
     match info_string.split_once(' ') {
-        Some(("admonish", directive)) => Some(Some(directive)),
+        Some(("admonish", directive)) => Some(Some(AdmonitionInfo {
+            directive,
+            title: None,
+        })),
         _ => None,
     }
 }
@@ -107,7 +170,7 @@ fn ucfirst(input: &str) -> String {
     }
 }
 
-fn add_admonish(content: &str) -> Result<String> {
+fn add_admonish(content: &str) -> MdbookResult<String> {
     let mut opts = Options::empty();
     opts.insert(Options::ENABLE_TABLES);
     opts.insert(Options::ENABLE_FOOTNOTES);
@@ -119,14 +182,13 @@ fn add_admonish(content: &str) -> Result<String> {
     let events = Parser::new_ext(content, opts);
     for (e, span) in events.into_offset_iter() {
         if let Event::Start(Tag::CodeBlock(Fenced(info_string))) = e.clone() {
-            let directive_raw = match parse_info_string(info_string.as_ref()) {
-                Some(directive) => directive,
+            let info = match parse_info_string(info_string.as_ref()) {
+                Some(info) => info,
                 None => continue,
             };
-            let directive = directive_raw
-                .map(|directive| Directive::from_str(directive).ok())
-                .flatten()
-                .unwrap_or(Directive::Note);
+            let admonition = info
+                .map(|info| Admonition::try_from(info).unwrap_or_default())
+                .unwrap_or_default();
 
             const PRE_START: &str = "```";
             const PRE_END: &str = "\n";
@@ -138,23 +200,6 @@ fn add_admonish(content: &str) -> Result<String> {
             let admonish_content = &content[start_index..end_index];
             let admonish_content = escape_html(admonish_content);
             let admonish_content = admonish_content.trim();
-            let directive_title = directive_raw
-                .map(ucfirst)
-                .unwrap_or_else(|| "Note".to_owned());
-            let directive_classname = match directive {
-                Directive::Note => "note",
-                Directive::Abstract => "abstract",
-                Directive::Info => "info",
-                Directive::Tip => "tip",
-                Directive::Success => "success",
-                Directive::Question => "question",
-                Directive::Warning => "warning",
-                Directive::Failure => "failure",
-                Directive::Danger => "danger",
-                Directive::Bug => "bug",
-                Directive::Example => "example",
-                Directive::Quote => "quote",
-            };
 
             // Note that the additional whitespace around the content are deliberate
             // In line with the commonmark spec, this allows the inner content to be
@@ -167,7 +212,9 @@ fn add_admonish(content: &str) -> Result<String> {
   {admonish_content}
 
   </p>
-</div>"#
+</div>"#,
+                directive_classname = admonition.directive.classname(),
+                directive_title = admonition.title,
             );
             admonish_blocks.push((span, admonish_code.clone()));
         }
@@ -183,7 +230,7 @@ fn add_admonish(content: &str) -> Result<String> {
 }
 
 impl Admonish {
-    fn add_admonish(chapter: &mut Chapter) -> Result<String> {
+    fn add_admonish(chapter: &mut Chapter) -> MdbookResult<String> {
         add_admonish(&chapter.content)
     }
 }
@@ -199,9 +246,27 @@ mod test {
         assert_eq!(parse_info_string(""), None);
         assert_eq!(parse_info_string("adm"), None);
         assert_eq!(parse_info_string("admonish"), Some(None));
-        assert_eq!(parse_info_string("admonish "), Some(Some("")));
-        assert_eq!(parse_info_string("admonish unknown"), Some(Some("unknown")));
-        assert_eq!(parse_info_string("admonish note"), Some(Some("note")));
+        assert_eq!(
+            parse_info_string("admonish "),
+            Some(Some(AdmonitionInfo {
+                directive: "",
+                title: None,
+            }))
+        );
+        assert_eq!(
+            parse_info_string("admonish unknown"),
+            Some(Some(AdmonitionInfo {
+                directive: "unknown",
+                title: None
+            }))
+        );
+        assert_eq!(
+            parse_info_string("admonish note"),
+            Some(Some(AdmonitionInfo {
+                directive: "note",
+                title: None
+            }))
+        );
     }
 
     #[test]
