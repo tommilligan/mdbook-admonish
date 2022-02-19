@@ -67,6 +67,10 @@ html :is(.admonition) > :last-child {
   border: 0 solid #448aff;
   border-inline-start-width: 0.4rem;
   border-start-start-radius: 0.2rem;
+  display: flex;
+}
+:is(.admonition-title, summary) > p {
+  margin: 0;
 }
 html :is(.admonition-title, summary):last-child {
   margin-bottom: 0;

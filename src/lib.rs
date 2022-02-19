@@ -196,17 +196,31 @@ fn add_admonish(content: &str) -> MdbookResult<String> {
             let admonish_content = &content[start_index..end_index];
             let admonish_content = admonish_content.trim();
 
-            // Note that the additional whitespace around the content are deliberate
-            // In line with the commonmark spec, this allows the inner content to be
-            // rendered as markdown again.
+            // Notes on the HTML template:
+            // - the additional whitespace around the content are deliberate
+            //   In line with the commonmark spec, this allows the inner content to be
+            //   rendered as markdown paragraphs.
+            // - <p> nested in <div> is deliberate
+            //   - If plain text is given, it is contained in the <p> tag
+            //   - If markdown is given, it is rendered into a new <p> tag.
+            //     This leads to it escaping the template <p> tag, and to apply
+            //     styling we contain in in the outer <div>.
             let admonish_code = format!(
                 r#"<div class="admonition {directive_classname}">
-  <p class="admonition-title">{directive_title}</p>
-  <p>
+  <div class="admonition-title">
+    <p>
 
-  {admonish_content}
+    {directive_title}
 
-  </p>
+    </p>
+  </div>
+  <div>
+    <p>
+
+    {admonish_content}
+
+    </p>
+  </div>
 </div>"#,
                 directive_classname = admonition.directive.classname(),
                 directive_title = admonition.title,
@@ -276,12 +290,20 @@ Text
         let expected = r#"# Chapter
 
 <div class="admonition note">
-  <p class="admonition-title">Note</p>
-  <p>
+  <div class="admonition-title">
+    <p>
 
-  A simple admonition.
+    Note
 
-  </p>
+    </p>
+  </div>
+  <div>
+    <p>
+
+    A simple admonition.
+
+    </p>
+  </div>
 </div>
 Text
 "#;
@@ -301,12 +323,20 @@ Text
         let expected = r#"# Chapter
 
 <div class="admonition warning">
-  <p class="admonition-title">Warning</p>
-  <p>
+  <div class="admonition-title">
+    <p>
 
-  A simple admonition.
+    Warning
 
-  </p>
+    </p>
+  </div>
+  <div>
+    <p>
+
+    A simple admonition.
+
+    </p>
+  </div>
 </div>
 Text
 "#;
@@ -326,12 +356,20 @@ Text
         let expected = r#"# Chapter
 
 <div class="admonition warning">
-  <p class="admonition-title">Read **this**!</p>
-  <p>
+  <div class="admonition-title">
+    <p>
 
-  A simple admonition.
+    Read **this**!
 
-  </p>
+    </p>
+  </div>
+  <div>
+    <p>
+
+    A simple admonition.
+
+    </p>
+  </div>
 </div>
 Text
 "#;
@@ -406,7 +444,7 @@ Text
     #[test]
     fn html_in_admonish_untouched() {
         let content = r#"
-```admonish
+```admonish note "And <i>in</i> the title"
 With <b>html</b> styling.
 ```
 hello
@@ -415,12 +453,20 @@ hello
         let expected = r#"
 
 <div class="admonition note">
-  <p class="admonition-title">Note</p>
-  <p>
+  <div class="admonition-title">
+    <p>
 
-  With <b>html</b> styling.
+    And <i>in</i> the title
 
-  </p>
+    </p>
+  </div>
+  <div>
+    <p>
+
+    With <b>html</b> styling.
+
+    </p>
+  </div>
 </div>
 hello
 "#;

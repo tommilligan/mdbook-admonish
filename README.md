@@ -28,7 +28,18 @@ My example is the best!
 ```
 ````
 
-An custom title can be provided, contained in a double quoted JSON string:
+See the [mkdocs-material docs](https://squidfunk.github.io/mkdocs-material/reference/admonitions/#supported-types) for a list of supported admonitions. You'll find:
+
+- `info`
+- `warning`
+- `danger`
+- `example`
+
+and quite a few more!
+
+### Additional Options
+
+A custom title can be provided, contained in a double quoted JSON string:
 
 ````
 ```admonish example "Simply the best"
@@ -44,14 +55,16 @@ A plain note.
 ```
 ````
 
-See the [mkdocs-material docs](https://squidfunk.github.io/mkdocs-material/reference/admonitions/#supported-types) for a list of supported admonitions. You'll find:
+Markdown and HTML can be used in the inner content, as you'd expect:
 
-- `info`
-- `warning`
-- `danger`
-- `example`
+````
+```admonish tip "_Referencing_ and <i>dereferencing</i>"
+The opposite of *referencing* by using `&` is *dereferencing*, which is
+accomplished with the <span style="color: hotpink">dereference operator</span>, `*`.
+```
+````
 
-and quite a few more!
+![Complex Message](complex-message.png)
 
 ## Installation
 

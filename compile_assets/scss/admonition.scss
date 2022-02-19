@@ -126,6 +126,13 @@ $admonitions: (
   border: 0 solid $clr-blue-a200;
   border-inline-start-width: 0.4rem;
   border-start-start-radius: 0.2rem;
+  // Compatilility with rendering markdown inside the content
+  display: flex;
+
+  // Compatilility with rendering markdown inside the content
+  & > p {
+    margin: 0;
+  }
 
   // Adjust spacing for title-only admonitions
   html &:last-child {
