@@ -34,20 +34,6 @@ impl Preprocessor for Admonish {
     }
 }
 
-fn escape_html(s: &str) -> String {
-    let mut output = String::new();
-    for c in s.chars() {
-        match c {
-            '<' => output.push_str("&lt;"),
-            '>' => output.push_str("&gt;"),
-            '"' => output.push_str("&quot;"),
-            '&' => output.push_str("&amp;"),
-            _ => output.push(c),
-        }
-    }
-    output
-}
-
 #[derive(Debug, PartialEq)]
 enum Directive {
     Note,
@@ -208,7 +194,6 @@ fn add_admonish(content: &str) -> MdbookResult<String> {
             let end_index = span.end - POST.len();
 
             let admonish_content = &content[start_index..end_index];
-            let admonish_content = escape_html(admonish_content);
             let admonish_content = admonish_content.trim();
 
             // Note that the additional whitespace around the content are deliberate
@@ -419,14 +404,10 @@ Text
     }
 
     #[test]
-    fn escape_in_admonish_block() {
+    fn html_in_admonish_untouched() {
         let content = r#"
 ```admonish
-classDiagram
-    class PingUploader {
-        <<interface>>
-        +Upload() UploadResult
-    }
+With <b>html</b> styling.
 ```
 hello
 "#;
@@ -437,11 +418,7 @@ hello
   <p class="admonition-title">Note</p>
   <p>
 
-  classDiagram
-    class PingUploader {
-        &lt;&lt;interface&gt;&gt;
-        +Upload() UploadResult
-    }
+  With <b>html</b> styling.
 
   </p>
 </div>
