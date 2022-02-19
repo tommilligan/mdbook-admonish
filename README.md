@@ -16,7 +16,7 @@ A beautifully styled message.
 
 into this:
 
-![Simple Message](simple-message.png)
+![Simple Message](img/simple-message.png)
 
 ## Usage
 
@@ -27,6 +27,8 @@ Use any [fenced code-block](https://spec.commonmark.org/0.30/#fenced-code-blocks
 My example is the best!
 ```
 ````
+
+![Best Example](img/best-example.png)
 
 See the [mkdocs-material docs](https://squidfunk.github.io/mkdocs-material/reference/admonitions/#supported-types) for a list of supported admonitions. You'll find:
 
@@ -42,10 +44,12 @@ and quite a few more!
 A custom title can be provided, contained in a double quoted JSON string:
 
 ````
-```admonish example "Simply the best"
-My example is the best!
+```admonish warning "Data loss"
+The following steps can lead to irrecoverable data corruption.
 ```
 ````
+
+![Data Loss](img/data-loss.png)
 
 You can also leave out the admonition type altogether, in which case it will default to `note`:
 
@@ -54,6 +58,8 @@ You can also leave out the admonition type altogether, in which case it will def
 A plain note.
 ```
 ````
+
+![Plain Note](img/plain-note.png)
 
 Markdown and HTML can be used in the inner content, as you'd expect:
 
@@ -64,7 +70,21 @@ accomplished with the <span style="color: hotpink">dereference operator</span>, 
 ```
 ````
 
-![Complex Message](complex-message.png)
+![Complex Message](img/complex-message.png)
+
+If you have code blocks you want to include in the content,
+use [tildes for the outer code fence](https://spec.commonmark.org/0.30/#fenced-code-blocks):
+
+````
+~~~admonish bug
+This syntax won't work in Python 3:
+```python
+print "Hello, world!"
+```
+~~~
+````
+
+![Code Bug](img/code-bug.png)
 
 ## Installation
 
@@ -100,6 +120,12 @@ Then, build your book as usual:
 ```bash
 mdbook path/to/book
 ```
+
+### Updates
+
+**Please note**, when updating your version of `mdbook-admonish`, updated styles
+will not be applied unless you rerun `mdbook-admonish install` to update the additional
+CSS files in your book.
 
 ## Development
 
