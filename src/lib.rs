@@ -94,7 +94,7 @@ impl Directive {
 #[derive(Debug, PartialEq)]
 struct AdmonitionInfo<'a> {
     directive: &'a str,
-    title: Option<&'a str>,
+    title: Option<String>,
 }
 
 #[derive(Debug, PartialEq)]
@@ -121,7 +121,7 @@ impl<'a> TryFrom<AdmonitionInfo<'a>> for Admonition<'a> {
             directive,
             title: other
                 .title
-                .map(Cow::Borrowed)
+                .map(Cow::Owned)
                 .unwrap_or_else(|| Cow::Owned(ucfirst(other.directive))),
         })
     }
@@ -143,8 +143,12 @@ fn parse_info_string(info_string: &str) -> Option<Option<AdmonitionInfo>> {
 
     let info = if let Some((directive, title)) = directive_title.split_once(' ') {
         // The title is expected to be a quoted JSON string
-        let title = serde_json::from_str(title).ok();
-        AdmonitionInfo { directive, title }
+        let title: String = serde_json::from_str(title)
+            .unwrap_or_else(|error| format!("Error parsing JSON string: {error}"));
+        AdmonitionInfo {
+            directive,
+            title: Some(title),
+        }
     } else {
         AdmonitionInfo {
             directive: directive_title,
@@ -186,11 +190,20 @@ fn add_admonish(content: &str) -> MdbookResult<String> {
                 .map(|info| Admonition::try_from(info).unwrap_or_default())
                 .unwrap_or_default();
 
-            const PRE_START: &str = "```";
-            const PRE_END: &str = "\n";
+            const PRE_END: char = '\n';
             const POST: &str = "```";
 
-            let start_index = span.start + PRE_START.len() + info_string.len() + PRE_END.len();
+            let span_content = &content[span.start..span.end];
+            // We can't trust the info string length to find the start of the body
+            // it may change length if it contains HTML or character escapes.
+            //
+            // So we scan for the first newline and use that.
+            // If gods forbid it doesn't exist for some reason, just include the whole info string.
+            let start_index = span.start
+                + span_content
+                    .chars()
+                    .position(|c| c == PRE_END)
+                    .unwrap_or_default();
             let end_index = span.end - POST.len();
 
             let admonish_content = &content[start_index..end_index];
@@ -442,9 +455,9 @@ Text
     }
 
     #[test]
-    fn html_in_admonish_untouched() {
+    fn info_string_that_changes_length_when_parsed() {
         let content = r#"
-```admonish note "And <i>in</i> the title"
+```admonish note "And \\"<i>in</i>\\" the title"
 With <b>html</b> styling.
 ```
 hello
@@ -456,7 +469,7 @@ hello
   <div class="admonition-title">
     <p>
 
-    And <i>in</i> the title
+    And "<i>in</i>" the title
 
     </p>
   </div>
