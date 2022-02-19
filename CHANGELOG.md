@@ -1,5 +1,16 @@
 ## Changelog
 
+## 1.3.0
+
+### Added
+
+- Add additional examples and images in readme
+- Allow markdown styling in title content
+
+### Fixed
+
+- Fix HTML being stripping from body content
+
 ## 1.2.0
 
 ### Added
