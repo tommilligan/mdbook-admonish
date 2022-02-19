@@ -220,20 +220,20 @@ fn add_admonish(content: &str) -> MdbookResult<String> {
             //     styling we contain in in the outer <div>.
             let admonish_code = format!(
                 r#"<div class="admonition {directive_classname}">
-  <div class="admonition-title">
-    <p>
+<div class="admonition-title">
+<p>
 
-    {directive_title}
+{directive_title}
 
-    </p>
-  </div>
-  <div>
-    <p>
+</p>
+</div>
+<div>
+<p>
 
-    {admonish_content}
+{admonish_content}
 
-    </p>
-  </div>
+</p>
+</div>
 </div>"#,
                 directive_classname = admonition.directive.classname(),
                 directive_title = admonition.title,
@@ -303,20 +303,20 @@ Text
         let expected = r#"# Chapter
 
 <div class="admonition note">
-  <div class="admonition-title">
-    <p>
+<div class="admonition-title">
+<p>
 
-    Note
+Note
 
-    </p>
-  </div>
-  <div>
-    <p>
+</p>
+</div>
+<div>
+<p>
 
-    A simple admonition.
+A simple admonition.
 
-    </p>
-  </div>
+</p>
+</div>
 </div>
 Text
 "#;
@@ -336,20 +336,20 @@ Text
         let expected = r#"# Chapter
 
 <div class="admonition warning">
-  <div class="admonition-title">
-    <p>
+<div class="admonition-title">
+<p>
 
-    Warning
+Warning
 
-    </p>
-  </div>
-  <div>
-    <p>
+</p>
+</div>
+<div>
+<p>
 
-    A simple admonition.
+A simple admonition.
 
-    </p>
-  </div>
+</p>
+</div>
 </div>
 Text
 "#;
@@ -369,20 +369,20 @@ Text
         let expected = r#"# Chapter
 
 <div class="admonition warning">
-  <div class="admonition-title">
-    <p>
+<div class="admonition-title">
+<p>
 
-    Read **this**!
+Read **this**!
 
-    </p>
-  </div>
-  <div>
-    <p>
+</p>
+</div>
+<div>
+<p>
 
-    A simple admonition.
+A simple admonition.
 
-    </p>
-  </div>
+</p>
+</div>
 </div>
 Text
 "#;
@@ -466,20 +466,20 @@ hello
         let expected = r#"
 
 <div class="admonition note">
-  <div class="admonition-title">
-    <p>
+<div class="admonition-title">
+<p>
 
-    And "<i>in</i>" the title
+And "<i>in</i>" the title
 
-    </p>
-  </div>
-  <div>
-    <p>
+</p>
+</div>
+<div>
+<p>
 
-    With <b>html</b> styling.
+With <b>html</b> styling.
 
-    </p>
-  </div>
+</p>
+</div>
 </div>
 hello
 "#;
