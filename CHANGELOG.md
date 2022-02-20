@@ -1,5 +1,12 @@
 ## Changelog
 
+## 1.3.2
+
+### Fixed
+
+- Fixed incorrect admonition title/panic when terminating with non-ascii characters
+- Updated readme to note double-JSON string escapes
+
 ## 1.3.1
 
 ### Fixed
