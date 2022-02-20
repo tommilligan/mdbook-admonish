@@ -20,7 +20,7 @@ impl Preprocessor for Admonish {
             }
 
             if let BookItem::Chapter(ref mut chapter) = *item {
-                res = Some(Admonish::add_admonish(chapter).map(|md| {
+                res = Some(Admonish::preprocess(chapter).map(|md| {
                     chapter.content = md;
                 }));
             }
@@ -92,18 +92,18 @@ impl Directive {
 }
 
 #[derive(Debug, PartialEq)]
-struct AdmonitionInfo<'a> {
+struct AdmonitionInfoRaw<'a> {
     directive: &'a str,
     title: Option<String>,
 }
 
 #[derive(Debug, PartialEq)]
-struct Admonition<'a> {
+struct AdmonitionInfo<'a> {
     directive: Directive,
     title: Cow<'a, str>,
 }
 
-impl<'a> Default for Admonition<'a> {
+impl<'a> Default for AdmonitionInfo<'a> {
     fn default() -> Self {
         Self {
             directive: Directive::Note,
@@ -112,10 +112,10 @@ impl<'a> Default for Admonition<'a> {
     }
 }
 
-impl<'a> TryFrom<AdmonitionInfo<'a>> for Admonition<'a> {
+impl<'a> TryFrom<AdmonitionInfoRaw<'a>> for AdmonitionInfo<'a> {
     type Error = ();
 
-    fn try_from(other: AdmonitionInfo<'a>) -> Result<Self, ()> {
+    fn try_from(other: AdmonitionInfoRaw<'a>) -> Result<Self, ()> {
         let directive = Directive::from_str(other.directive)?;
         Ok(Self {
             directive,
@@ -127,11 +127,63 @@ impl<'a> TryFrom<AdmonitionInfo<'a>> for Admonition<'a> {
     }
 }
 
+#[derive(Debug, PartialEq)]
+struct Admonition<'a> {
+    directive: Directive,
+    title: Cow<'a, str>,
+    content: &'a str,
+}
+
+impl<'a> Admonition<'a> {
+    pub fn new(info: AdmonitionInfo<'a>, content: &'a str) -> Self {
+        let AdmonitionInfo { directive, title } = info;
+        Self {
+            directive,
+            title,
+            content,
+        }
+    }
+
+    fn html(&self) -> String {
+        let directive_classname = self.directive.classname();
+        let title = &self.title;
+        let content = &self.content;
+
+        // Notes on the HTML template:
+        // - the additional whitespace around the content are deliberate
+        //   In line with the commonmark spec, this allows the inner content to be
+        //   rendered as markdown paragraphs.
+        // - <p> nested in <div> is deliberate
+        //   - If plain text is given, it is contained in the <p> tag
+        //   - If markdown is given, it is rendered into a new <p> tag.
+        //     This leads to it escaping the template <p> tag, and to apply
+        //     styling we contain in in the outer <div>.
+        format!(
+            r#"<div class="admonition {directive_classname}">
+<div class="admonition-title">
+<p>
+
+{title}
+
+</p>
+</div>
+<div>
+<p>
+
+{content}
+
+</p>
+</div>
+</div>"#,
+        )
+    }
+}
+
 /// Returns:
 /// - `None` if this is not an `admonish` block.
 /// - `Some(None)` if this is an `admonish` block, but no further configuration was given
-/// - `Some(AdmonitionInfo)` if this is an `admonish` block, and further configuration was given
-fn parse_info_string(info_string: &str) -> Option<Option<AdmonitionInfo>> {
+/// - `Some(AdmonitionInfoRaw)` if this is an `admonish` block, and further configuration was given
+fn parse_info_string(info_string: &str) -> Option<Option<AdmonitionInfoRaw>> {
     if info_string == "admonish" {
         return Some(None);
     }
@@ -145,12 +197,12 @@ fn parse_info_string(info_string: &str) -> Option<Option<AdmonitionInfo>> {
         // The title is expected to be a quoted JSON string
         let title: String = serde_json::from_str(title)
             .unwrap_or_else(|error| format!("Error parsing JSON string: {error}"));
-        AdmonitionInfo {
+        AdmonitionInfoRaw {
             directive,
             title: Some(title),
         }
     } else {
-        AdmonitionInfo {
+        AdmonitionInfoRaw {
             directive: directive_title,
             title: None,
         }
@@ -170,7 +222,30 @@ fn ucfirst(input: &str) -> String {
     }
 }
 
-fn add_admonish(content: &str) -> MdbookResult<String> {
+fn extract_admonish_body(content: &str) -> &str {
+    const PRE_END: char = '\n';
+    const POST: &str = "```";
+
+    // We can't trust the info string length to find the start of the body
+    // it may change length if it contains HTML or character escapes.
+    //
+    // So we scan for the first newline and use that.
+    // If gods forbid it doesn't exist for some reason, just include the whole info string.
+    let start_index = content
+        // Start one character _after_ the newline
+        .find(PRE_END)
+        .map(|index| index + 1)
+        .unwrap_or_default();
+    let end_index = content.len() - POST.len();
+
+    let admonish_content = &content[start_index..end_index];
+    // The newline after a code block is technically optional, so we have to
+    // trim it off dynamically.
+    let admonish_content = admonish_content.trim();
+    admonish_content
+}
+
+fn preprocess(content: &str) -> MdbookResult<String> {
     let mut opts = Options::empty();
     opts.insert(Options::ENABLE_TABLES);
     opts.insert(Options::ENABLE_FOOTNOTES);
@@ -182,63 +257,17 @@ fn add_admonish(content: &str) -> MdbookResult<String> {
     let events = Parser::new_ext(content, opts);
     for (e, span) in events.into_offset_iter() {
         if let Event::Start(Tag::CodeBlock(Fenced(info_string))) = e.clone() {
+            let span_content = &content[span.start..span.end];
+            let admonition_content = extract_admonish_body(span_content);
             let info = match parse_info_string(info_string.as_ref()) {
                 Some(info) => info,
                 None => continue,
             };
-            let admonition = info
-                .map(|info| Admonition::try_from(info).unwrap_or_default())
+            let info = info
+                .map(|info| AdmonitionInfo::try_from(info).unwrap_or_default())
                 .unwrap_or_default();
-
-            const PRE_END: char = '\n';
-            const POST: &str = "```";
-
-            let span_content = &content[span.start..span.end];
-            // We can't trust the info string length to find the start of the body
-            // it may change length if it contains HTML or character escapes.
-            //
-            // So we scan for the first newline and use that.
-            // If gods forbid it doesn't exist for some reason, just include the whole info string.
-            let start_index = span.start
-                + span_content
-                    .chars()
-                    .position(|c| c == PRE_END)
-                    .unwrap_or_default();
-            let end_index = span.end - POST.len();
-
-            let admonish_content = &content[start_index..end_index];
-            let admonish_content = admonish_content.trim();
-
-            // Notes on the HTML template:
-            // - the additional whitespace around the content are deliberate
-            //   In line with the commonmark spec, this allows the inner content to be
-            //   rendered as markdown paragraphs.
-            // - <p> nested in <div> is deliberate
-            //   - If plain text is given, it is contained in the <p> tag
-            //   - If markdown is given, it is rendered into a new <p> tag.
-            //     This leads to it escaping the template <p> tag, and to apply
-            //     styling we contain in in the outer <div>.
-            let admonish_code = format!(
-                r#"<div class="admonition {directive_classname}">
-<div class="admonition-title">
-<p>
-
-{directive_title}
-
-</p>
-</div>
-<div>
-<p>
-
-{admonish_content}
-
-</p>
-</div>
-</div>"#,
-                directive_classname = admonition.directive.classname(),
-                directive_title = admonition.title,
-            );
-            admonish_blocks.push((span, admonish_code.clone()));
+            let admonition = Admonition::new(info, admonition_content);
+            admonish_blocks.push((span, admonition.html()));
         }
     }
 
@@ -252,8 +281,8 @@ fn add_admonish(content: &str) -> MdbookResult<String> {
 }
 
 impl Admonish {
-    fn add_admonish(chapter: &mut Chapter) -> MdbookResult<String> {
-        add_admonish(&chapter.content)
+    fn preprocess(chapter: &mut Chapter) -> MdbookResult<String> {
+        preprocess(&chapter.content)
     }
 }
 
@@ -270,21 +299,21 @@ mod test {
         assert_eq!(parse_info_string("admonish"), Some(None));
         assert_eq!(
             parse_info_string("admonish "),
-            Some(Some(AdmonitionInfo {
+            Some(Some(AdmonitionInfoRaw {
                 directive: "",
                 title: None,
             }))
         );
         assert_eq!(
             parse_info_string("admonish unknown"),
-            Some(Some(AdmonitionInfo {
+            Some(Some(AdmonitionInfoRaw {
                 directive: "unknown",
                 title: None
             }))
         );
         assert_eq!(
             parse_info_string("admonish note"),
-            Some(Some(AdmonitionInfo {
+            Some(Some(AdmonitionInfoRaw {
                 directive: "note",
                 title: None
             }))
@@ -321,7 +350,7 @@ A simple admonition.
 Text
 "#;
 
-        assert_eq!(expected, add_admonish(content).unwrap());
+        assert_eq!(expected, preprocess(content).unwrap());
     }
 
     #[test]
@@ -354,7 +383,7 @@ A simple admonition.
 Text
 "#;
 
-        assert_eq!(expected, add_admonish(content).unwrap());
+        assert_eq!(expected, preprocess(content).unwrap());
     }
 
     #[test]
@@ -387,7 +416,7 @@ A simple admonition.
 Text
 "#;
 
-        assert_eq!(expected, add_admonish(content).unwrap());
+        assert_eq!(expected, preprocess(content).unwrap());
     }
 
     #[test]
@@ -407,7 +436,7 @@ Text
 | Row 1  | Row 2  |
 "#;
 
-        assert_eq!(expected, add_admonish(content).unwrap());
+        assert_eq!(expected, preprocess(content).unwrap());
     }
 
     #[test]
@@ -427,7 +456,7 @@ Text
 </del>
 "#;
 
-        assert_eq!(expected, add_admonish(content).unwrap());
+        assert_eq!(expected, preprocess(content).unwrap());
     }
 
     #[test]
@@ -451,7 +480,7 @@ Text
 2. paragraph 2
 "#;
 
-        assert_eq!(expected, add_admonish(content).unwrap());
+        assert_eq!(expected, preprocess(content).unwrap());
     }
 
     #[test]
@@ -484,6 +513,39 @@ With <b>html</b> styling.
 hello
 "#;
 
-        assert_eq!(expected, add_admonish(content).unwrap());
+        assert_eq!(expected, preprocess(content).unwrap());
+    }
+
+    #[test]
+    fn info_string_ending_in_symbol() {
+        let content = r#"
+```admonish warning "Trademark™"
+Should be respected
+```
+hello
+"#;
+
+        let expected = r#"
+
+<div class="admonition warning">
+<div class="admonition-title">
+<p>
+
+Trademark™
+
+</p>
+</div>
+<div>
+<p>
+
+Should be respected
+
+</p>
+</div>
+</div>
+hello
+"#;
+
+        assert_eq!(expected, preprocess(content).unwrap());
     }
 }
