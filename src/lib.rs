@@ -179,18 +179,19 @@ impl<'a> Admonition<'a> {
     }
 }
 
+const ADMONISH_BLOCK_KEYWORD: &str = "admonish";
+
 /// Returns:
 /// - `None` if this is not an `admonish` block.
-/// - `Some(None)` if this is an `admonish` block, but no further configuration was given
-/// - `Some(AdmonitionInfoRaw)` if this is an `admonish` block, and further configuration was given
-fn parse_info_string(info_string: &str) -> Option<Option<AdmonitionInfoRaw>> {
-    if info_string == "admonish" {
-        return Some(None);
-    }
-
-    let directive_title = match info_string.split_once(' ') {
-        Some(("admonish", rest)) => rest,
-        _ => return None,
+/// - `Some(AdmonitionInfoRaw)` if this is an `admonish` block
+fn parse_info_string(info_string: &str) -> Option<AdmonitionInfoRaw> {
+    let directive_title = if info_string == ADMONISH_BLOCK_KEYWORD {
+        ""
+    } else {
+        match info_string.split_once(' ') {
+            Some((ADMONISH_BLOCK_KEYWORD, rest)) => rest,
+            _ => return None,
+        }
     };
 
     let info = if let Some((directive, title)) = directive_title.split_once(' ') {
@@ -208,7 +209,7 @@ fn parse_info_string(info_string: &str) -> Option<Option<AdmonitionInfoRaw>> {
         }
     };
 
-    Some(Some(info))
+    Some(info)
 }
 
 /// Make the first letter of `input` upppercase.
@@ -245,6 +246,17 @@ fn extract_admonish_body(content: &str) -> &str {
     admonish_content
 }
 
+/// Given the content in the span of the code block, and the info string,
+/// return `Some(Admonition)` if the code block is an admonition.
+///
+/// If the code block is not an admonition, return `None`.
+fn parse_admonition<'a>(info_string: &'a str, content: &'a str) -> Option<Admonition<'a>> {
+    let info = parse_info_string(info_string.as_ref())?;
+    let info = AdmonitionInfo::try_from(info).unwrap_or_default();
+    let body = extract_admonish_body(content);
+    Some(Admonition::new(info, body))
+}
+
 fn preprocess(content: &str) -> MdbookResult<String> {
     let mut opts = Options::empty();
     opts.insert(Options::ENABLE_TABLES);
@@ -258,15 +270,10 @@ fn preprocess(content: &str) -> MdbookResult<String> {
     for (e, span) in events.into_offset_iter() {
         if let Event::Start(Tag::CodeBlock(Fenced(info_string))) = e.clone() {
             let span_content = &content[span.start..span.end];
-            let admonition_content = extract_admonish_body(span_content);
-            let info = match parse_info_string(info_string.as_ref()) {
-                Some(info) => info,
+            let admonition = match parse_admonition(info_string.as_ref(), span_content) {
+                Some(admonition) => admonition,
                 None => continue,
             };
-            let info = info
-                .map(|info| AdmonitionInfo::try_from(info).unwrap_or_default())
-                .unwrap_or_default();
-            let admonition = Admonition::new(info, admonition_content);
             admonish_blocks.push((span, admonition.html()));
         }
     }
@@ -296,27 +303,33 @@ mod test {
     fn test_parse_info_string() {
         assert_eq!(parse_info_string(""), None);
         assert_eq!(parse_info_string("adm"), None);
-        assert_eq!(parse_info_string("admonish"), Some(None));
         assert_eq!(
-            parse_info_string("admonish "),
-            Some(Some(AdmonitionInfoRaw {
+            parse_info_string("admonish"),
+            Some(AdmonitionInfoRaw {
                 directive: "",
                 title: None,
-            }))
+            })
+        );
+        assert_eq!(
+            parse_info_string("admonish "),
+            Some(AdmonitionInfoRaw {
+                directive: "",
+                title: None,
+            })
         );
         assert_eq!(
             parse_info_string("admonish unknown"),
-            Some(Some(AdmonitionInfoRaw {
+            Some(AdmonitionInfoRaw {
                 directive: "unknown",
                 title: None
-            }))
+            })
         );
         assert_eq!(
             parse_info_string("admonish note"),
-            Some(Some(AdmonitionInfoRaw {
+            Some(AdmonitionInfoRaw {
                 directive: "note",
                 title: None
-            }))
+            })
         );
     }
 
