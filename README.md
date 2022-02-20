@@ -41,7 +41,8 @@ and quite a few more!
 
 ### Additional Options
 
-A custom title can be provided, contained in a double quoted JSON string:
+A custom title can be provided, contained in a double quoted JSON string.
+Note that JSON escapes must be escaped again - for instance, write `\"` as `\\"`.
 
 ````
 ```admonish warning "Data loss"
