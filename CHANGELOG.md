@@ -5,6 +5,7 @@
 ### Added
 
 - Additional classnames can be specified using `directive.classname` syntax
+- Support removing the title bar entirely
 
 ### Fixed
 

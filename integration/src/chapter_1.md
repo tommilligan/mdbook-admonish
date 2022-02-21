@@ -9,3 +9,7 @@ It verifies that `mdbook` post-processes our generated HTML in the way we expect
 ```admonish
 Simples
 ```
+
+```admonish warning ""
+No title, only body
+```

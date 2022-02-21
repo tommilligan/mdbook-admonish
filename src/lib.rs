@@ -101,45 +101,37 @@ struct AdmonitionInfoRaw<'a> {
 #[derive(Debug, PartialEq)]
 struct AdmonitionInfo<'a> {
     directive: Directive,
-    title: Cow<'a, str>,
+    title: Option<String>,
     additional_classnames: Option<Vec<&'a str>>,
 }
 
-impl<'a> Default for AdmonitionInfo<'a> {
-    fn default() -> Self {
-        Self {
-            directive: Directive::Note,
-            title: Cow::Borrowed("Note"),
-            additional_classnames: None,
-        }
-    }
-}
-
-impl<'a> TryFrom<AdmonitionInfoRaw<'a>> for AdmonitionInfo<'a> {
-    type Error = ();
-
-    fn try_from(other: AdmonitionInfoRaw<'a>) -> Result<Self, ()> {
+impl<'a> From<AdmonitionInfoRaw<'a>> for AdmonitionInfo<'a> {
+    fn from(other: AdmonitionInfoRaw<'a>) -> Self {
         let AdmonitionInfoRaw {
-            directive,
+            directive: raw_directive,
             title,
             additional_classnames,
         } = other;
-        let title = title
-            .map(Cow::Owned)
-            .unwrap_or_else(|| Cow::Owned(ucfirst(directive)));
-        let directive = Directive::from_str(directive)?;
-        Ok(Self {
+        let (directive, title) = match (Directive::from_str(raw_directive), title) {
+            (Ok(directive), None) => (directive, ucfirst(raw_directive)),
+            (Err(_), None) => (Directive::Note, "Note".to_owned()),
+            (Ok(directive), Some(title)) => (directive, title),
+            (Err(_), Some(title)) => (Directive::Note, title),
+        };
+        // If the user explicitly gave no title, then disable the title bar
+        let title = if title.is_empty() { None } else { Some(title) };
+        Self {
             directive,
             title,
             additional_classnames,
-        })
+        }
     }
 }
 
 #[derive(Debug, PartialEq)]
 struct Admonition<'a> {
     directive: Directive,
-    title: Cow<'a, str>,
+    title: Option<String>,
     content: &'a str,
     additional_classnames: Option<Vec<&'a str>>,
 }
@@ -164,6 +156,20 @@ impl<'a> Admonition<'a> {
         let title = &self.title;
         let content = &self.content;
 
+        let title_html = title
+            .as_ref()
+            .map(|title| {
+                Cow::Owned(format!(
+                    r#"<div class="admonition-title">
+
+{title}
+
+</div>
+"#
+                ))
+            })
+            .unwrap_or(Cow::Borrowed(""));
+
         if let Some(additional_classnames) = &self.additional_classnames {
             let mut buffer = additional_class.into_owned();
             for additional_classname in additional_classnames {
@@ -180,12 +186,7 @@ impl<'a> Admonition<'a> {
         //   rendered as markdown paragraphs.
         format!(
             r#"<div class="admonition {additional_class}">
-<div class="admonition-title">
-
-{title}
-
-</div>
-<div>
+{title_html}<div>
 
 {content}
 
@@ -201,7 +202,7 @@ const ADMONISH_BLOCK_KEYWORD: &str = "admonish";
 /// - `None` if this is not an `admonish` block.
 /// - `Some(AdmonitionInfoRaw)` if this is an `admonish` block
 fn parse_info_string(info_string: &str) -> Option<AdmonitionInfoRaw> {
-    // Get the rest of the info string if this is an admonitionment
+    // Get the rest of the info string if this is an admonition
     let directive_title = if info_string == ADMONISH_BLOCK_KEYWORD {
         ""
     } else {
@@ -230,7 +231,12 @@ fn parse_info_string(info_string: &str) -> Option<AdmonitionInfoRaw> {
         None => (directive, None),
         Some((directive, additional_classnames)) => (
             directive,
-            Some(additional_classnames.split(CLASSNAME_SEPARATOR).collect()),
+            Some(
+                additional_classnames
+                    .split(CLASSNAME_SEPARATOR)
+                    .filter(|additional_classname| !additional_classname.is_empty())
+                    .collect(),
+            ),
         ),
     };
 
@@ -280,7 +286,7 @@ fn extract_admonish_body(content: &str) -> &str {
 /// If the code block is not an admonition, return `None`.
 fn parse_admonition<'a>(info_string: &'a str, content: &'a str) -> Option<Admonition<'a>> {
     let info = parse_info_string(info_string)?;
-    let info = AdmonitionInfo::try_from(info).unwrap_or_default();
+    let info = AdmonitionInfo::from(info);
     let body = extract_admonish_body(content);
     Some(Admonition::new(info, body))
 }
@@ -628,6 +634,27 @@ Developers don't want you to know this one weird tip!
 <div>
 
 Will have bonus classnames
+
+</div>
+</div>
+"#;
+
+        assert_eq!(expected, preprocess(content).unwrap());
+    }
+
+    #[test]
+    fn block_with_empty_additional_classnames_title_content() {
+        let content = r#"
+```admonish .... ""
+```
+"#;
+
+        let expected = r#"
+
+<div class="admonition note">
+<div>
+
+
 
 </div>
 </div>
