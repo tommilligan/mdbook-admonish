@@ -95,12 +95,14 @@ impl Directive {
 struct AdmonitionInfoRaw<'a> {
     directive: &'a str,
     title: Option<String>,
+    style: Option<String>,
 }
 
 #[derive(Debug, PartialEq)]
 struct AdmonitionInfo<'a> {
     directive: Directive,
     title: Cow<'a, str>,
+    style: Option<String>,
 }
 
 impl<'a> Default for AdmonitionInfo<'a> {
@@ -108,6 +110,7 @@ impl<'a> Default for AdmonitionInfo<'a> {
         Self {
             directive: Directive::Note,
             title: Cow::Borrowed("Note"),
+            style: None,
         }
     }
 }
@@ -123,6 +126,7 @@ impl<'a> TryFrom<AdmonitionInfoRaw<'a>> for AdmonitionInfo<'a> {
                 .title
                 .map(Cow::Owned)
                 .unwrap_or_else(|| Cow::Owned(ucfirst(other.directive))),
+            style: other.style,
         })
     }
 }
@@ -132,15 +136,21 @@ struct Admonition<'a> {
     directive: Directive,
     title: Cow<'a, str>,
     content: &'a str,
+    style: Option<String>,
 }
 
 impl<'a> Admonition<'a> {
     pub fn new(info: AdmonitionInfo<'a>, content: &'a str) -> Self {
-        let AdmonitionInfo { directive, title } = info;
+        let AdmonitionInfo {
+            directive,
+            title,
+            style,
+        } = info;
         Self {
             directive,
             title,
             content,
+            style,
         }
     }
 
@@ -148,6 +158,7 @@ impl<'a> Admonition<'a> {
         let directive_classname = self.directive.classname();
         let title = &self.title;
         let content = &self.content;
+        let style = self.style.as_ref().map_or_else(|| "", String::as_str);
 
         // Notes on the HTML template:
         // - the additional whitespace around the content are deliberate
@@ -159,7 +170,7 @@ impl<'a> Admonition<'a> {
         //     This leads to it escaping the template <p> tag, and to apply
         //     styling we contain in in the outer <div>.
         format!(
-            r#"<div class="admonition {directive_classname}">
+            r#"<div class="admonition {directive_classname} {style}">
 <div class="admonition-title">
 <p>
 
@@ -194,20 +205,27 @@ fn parse_info_string(info_string: &str) -> Option<AdmonitionInfoRaw> {
         }
     };
 
-    let info = if let Some((directive, title)) = directive_title.split_once(' ') {
+    let mut info = if let Some((directive, title)) = directive_title.split_once(' ') {
         // The title is expected to be a quoted JSON string
         let title: String = serde_json::from_str(title)
             .unwrap_or_else(|error| format!("Error parsing JSON string: {error}"));
         AdmonitionInfoRaw {
             directive,
             title: Some(title),
+            style: None,
         }
     } else {
         AdmonitionInfoRaw {
             directive: directive_title,
             title: None,
+            style: None,
         }
     };
+
+    if let Some((directive, style)) = info.directive.split_once('.') {
+        info.directive = directive;
+        info.style = Some(style.to_string());
+    }
 
     Some(info)
 }
@@ -308,6 +326,7 @@ mod test {
             Some(AdmonitionInfoRaw {
                 directive: "",
                 title: None,
+                style: None
             })
         );
         assert_eq!(
@@ -315,20 +334,31 @@ mod test {
             Some(AdmonitionInfoRaw {
                 directive: "",
                 title: None,
+                style: None
             })
         );
         assert_eq!(
             parse_info_string("admonish unknown"),
             Some(AdmonitionInfoRaw {
                 directive: "unknown",
-                title: None
+                title: None,
+                style: None
             })
         );
         assert_eq!(
             parse_info_string("admonish note"),
             Some(AdmonitionInfoRaw {
                 directive: "note",
-                title: None
+                title: None,
+                style: None
+            })
+        );
+        assert_eq!(
+            parse_info_string("admonish note-foo"),
+            Some(AdmonitionInfoRaw {
+                directive: "note",
+                title: None,
+                style: Some("foo".to_string())
             })
         );
     }
@@ -344,7 +374,7 @@ Text
 
         let expected = r#"# Chapter
 
-<div class="admonition note">
+<div class="admonition note ">
 <div class="admonition-title">
 <p>
 
@@ -377,7 +407,7 @@ Text
 
         let expected = r#"# Chapter
 
-<div class="admonition warning">
+<div class="admonition warning ">
 <div class="admonition-title">
 <p>
 
@@ -410,7 +440,7 @@ Text
 
         let expected = r#"# Chapter
 
-<div class="admonition warning">
+<div class="admonition warning ">
 <div class="admonition-title">
 <p>
 
@@ -507,7 +537,7 @@ hello
 
         let expected = r#"
 
-<div class="admonition note">
+<div class="admonition note ">
 <div class="admonition-title">
 <p>
 
@@ -540,7 +570,7 @@ hello
 
         let expected = r#"
 
-<div class="admonition warning">
+<div class="admonition warning ">
 <div class="admonition-title">
 <p>
 
