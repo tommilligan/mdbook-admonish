@@ -1,0 +1,11 @@
+[book]
+authors = ["Tom Milligan"]
+language = "en"
+multilingual = false
+src = "src"
+title = "mdbook-admonish-integration"
+
+[preprocessor]
+
+[preprocessor.admonish]
+command = "mdbook-admonish"

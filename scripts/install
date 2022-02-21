@@ -2,5 +2,8 @@
 
 set -exuo pipefail
 
+cd "$(dirname "$0")"/..
+
 rustup component add rustfmt clippy
 cargo install cargo-audit
+cargo install mdbook

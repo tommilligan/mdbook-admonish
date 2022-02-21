@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -euo pipefail
+
+cd "$(dirname "$0")"/..
+
+sed '1,/<main>/d;/<\/main>/,$d' book/chapter_1.html

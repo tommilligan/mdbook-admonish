@@ -2,6 +2,8 @@
 
 set -euxo pipefail
 
+cd "$(dirname "$0")"/..
+
 # Don't log the cargo login token while authenticating
 set +x
 echo "cargo login ***********************************"
