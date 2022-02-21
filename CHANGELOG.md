@@ -1,5 +1,15 @@
 ## Changelog
 
+## Unreleased
+
+### Added
+
+- Additional classnames can be specified using `directive.classname` syntax
+
+### Fixed
+
+- Removed superfluous empty `<p>` tags in output
+
 ## 1.3.3
 
 ### Fixed
