@@ -1,10 +1,36 @@
-on: [push, pull_request]
+on: [pull_request]
 
 name: check
 
 jobs:
+  # Fast test before we kick off all the other jobs
+  fast-test:
+    name: Fast test
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+      - name: Cache build files
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: fast-test-${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - name: Install more toolchain
+        run: rustup component add rustfmt clippy
+      - name: Run tests
+        run: cargo clippy --all-targets -- -D warnings && cargo fmt -- --check && cargo test
+
   # Test, and also do other things like doctests and examples
   detailed-test:
+    needs: fast-test
     name: Test main target
     runs-on: ubuntu-20.04
     steps:
@@ -34,7 +60,7 @@ jobs:
 
   # Test on all supported platforms
   test:
-    needs: detailed-test
+    needs: fast-test
     name: Test all other targets
     strategy:
       matrix:
