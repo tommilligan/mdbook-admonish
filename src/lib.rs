@@ -153,26 +153,17 @@ impl<'a> Admonition<'a> {
         // - the additional whitespace around the content are deliberate
         //   In line with the commonmark spec, this allows the inner content to be
         //   rendered as markdown paragraphs.
-        // - <p> nested in <div> is deliberate
-        //   - If plain text is given, it is contained in the <p> tag
-        //   - If markdown is given, it is rendered into a new <p> tag.
-        //     This leads to it escaping the template <p> tag, and to apply
-        //     styling we contain in in the outer <div>.
         format!(
             r#"<div class="admonition {directive_classname}">
 <div class="admonition-title">
-<p>
 
 {title}
 
-</p>
 </div>
 <div>
-<p>
 
 {content}
 
-</p>
 </div>
 </div>"#,
         )
@@ -345,18 +336,14 @@ Text
 
 <div class="admonition note">
 <div class="admonition-title">
-<p>
 
 Note
 
-</p>
 </div>
 <div>
-<p>
 
 A simple admonition.
 
-</p>
 </div>
 </div>
 Text
@@ -378,18 +365,14 @@ Text
 
 <div class="admonition warning">
 <div class="admonition-title">
-<p>
 
 Warning
 
-</p>
 </div>
 <div>
-<p>
 
 A simple admonition.
 
-</p>
 </div>
 </div>
 Text
@@ -411,18 +394,14 @@ Text
 
 <div class="admonition warning">
 <div class="admonition-title">
-<p>
 
 Read **this**!
 
-</p>
 </div>
 <div>
-<p>
 
 A simple admonition.
 
-</p>
 </div>
 </div>
 Text
@@ -508,18 +487,14 @@ hello
 
 <div class="admonition note">
 <div class="admonition-title">
-<p>
 
 And "<i>in</i>" the title
 
-</p>
 </div>
 <div>
-<p>
 
 With <b>html</b> styling.
 
-</p>
 </div>
 </div>
 hello
@@ -541,18 +516,14 @@ hello
 
 <div class="admonition warning">
 <div class="admonition-title">
-<p>
 
 Trademark™
 
-</p>
 </div>
 <div>
-<p>
 
 Should be respected
 
-</p>
 </div>
 </div>
 hello
