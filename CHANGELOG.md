@@ -1,5 +1,12 @@
 ## Changelog
 
+## 1.3.3
+
+### Fixed
+
+- Fixed compilation failure with no default features
+- MSRV (minimum supported rust version) documented as 1.58.0
+
 ## 1.3.2
 
 ### Fixed
