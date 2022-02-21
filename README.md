@@ -39,7 +39,19 @@ See the [mkdocs-material docs](https://squidfunk.github.io/mkdocs-material/refer
 
 and quite a few more!
 
+You can also leave out the admonition type altogether, in which case it will default to `note`:
+
+````
+```admonish
+A plain note.
+```
+````
+
+![Plain Note](img/plain-note.png)
+
 ### Additional Options
+
+#### Custom title
 
 A custom title can be provided, contained in a double quoted JSON string.
 Note that JSON escapes must be escaped again - for instance, write `\"` as `\\"`.
@@ -52,15 +64,7 @@ The following steps can lead to irrecoverable data corruption.
 
 ![Data Loss](img/data-loss.png)
 
-You can also leave out the admonition type altogether, in which case it will default to `note`:
-
-````
-```admonish
-A plain note.
-```
-````
-
-![Plain Note](img/plain-note.png)
+#### Nested Markdown/HTML
 
 Markdown and HTML can be used in the inner content, as you'd expect:
 
@@ -86,6 +90,24 @@ print "Hello, world!"
 ````
 
 ![Code Bug](img/code-bug.png)
+
+#### Custom styling
+
+If you want to provide custom styling to a specific admonition, you can attach one or more custom classnames:
+
+````
+```admonish note.custom-0.custom-1
+Styled with my custom CSS class.
+```
+````
+
+Will yield something like the following HTML, which you can then apply styles to:
+
+```html
+<div class="admonition note custom-0 custom-1"
+    ...
+</div>
+```
 
 ## Installation
 

@@ -95,12 +95,14 @@ impl Directive {
 struct AdmonitionInfoRaw<'a> {
     directive: &'a str,
     title: Option<String>,
+    additional_classnames: Option<Vec<&'a str>>,
 }
 
 #[derive(Debug, PartialEq)]
 struct AdmonitionInfo<'a> {
     directive: Directive,
     title: Cow<'a, str>,
+    additional_classnames: Option<Vec<&'a str>>,
 }
 
 impl<'a> Default for AdmonitionInfo<'a> {
@@ -108,6 +110,7 @@ impl<'a> Default for AdmonitionInfo<'a> {
         Self {
             directive: Directive::Note,
             title: Cow::Borrowed("Note"),
+            additional_classnames: None,
         }
     }
 }
@@ -116,13 +119,19 @@ impl<'a> TryFrom<AdmonitionInfoRaw<'a>> for AdmonitionInfo<'a> {
     type Error = ();
 
     fn try_from(other: AdmonitionInfoRaw<'a>) -> Result<Self, ()> {
-        let directive = Directive::from_str(other.directive)?;
+        let AdmonitionInfoRaw {
+            directive,
+            title,
+            additional_classnames,
+        } = other;
+        let title = title
+            .map(Cow::Owned)
+            .unwrap_or_else(|| Cow::Owned(ucfirst(directive)));
+        let directive = Directive::from_str(directive)?;
         Ok(Self {
             directive,
-            title: other
-                .title
-                .map(Cow::Owned)
-                .unwrap_or_else(|| Cow::Owned(ucfirst(other.directive))),
+            title,
+            additional_classnames,
         })
     }
 }
@@ -132,29 +141,45 @@ struct Admonition<'a> {
     directive: Directive,
     title: Cow<'a, str>,
     content: &'a str,
+    additional_classnames: Option<Vec<&'a str>>,
 }
 
 impl<'a> Admonition<'a> {
     pub fn new(info: AdmonitionInfo<'a>, content: &'a str) -> Self {
-        let AdmonitionInfo { directive, title } = info;
+        let AdmonitionInfo {
+            directive,
+            title,
+            additional_classnames,
+        } = info;
         Self {
             directive,
             title,
             content,
+            additional_classnames,
         }
     }
 
     fn html(&self) -> String {
-        let directive_classname = self.directive.classname();
+        let mut additional_class = Cow::Borrowed(self.directive.classname());
         let title = &self.title;
         let content = &self.content;
+
+        if let Some(additional_classnames) = &self.additional_classnames {
+            let mut buffer = additional_class.into_owned();
+            for additional_classname in additional_classnames {
+                buffer.push(' ');
+                buffer.push_str(additional_classname);
+            }
+
+            additional_class = Cow::Owned(buffer);
+        }
 
         // Notes on the HTML template:
         // - the additional whitespace around the content are deliberate
         //   In line with the commonmark spec, this allows the inner content to be
         //   rendered as markdown paragraphs.
         format!(
-            r#"<div class="admonition {directive_classname}">
+            r#"<div class="admonition {additional_class}">
 <div class="admonition-title">
 
 {title}
@@ -176,6 +201,7 @@ const ADMONISH_BLOCK_KEYWORD: &str = "admonish";
 /// - `None` if this is not an `admonish` block.
 /// - `Some(AdmonitionInfoRaw)` if this is an `admonish` block
 fn parse_info_string(info_string: &str) -> Option<AdmonitionInfoRaw> {
+    // Get the rest of the info string if this is an admonitionment
     let directive_title = if info_string == ADMONISH_BLOCK_KEYWORD {
         ""
     } else {
@@ -185,22 +211,34 @@ fn parse_info_string(info_string: &str) -> Option<AdmonitionInfoRaw> {
         }
     };
 
-    let info = if let Some((directive, title)) = directive_title.split_once(' ') {
-        // The title is expected to be a quoted JSON string
-        let title: String = serde_json::from_str(title)
-            .unwrap_or_else(|error| format!("Error parsing JSON string: {error}"));
-        AdmonitionInfoRaw {
+    // If we're just given the directive, handle that
+    let (directive, title) = directive_title
+        .split_once(' ')
+        .map(|(directive, title)| (directive, Some(title)))
+        .unwrap_or_else(|| (directive_title, None));
+
+    // The title is expected to be a quoted JSON string
+    // If parsing fails, output the error message as the title for the user to correct
+    let title = title.map(|title| {
+        serde_json::from_str::<String>(title)
+            .unwrap_or_else(|error| format!("Error parsing JSON string: {error}"))
+    });
+
+    // If the directive contains additional classes, parse them out
+    const CLASSNAME_SEPARATOR: char = '.';
+    let (directive, additional_classnames) = match directive.split_once(CLASSNAME_SEPARATOR) {
+        None => (directive, None),
+        Some((directive, additional_classnames)) => (
             directive,
-            title: Some(title),
-        }
-    } else {
-        AdmonitionInfoRaw {
-            directive: directive_title,
-            title: None,
-        }
+            Some(additional_classnames.split(CLASSNAME_SEPARATOR).collect()),
+        ),
     };
 
-    Some(info)
+    Some(AdmonitionInfoRaw {
+        directive,
+        title,
+        additional_classnames,
+    })
 }
 
 /// Make the first letter of `input` upppercase.
@@ -298,6 +336,7 @@ mod test {
             Some(AdmonitionInfoRaw {
                 directive: "",
                 title: None,
+                additional_classnames: None
             })
         );
         assert_eq!(
@@ -305,20 +344,31 @@ mod test {
             Some(AdmonitionInfoRaw {
                 directive: "",
                 title: None,
+                additional_classnames: None
             })
         );
         assert_eq!(
             parse_info_string("admonish unknown"),
             Some(AdmonitionInfoRaw {
                 directive: "unknown",
-                title: None
+                title: None,
+                additional_classnames: None
             })
         );
         assert_eq!(
             parse_info_string("admonish note"),
             Some(AdmonitionInfoRaw {
                 directive: "note",
-                title: None
+                title: None,
+                additional_classnames: None
+            })
+        );
+        assert_eq!(
+            parse_info_string("admonish note.additional-classname"),
+            Some(AdmonitionInfoRaw {
+                directive: "note",
+                title: None,
+                additional_classnames: Some(vec!["additional-classname"])
             })
         );
     }
@@ -527,6 +577,60 @@ Should be respected
 </div>
 </div>
 hello
+"#;
+
+        assert_eq!(expected, preprocess(content).unwrap());
+    }
+
+    #[test]
+    fn block_with_additional_classname() {
+        let content = r#"
+```admonish tip.my-style.other-style
+Will have bonus classnames
+```
+"#;
+
+        let expected = r#"
+
+<div class="admonition tip my-style other-style">
+<div class="admonition-title">
+
+Tip
+
+</div>
+<div>
+
+Will have bonus classnames
+
+</div>
+</div>
+"#;
+
+        assert_eq!(expected, preprocess(content).unwrap());
+    }
+
+    #[test]
+    fn block_with_additional_classname_and_title() {
+        let content = r#"
+```admonish tip.my-style.other-style "Developers don't want you to know this one weird tip!"
+Will have bonus classnames
+```
+"#;
+
+        let expected = r#"
+
+<div class="admonition tip my-style other-style">
+<div class="admonition-title">
+
+Developers don't want you to know this one weird tip!
+
+</div>
+<div>
+
+Will have bonus classnames
+
+</div>
+</div>
 "#;
 
         assert_eq!(expected, preprocess(content).unwrap());
