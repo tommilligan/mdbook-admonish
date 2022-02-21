@@ -3,8 +3,7 @@
 [![Latest version](https://img.shields.io/crates/v/mdbook-admonish.svg)](https://crates.io/crates/mdbook-admonish)
 [![docs.rs](https://img.shields.io/docsrs/mdbook-admonish)](https://docs.rs/mdbook-admonish)
 
-A preprocessor for [mdbook](https://github.com/rust-lang-nursery/mdBook) to add [Material Design](https://material.io/design) admonishments,
-based on the [mkdocs-material](https://squidfunk.github.io/mkdocs-material/reference/admonitions/) implementation.
+A preprocessor for [mdbook](https://github.com/rust-lang-nursery/mdBook) to add [Material Design](https://material.io/design) admonishments, based on the [mkdocs-material](https://squidfunk.github.io/mkdocs-material/reference/admonitions/) implementation.
 
 It turns this:
 
@@ -64,6 +63,16 @@ The following steps can lead to irrecoverable data corruption.
 
 ![Data Loss](img/data-loss.png)
 
+You can also remove the title bar entirely, by specifying the empty string:
+
+````
+```admonish success ""
+This will take a while, go and grab a drink of water.
+```
+````
+
+![No Title Bar](img/no-title-bar.png)
+
 #### Nested Markdown/HTML
 
 Markdown and HTML can be used in the inner content, as you'd expect:
@@ -77,8 +86,7 @@ accomplished with the <span style="color: hotpink">dereference operator</span>, 
 
 ![Complex Message](img/complex-message.png)
 
-If you have code blocks you want to include in the content,
-use [tildes for the outer code fence](https://spec.commonmark.org/0.30/#fenced-code-blocks):
+If you have code blocks you want to include in the content, use [tildes for the outer code fence](https://spec.commonmark.org/0.30/#fenced-code-blocks):
 
 ````
 ~~~admonish bug
@@ -146,9 +154,7 @@ mdbook path/to/book
 
 ### Updates
 
-**Please note**, when updating your version of `mdbook-admonish`, updated styles
-will not be applied unless you rerun `mdbook-admonish install` to update the additional
-CSS files in your book.
+**Please note**, when updating your version of `mdbook-admonish`, updated styles will not be applied unless you rerun `mdbook-admonish install` to update the additional CSS files in your book.
 
 ## Development
 
