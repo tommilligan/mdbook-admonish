@@ -111,7 +111,7 @@ mod install {
         }
     }
 
-    pub fn handle_install(sub_args: &ArgMatches) -> () {
+    pub fn handle_install(sub_args: &ArgMatches) {
         let dir = sub_args.value_of("dir").expect("Required argument");
         let css_dir = sub_args.value_of("css-dir").expect("Required argument");
         let proj_dir = PathBuf::from(dir);
@@ -178,14 +178,13 @@ A beautifully styled message.
     /// Return the `additional-css` field, initializing if required.
     ///
     /// Return `Err` if the existing configuration is unknown.
-    fn additional_css<'a>(doc: &'a mut Document) -> Result<&'a mut Array, ()> {
+    fn additional_css(doc: &mut Document) -> Result<&mut Array, ()> {
         let doc = doc.as_table_mut();
 
         let empty_table = Item::Table(Table::default());
         let empty_array = Item::Value(Value::Array(Array::default()));
 
-        Ok(doc
-            .entry("output")
+        doc.entry("output")
             .or_insert(empty_table.clone())
             .as_table_mut()
             .map(|item| {
@@ -198,7 +197,7 @@ A beautifully styled message.
                     .as_array_mut()
             })
             .flatten()
-            .ok_or(())?)
+            .ok_or(())
     }
 
     /// Return the preprocessor table for admonish, initializing if required.

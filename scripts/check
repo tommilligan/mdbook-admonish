@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set -euo pipefail
+
+function eprintln() {
+  >&2 echo "$1"
+}
+
+eprintln "Formatting sources"
+cargo fmt -- --check
+
+# Known issues:
+# - RUSTSEC-2020-0071 known unlikely segfault in `time`
+# - RUSTSEC-2020-0016 `net2` is unmaintained
+# - RUSTSEC-2020-0159 known unlikely segfault in `chrono`
+eprintln "Auditing dependencies"
+cargo audit --deny warnings \
+  --ignore RUSTSEC-2020-0071 \
+  --ignore RUSTSEC-2020-0016 \
+  --ignore RUSTSEC-2020-0159
+
+eprintln "Linting sources"
+cargo clippy --all-targets -- -D warnings
+
+eprintln "Running tests (default)"
+cargo test
+eprintln "Running tests (no features)"
+cargo test --no-default-features
+eprintln "Running tests (cli)"
+cargo test --no-default-features --features cli
+
+eprintln "Building documentation"
+cargo doc --no-deps

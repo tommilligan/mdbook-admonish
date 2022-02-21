@@ -242,8 +242,7 @@ fn extract_admonish_body(content: &str) -> &str {
     let admonish_content = &content[start_index..end_index];
     // The newline after a code block is technically optional, so we have to
     // trim it off dynamically.
-    let admonish_content = admonish_content.trim();
-    admonish_content
+    admonish_content.trim()
 }
 
 /// Given the content in the span of the code block, and the info string,
@@ -251,7 +250,7 @@ fn extract_admonish_body(content: &str) -> &str {
 ///
 /// If the code block is not an admonition, return `None`.
 fn parse_admonition<'a>(info_string: &'a str, content: &'a str) -> Option<Admonition<'a>> {
-    let info = parse_info_string(info_string.as_ref())?;
+    let info = parse_info_string(info_string)?;
     let info = AdmonitionInfo::try_from(info).unwrap_or_default();
     let body = extract_admonish_body(content);
     Some(Admonition::new(info, body))
