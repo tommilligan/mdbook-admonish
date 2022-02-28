@@ -17,6 +17,14 @@ into this:
 
 ![Simple Message](img/simple-message.png)
 
+## Examples
+
+Read the usage and reference [here](https://tommilligan.github.io/mdbook-admonish/), to see the actual examples in action. You can see the source in the [`./book`](./book) subdirectory.
+
+Other projects using mdbook-admonish:
+
+- [The Rhai Book](https://rhai.rs/book/)
+
 ## Usage
 
 Use any [fenced code-block](https://spec.commonmark.org/0.30/#fenced-code-blocks) as you normally would, but annotate it with `admonish <admonition type>`:
@@ -29,7 +37,7 @@ My example is the best!
 
 ![Best Example](img/best-example.png)
 
-See the [mkdocs-material docs](https://squidfunk.github.io/mkdocs-material/reference/admonitions/#supported-types) for a list of supported admonitions. You'll find:
+See the [reference page](https://tommilligan.github.io/mdbook-admonish/reference.html) for a list of supported admonitions. You'll find:
 
 - `info`
 - `warning`
