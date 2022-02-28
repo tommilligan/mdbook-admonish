@@ -187,7 +187,7 @@ A beautifully styled message.
         doc.entry("output")
             .or_insert(empty_table.clone())
             .as_table_mut()
-            .map(|item| {
+            .and_then(|item| {
                 item.entry("html")
                     .or_insert(empty_table)
                     .as_table_mut()?
@@ -196,7 +196,6 @@ A beautifully styled message.
                     .as_value_mut()?
                     .as_array_mut()
             })
-            .flatten()
             .ok_or(())
     }
 
