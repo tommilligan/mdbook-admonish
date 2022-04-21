@@ -1,5 +1,15 @@
 ## Changelog
 
+## 1.4.1
+
+### Changed
+
+- Bumped locked dependency versions (mdbook v0.4.18)
+
+### Packaging
+
+- Support building and releasing binary artefacts.
+
 ## 1.4.0
 
 ### Added
