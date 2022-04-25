@@ -1,9 +1,11 @@
-use mdbook::book::{Book, BookItem, Chapter};
-use mdbook::errors::Result as MdbookResult;
-use mdbook::preprocess::{Preprocessor, PreprocessorContext};
+use mdbook::{
+    book::{Book, BookItem},
+    errors::Result as MdbookResult,
+    preprocess::{Preprocessor, PreprocessorContext},
+    utils::unique_id_from_content,
+};
 use pulldown_cmark::{CodeBlockKind::*, Event, Options, Parser, Tag};
-use std::borrow::Cow;
-use std::str::FromStr;
+use std::{borrow::Cow, str::FromStr};
 
 pub struct Admonish;
 
@@ -20,7 +22,7 @@ impl Preprocessor for Admonish {
             }
 
             if let BookItem::Chapter(ref mut chapter) = *item {
-                res = Some(Admonish::preprocess(chapter).map(|md| {
+                res = Some(preprocess(&chapter.content).map(|md| {
                     chapter.content = md;
                 }));
             }
@@ -151,7 +153,7 @@ impl<'a> Admonition<'a> {
         }
     }
 
-    fn html(&self) -> String {
+    fn html(&self, anchor_id: &str) -> String {
         let mut additional_class = Cow::Borrowed(self.directive.classname());
         let title = &self.title;
         let content = &self.content;
@@ -160,12 +162,12 @@ impl<'a> Admonition<'a> {
             .as_ref()
             .map(|title| {
                 Cow::Owned(format!(
-                    r#"<div class="admonition-title">
+                    r##"<div class="admonition-title">
 
 {title}
 
 </div>
-"#
+"##
                 ))
             })
             .unwrap_or(Cow::Borrowed(""));
@@ -185,7 +187,7 @@ impl<'a> Admonition<'a> {
         //   In line with the commonmark spec, this allows the inner content to be
         //   rendered as markdown paragraphs.
         format!(
-            r#"<div class="admonition {additional_class}">
+            r#"<div id="admonition-{anchor_id}" class="admonition {additional_class}">
 {title_html}<div>
 
 {content}
@@ -197,6 +199,7 @@ impl<'a> Admonition<'a> {
 }
 
 const ADMONISH_BLOCK_KEYWORD: &str = "admonish";
+const ANCHOR_ID_DEFAULT: &str = "default";
 
 /// Returns:
 /// - `None` if this is not an `admonish` block.
@@ -292,6 +295,7 @@ fn parse_admonition<'a>(info_string: &'a str, content: &'a str) -> Option<Admoni
 }
 
 fn preprocess(content: &str) -> MdbookResult<String> {
+    let mut id_counter = Default::default();
     let mut opts = Options::empty();
     opts.insert(Options::ENABLE_TABLES);
     opts.insert(Options::ENABLE_FOOTNOTES);
@@ -308,7 +312,11 @@ fn preprocess(content: &str) -> MdbookResult<String> {
                 Some(admonition) => admonition,
                 None => continue,
             };
-            admonish_blocks.push((span, admonition.html()));
+            let anchor_id = unique_id_from_content(
+                admonition.title.as_deref().unwrap_or(ANCHOR_ID_DEFAULT),
+                &mut id_counter,
+            );
+            admonish_blocks.push((span, admonition.html(&anchor_id)));
         }
     }
 
@@ -321,17 +329,14 @@ fn preprocess(content: &str) -> MdbookResult<String> {
     Ok(content)
 }
 
-impl Admonish {
-    fn preprocess(chapter: &mut Chapter) -> MdbookResult<String> {
-        preprocess(&chapter.content)
-    }
-}
-
 #[cfg(test)]
 mod test {
+    use super::*;
     use pretty_assertions::assert_eq;
 
-    use super::*;
+    fn prep(content: &str) -> String {
+        preprocess(content).unwrap()
+    }
 
     #[test]
     fn test_parse_info_string() {
@@ -390,7 +395,7 @@ Text
 
         let expected = r#"# Chapter
 
-<div class="admonition note">
+<div id="admonition-note" class="admonition note">
 <div class="admonition-title">
 
 Note
@@ -405,7 +410,7 @@ A simple admonition.
 Text
 "#;
 
-        assert_eq!(expected, preprocess(content).unwrap());
+        assert_eq!(expected, prep(content));
     }
 
     #[test]
@@ -419,7 +424,7 @@ Text
 
         let expected = r#"# Chapter
 
-<div class="admonition warning">
+<div id="admonition-warning" class="admonition warning">
 <div class="admonition-title">
 
 Warning
@@ -434,7 +439,7 @@ A simple admonition.
 Text
 "#;
 
-        assert_eq!(expected, preprocess(content).unwrap());
+        assert_eq!(expected, prep(content));
     }
 
     #[test]
@@ -448,7 +453,7 @@ Text
 
         let expected = r#"# Chapter
 
-<div class="admonition warning">
+<div id="admonition-read-this" class="admonition warning">
 <div class="admonition-title">
 
 Read **this**!
@@ -463,7 +468,7 @@ A simple admonition.
 Text
 "#;
 
-        assert_eq!(expected, preprocess(content).unwrap());
+        assert_eq!(expected, prep(content));
     }
 
     #[test]
@@ -483,7 +488,7 @@ Text
 | Row 1  | Row 2  |
 "#;
 
-        assert_eq!(expected, preprocess(content).unwrap());
+        assert_eq!(expected, prep(content));
     }
 
     #[test]
@@ -503,7 +508,7 @@ Text
 </del>
 "#;
 
-        assert_eq!(expected, preprocess(content).unwrap());
+        assert_eq!(expected, prep(content));
     }
 
     #[test]
@@ -527,7 +532,7 @@ Text
 2. paragraph 2
 "#;
 
-        assert_eq!(expected, preprocess(content).unwrap());
+        assert_eq!(expected, prep(content));
     }
 
     #[test]
@@ -541,7 +546,7 @@ hello
 
         let expected = r#"
 
-<div class="admonition note">
+<div id="admonition-and-in-the-title" class="admonition note">
 <div class="admonition-title">
 
 And "<i>in</i>" the title
@@ -556,7 +561,7 @@ With <b>html</b> styling.
 hello
 "#;
 
-        assert_eq!(expected, preprocess(content).unwrap());
+        assert_eq!(expected, prep(content));
     }
 
     #[test]
@@ -570,7 +575,7 @@ hello
 
         let expected = r#"
 
-<div class="admonition warning">
+<div id="admonition-trademark" class="admonition warning">
 <div class="admonition-title">
 
 Trademark™
@@ -585,7 +590,7 @@ Should be respected
 hello
 "#;
 
-        assert_eq!(expected, preprocess(content).unwrap());
+        assert_eq!(expected, prep(content));
     }
 
     #[test]
@@ -598,7 +603,7 @@ Will have bonus classnames
 
         let expected = r#"
 
-<div class="admonition tip my-style other-style">
+<div id="admonition-tip" class="admonition tip my-style other-style">
 <div class="admonition-title">
 
 Tip
@@ -612,7 +617,7 @@ Will have bonus classnames
 </div>
 "#;
 
-        assert_eq!(expected, preprocess(content).unwrap());
+        assert_eq!(expected, prep(content));
     }
 
     #[test]
@@ -625,7 +630,7 @@ Will have bonus classnames
 
         let expected = r#"
 
-<div class="admonition tip my-style other-style">
+<div id="admonition-developers-dont-want-you-to-know-this-one-weird-tip" class="admonition tip my-style other-style">
 <div class="admonition-title">
 
 Developers don't want you to know this one weird tip!
@@ -639,7 +644,7 @@ Will have bonus classnames
 </div>
 "#;
 
-        assert_eq!(expected, preprocess(content).unwrap());
+        assert_eq!(expected, prep(content));
     }
 
     #[test]
@@ -651,7 +656,7 @@ Will have bonus classnames
 
         let expected = r#"
 
-<div class="admonition note">
+<div id="admonition-default" class="admonition note">
 <div>
 
 
@@ -660,6 +665,51 @@ Will have bonus classnames
 </div>
 "#;
 
-        assert_eq!(expected, preprocess(content).unwrap());
+        assert_eq!(expected, prep(content));
+    }
+
+    #[test]
+    fn unique_ids_same_title() {
+        let content = r#"
+```admonish note "My Note"
+Content zero.
+```
+
+```admonish note "My Note"
+Content one.
+```
+"#;
+
+        let expected = r#"
+
+<div id="admonition-my-note" class="admonition note">
+<div class="admonition-title">
+
+My Note
+
+</div>
+<div>
+
+Content zero.
+
+</div>
+</div>
+
+
+<div id="admonition-my-note-1" class="admonition note">
+<div class="admonition-title">
+
+My Note
+
+</div>
+<div>
+
+Content one.
+
+</div>
+</div>
+"#;
+
+        assert_eq!(expected, prep(content));
     }
 }
