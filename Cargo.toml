@@ -1,6 +1,6 @@
 [package]
 name = "mdbook-admonish"
-version = "1.4.1"
+version = "1.5.0"
 edition = "2021"
 
 authors = ["Tom Milligan <code@tommilligan.net>"]
