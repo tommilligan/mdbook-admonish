@@ -35,6 +35,6 @@ eprintln "Building documentation"
 cargo doc --no-deps --lib
 
 eprintln "Installing 'mdbook-admonish' binary"
-cargo install --path .
+cargo install --path . --force
 eprintln "Running mdbook integration test"
 ./integration/scripts/check
