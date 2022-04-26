@@ -136,6 +136,8 @@ cargo install mdbook-admonish
 Then let `mdbook-admonish` add the required files and configuration:
 
 ```bash
+# Note: this may need to be rerun for new minor versions of mdbook-admonish
+# see the 'Semantic Versioning' section below for details.
 mdbook-admonish install path/to/your/book
 
 # optionally, specify a directory where CSS files live, relative to the book root
@@ -164,6 +166,26 @@ mdbook path/to/book
 
 **Please note**, when updating your version of `mdbook-admonish`, updated styles will not be applied unless you rerun `mdbook-admonish install` to update the additional CSS files in your book.
 
+`mdbook` will fail the build if you require newer assets than you have installed:
+
+```log
+2022-04-26 12:27:52 [INFO] (mdbook::book): Book building has started
+ERROR:
+  Incompatible assets installed: required mdbook-admonish assets version '^2.0.0', but found '1.0.0'.
+  Please run `mdbook-admonish install` to update installed assets.
+2022-04-26 12:27:52 [ERROR] (mdbook::utils): Error: The "admonish" preprocessor exited unsuccessfully with exit status: 1 status
+```
+
+### Semantic Versioning
+
+Guarantees provided are as follows:
+
+- Major versions: Contain breaking changes to the user facing markdown API, or the public API of the crate itself.
+- Minor versions: Feature release. May contain changes to generated CSS/HTML requiring `mdbook-admonish install` to be rerun.
+  - **Note:** updating acrosss minor versions without running `mdbook-admonish install` to reinstall assets may break your build.
+    If you want to update minor versions without breakage, you should always run `mdbook-admonish install` in your CI pipeline.
+- Patch versions: Bug fixes only.
+
 ## Development
 
 Project design
@@ -171,6 +193,27 @@ Project design
 - Compiled CSS styles are built and committed from SCSS sources. See the `compile_assets` folder for details.
 - `mdbook-admonish install` is responsible for delivering additional assets and configuration to a client book.
 - `mdbook-admonish` is responsible for preprocessing book data, adding HTML that references compiled classnames.
+
+### Scripts to get started
+
+- `./scripts/install` installs other toolchains required for development
+- `./scripts/check` runs a full CI check
+- `./scripts/rebuild-book` rebuilds the reference book under `./book`. This is useful for integration testing locally.
+
+### Making breaking changes in CSS
+
+To make a breaking change in CSS, you should:
+
+- Update the assets version in `./src/bin/assets/VERSION`
+- Update the required assets version specifier in `./src/REQUIRED_ASSETS_VERSION`
+
+You must make the next `mdbook-admonish` crate version at least a **minor** version bump.
+
+### Releasing
+
+Github workflows are setup such that pushing a `vX.Y.Z` tag will trigger a release to be cut.
+
+Once the release is created, copy and paste the relevant section of `CHANGELOG.md` manually to update the description.
 
 ## Thanks
 

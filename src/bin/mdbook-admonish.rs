@@ -1,8 +1,9 @@
 use clap::{crate_version, Arg, ArgMatches, Command};
-use mdbook::errors::Error;
-use mdbook::preprocess::{CmdPreprocessor, Preprocessor};
+use mdbook::{
+    errors::Error,
+    preprocess::{CmdPreprocessor, Preprocessor},
+};
 use mdbook_admonish::Admonish;
-
 use std::{io, process};
 
 pub fn make_app() -> Command<'static> {
@@ -128,7 +129,14 @@ mod install {
             .parse::<Document>()
             .expect("configuration is not valid TOML");
 
-        if preprocessor(&mut doc).is_err() {
+        if let Ok(preprocessor) = preprocessor(&mut doc) {
+            const ASSETS_VERSION: &str = std::include_str!("./assets/VERSION");
+            let value = toml_edit::value(
+                toml_edit::Value::from(ASSETS_VERSION.trim())
+                    .decorated(" ", " # do not edit: managed by `mdbook-admonish install`"),
+            );
+            preprocessor["assets_version"] = value;
+        } else {
             log::info!("Unexpected configuration, not updating prereprocessor configuration");
         };
 

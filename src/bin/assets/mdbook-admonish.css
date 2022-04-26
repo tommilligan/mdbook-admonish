@@ -56,6 +56,13 @@ html :is(.admonition) > :last-child {
   margin-bottom: 1.2rem;
 }
 
+a.admonition-anchor-link:link, a.admonition-anchor-link:visited {
+  color: var(--fg);
+}
+a.admonition-anchor-link:link:hover, a.admonition-anchor-link:visited:hover {
+  text-decoration: none;
+}
+
 :is(.admonition-title, summary) {
   position: relative;
   margin-block: 0;
@@ -69,7 +76,7 @@ html :is(.admonition) > :last-child {
   border-start-start-radius: 0.2rem;
   display: flex;
 }
-:is(.admonition-title, summary) > p {
+:is(.admonition-title, summary) p {
   margin: 0;
 }
 html :is(.admonition-title, summary):last-child {
@@ -317,5 +324,8 @@ html :is(.admonition-title, summary):last-child {
 
 .rust :is(.admonition) {
   background-color: var(--sidebar-bg);
+  color: var(--sidebar-fg);
+}
+.rust .admonition-anchor-link:link, .rust .admonition-anchor-link:visited {
   color: var(--sidebar-fg);
 }

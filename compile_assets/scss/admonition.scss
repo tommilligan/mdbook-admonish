@@ -114,6 +114,19 @@ $admonitions: (
   }
 }
 
+// Anchor links
+a.admonition-anchor-link {
+  &:link, &:visited {
+    // Don't make links colored (override to standard text color)
+    // variable provided downstream by mdbook
+    color: var(--fg);
+  }
+  &:link:hover, &:visited:hover {
+    // No underline on hover
+    text-decoration: none;
+  }
+}
+
 // Admonition title
 :is(.admonition-title, summary) {
   position: relative;
@@ -130,7 +143,7 @@ $admonitions: (
   display: flex;
 
   // Compatilility with rendering markdown inside the content
-  & > p {
+  & p {
     margin: 0;
   }
 
@@ -216,5 +229,10 @@ $admonitions: (
   & :is(.admonition) {
     background-color: var(--sidebar-bg);
     color: var(--sidebar-fg);
+  }
+  & .admonition-anchor-link {
+    &:link, &:visited {
+      color: var(--sidebar-fg);
+    }
   }
 }
