@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use mdbook::{
     book::{Book, BookItem},
     errors::Result as MdbookResult,
@@ -14,7 +15,8 @@ impl Preprocessor for Admonish {
         "admonish"
     }
 
-    fn run(&self, _ctx: &PreprocessorContext, mut book: Book) -> MdbookResult<Book> {
+    fn run(&self, ctx: &PreprocessorContext, mut book: Book) -> MdbookResult<Book> {
+        ensure_compatible_assets_version(ctx)?;
         let mut res = None;
         book.for_each_mut(|item: &mut BookItem| {
             if let Some(Err(_)) = res {
@@ -34,6 +36,41 @@ impl Preprocessor for Admonish {
     fn supports_renderer(&self, renderer: &str) -> bool {
         renderer == "html"
     }
+}
+
+fn ensure_compatible_assets_version(ctx: &PreprocessorContext) -> Result<()> {
+    use semver::{Version, VersionReq};
+
+    const USER_ACTION: &str = "Please run `mdbook-admonish install` to update installed assets.";
+
+    let version = match ctx
+        .config
+        .get("preprocessor.admonish.assets_version")
+        .and_then(|value| value.as_str())
+    {
+        Some(version) => version,
+        None => {
+            return Err(anyhow!(
+                r#"ERROR:
+  Incompatible assets installed: required mdbook-admonish assets version '{REQUIRES_ASSETS_VERSION}', but did not find a version.
+  {USER_ACTION}"#
+            ))
+        }
+    };
+
+    let version = Version::parse(version).unwrap();
+
+    const REQUIRES_ASSETS_VERSION: &str = std::include_str!("./REQUIRED_ASSETS_VERSION");
+
+    let requirement = VersionReq::parse(REQUIRES_ASSETS_VERSION.trim()).unwrap();
+    if !requirement.matches(&version) {
+        return Err(anyhow!(
+            r#"ERROR:
+  Incompatible assets installed: required mdbook-admonish assets version '{REQUIRES_ASSETS_VERSION}', but found '{version}'.
+  {USER_ACTION}"#
+        ));
+    };
+    Ok(())
 }
 
 #[derive(Debug, PartialEq)]
@@ -163,9 +200,11 @@ impl<'a> Admonition<'a> {
             .map(|title| {
                 Cow::Owned(format!(
                     r##"<div class="admonition-title">
+<a class="admonition-anchor-link" href="#{ANCHOR_ID_PREFIX}-{anchor_id}">
 
 {title}
 
+</a>
 </div>
 "##
                 ))
@@ -187,7 +226,7 @@ impl<'a> Admonition<'a> {
         //   In line with the commonmark spec, this allows the inner content to be
         //   rendered as markdown paragraphs.
         format!(
-            r#"<div id="admonition-{anchor_id}" class="admonition {additional_class}">
+            r#"<div id="{ANCHOR_ID_PREFIX}-{anchor_id}" class="admonition {additional_class}">
 {title_html}<div>
 
 {content}
@@ -199,6 +238,7 @@ impl<'a> Admonition<'a> {
 }
 
 const ADMONISH_BLOCK_KEYWORD: &str = "admonish";
+const ANCHOR_ID_PREFIX: &str = "admonition";
 const ANCHOR_ID_DEFAULT: &str = "default";
 
 /// Returns:
@@ -393,13 +433,15 @@ A simple admonition.
 Text
 "#;
 
-        let expected = r#"# Chapter
+        let expected = r##"# Chapter
 
 <div id="admonition-note" class="admonition note">
 <div class="admonition-title">
+<a class="admonition-anchor-link" href="#admonition-note">
 
 Note
 
+</a>
 </div>
 <div>
 
@@ -408,7 +450,7 @@ A simple admonition.
 </div>
 </div>
 Text
-"#;
+"##;
 
         assert_eq!(expected, prep(content));
     }
@@ -422,13 +464,15 @@ A simple admonition.
 Text
 "#;
 
-        let expected = r#"# Chapter
+        let expected = r##"# Chapter
 
 <div id="admonition-warning" class="admonition warning">
 <div class="admonition-title">
+<a class="admonition-anchor-link" href="#admonition-warning">
 
 Warning
 
+</a>
 </div>
 <div>
 
@@ -437,7 +481,7 @@ A simple admonition.
 </div>
 </div>
 Text
-"#;
+"##;
 
         assert_eq!(expected, prep(content));
     }
@@ -451,13 +495,15 @@ A simple admonition.
 Text
 "#;
 
-        let expected = r#"# Chapter
+        let expected = r##"# Chapter
 
 <div id="admonition-read-this" class="admonition warning">
 <div class="admonition-title">
+<a class="admonition-anchor-link" href="#admonition-read-this">
 
 Read **this**!
 
+</a>
 </div>
 <div>
 
@@ -466,7 +512,7 @@ A simple admonition.
 </div>
 </div>
 Text
-"#;
+"##;
 
         assert_eq!(expected, prep(content));
     }
@@ -544,13 +590,15 @@ With <b>html</b> styling.
 hello
 "#;
 
-        let expected = r#"
+        let expected = r##"
 
 <div id="admonition-and-in-the-title" class="admonition note">
 <div class="admonition-title">
+<a class="admonition-anchor-link" href="#admonition-and-in-the-title">
 
 And "<i>in</i>" the title
 
+</a>
 </div>
 <div>
 
@@ -559,7 +607,7 @@ With <b>html</b> styling.
 </div>
 </div>
 hello
-"#;
+"##;
 
         assert_eq!(expected, prep(content));
     }
@@ -573,13 +621,15 @@ Should be respected
 hello
 "#;
 
-        let expected = r#"
+        let expected = r##"
 
 <div id="admonition-trademark" class="admonition warning">
 <div class="admonition-title">
+<a class="admonition-anchor-link" href="#admonition-trademark">
 
 Trademark™
 
+</a>
 </div>
 <div>
 
@@ -588,7 +638,7 @@ Should be respected
 </div>
 </div>
 hello
-"#;
+"##;
 
         assert_eq!(expected, prep(content));
     }
@@ -601,13 +651,15 @@ Will have bonus classnames
 ```
 "#;
 
-        let expected = r#"
+        let expected = r##"
 
 <div id="admonition-tip" class="admonition tip my-style other-style">
 <div class="admonition-title">
+<a class="admonition-anchor-link" href="#admonition-tip">
 
 Tip
 
+</a>
 </div>
 <div>
 
@@ -615,7 +667,7 @@ Will have bonus classnames
 
 </div>
 </div>
-"#;
+"##;
 
         assert_eq!(expected, prep(content));
     }
@@ -628,13 +680,15 @@ Will have bonus classnames
 ```
 "#;
 
-        let expected = r#"
+        let expected = r##"
 
 <div id="admonition-developers-dont-want-you-to-know-this-one-weird-tip" class="admonition tip my-style other-style">
 <div class="admonition-title">
+<a class="admonition-anchor-link" href="#admonition-developers-dont-want-you-to-know-this-one-weird-tip">
 
 Developers don't want you to know this one weird tip!
 
+</a>
 </div>
 <div>
 
@@ -642,7 +696,7 @@ Will have bonus classnames
 
 </div>
 </div>
-"#;
+"##;
 
         assert_eq!(expected, prep(content));
     }
@@ -654,7 +708,7 @@ Will have bonus classnames
 ```
 "#;
 
-        let expected = r#"
+        let expected = r##"
 
 <div id="admonition-default" class="admonition note">
 <div>
@@ -663,7 +717,7 @@ Will have bonus classnames
 
 </div>
 </div>
-"#;
+"##;
 
         assert_eq!(expected, prep(content));
     }
@@ -680,13 +734,15 @@ Content one.
 ```
 "#;
 
-        let expected = r#"
+        let expected = r##"
 
 <div id="admonition-my-note" class="admonition note">
 <div class="admonition-title">
+<a class="admonition-anchor-link" href="#admonition-my-note">
 
 My Note
 
+</a>
 </div>
 <div>
 
@@ -698,9 +754,11 @@ Content zero.
 
 <div id="admonition-my-note-1" class="admonition note">
 <div class="admonition-title">
+<a class="admonition-anchor-link" href="#admonition-my-note-1">
 
 My Note
 
+</a>
 </div>
 <div>
 
@@ -708,7 +766,7 @@ Content one.
 
 </div>
 </div>
-"#;
+"##;
 
         assert_eq!(expected, prep(content));
     }

@@ -8,8 +8,35 @@ function eprintln() {
   >&2 echo "$1"
 }
 
+pushd ..
+eprintln "Installing mdbook-admonish (system)"
+cargo install --path . --force
+popd
+
+eprintln "Installing mdbook-admonish (book)"
+mdbook-admonish install .
+
+eprintln "Verifying generated book config"
+set +e
+diff -u \
+  "expected/book.toml" \
+  "./book.toml"
+DIFF_RESULT=$?
+set -e
+
+if [ "$DIFF_RESULT" != 0 ]; then
+  eprintln ""
+  eprintln "error: generated book config was different than expected"
+  eprintln ""
+  eprintln "error: If you expected the output to change, run:"
+  eprintln "cp ./integration/book.toml ./integration/expected/book.toml"
+  eprintln "and commit the result"
+  exit 1
+fi
+
 eprintln "Building mdbook"
 mdbook build
+
 
 eprintln "Verifying generated html"
 set +e
