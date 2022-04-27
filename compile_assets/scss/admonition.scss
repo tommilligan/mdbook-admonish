@@ -133,12 +133,9 @@ a.admonition-anchor-link {
   margin-block: 0;
   margin-inline: -1.6rem -1.2rem;
   padding-block: 0.8rem;
-  padding-inline: 4rem 1.2rem;
+  padding-inline: 4.4rem 1.2rem;
   font-weight: 700;
   background-color: color.adjust($clr-blue-a200, $alpha: -0.9);
-  border: 0 solid $clr-blue-a200;
-  border-inline-start-width: 0.4rem;
-  border-start-start-radius: 0.2rem;
   // Compatilility with rendering markdown inside the content
   display: flex;
 
@@ -156,7 +153,7 @@ a.admonition-anchor-link {
   &::before {
     position: absolute;
     top: 0.625em;
-    inset-inline-start: 1.2rem;
+    inset-inline-start: 1.6rem;
     width: 2rem;
     height: 2rem;
     background-color: $clr-blue-a200;
@@ -192,7 +189,6 @@ a.admonition-anchor-link {
   // Admonition flavour title
   :is(#{$flavours}) > :is(.admonition-title, summary) {
     background-color: color.adjust($tint, $alpha: -0.9);
-    border-color: $tint;
 
     // Admonition icon
     &::before {
