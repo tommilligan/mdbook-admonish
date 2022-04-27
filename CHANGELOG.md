@@ -1,5 +1,11 @@
 ## Changelog
 
+## Unreleased
+
+### Fixed
+
+- Header bar overflow at some zoom levels on Firefox ([#21](https://github.com/tommilligan/mdbook-admonish/pull/21), thanks to [@sgoudham](https://github.com/sgoudham) for the report)
+
 ## 1.5.0
 
 ### Added
