@@ -1,6 +1,19 @@
 ## Changelog
 
-## Unreleased
+## 1.6.0
+
+**Please note:** If updating from an older version, this release requires `mdboook-admonish install` to be rerun after installation.
+
+This behaviour is [documented in the readme here](https://github.com/tommilligan/mdbook-admonish#semantic-versioning), and may appear in any future minor version release.
+
+### Changed
+
+- Required styles version is now `^1.0.0` (release `1.6.0`). Run `mdbook-admonish install` to update.
+
+### Added
+
+- Enforce updating installed styles when required for new features ([#19](https://github.com/tommilligan/mdbook-admonish/pull/19)
+- Each admonition has a unique id. Click the header bar to navigate to the anchor link ([#19](https://github.com/tommilligan/mdbook-admonish/pull/19), thanks [@schungx](https://github.com/schungx) for the suggestion)
 
 ### Fixed
 
