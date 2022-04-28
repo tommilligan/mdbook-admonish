@@ -176,6 +176,14 @@ ERROR:
 2022-04-26 12:27:52 [ERROR] (mdbook::utils): Error: The "admonish" preprocessor exited unsuccessfully with exit status: 1 status
 ```
 
+If you want to update across minor versions without breakage, you should always run `mdbook-admonish install`.
+
+Alternatively, pin to a specific version for a reproducible installation:
+
+```bash
+cargo install mdbook-admonish --vers "1.5.0" --locked
+```
+
 ### Semantic Versioning
 
 Guarantees provided are as follows:
@@ -183,7 +191,6 @@ Guarantees provided are as follows:
 - Major versions: Contain breaking changes to the user facing markdown API, or the public API of the crate itself.
 - Minor versions: Feature release. May contain changes to generated CSS/HTML requiring `mdbook-admonish install` to be rerun.
   - **Note:** updating acrosss minor versions without running `mdbook-admonish install` to reinstall assets may break your build.
-    If you want to update minor versions without breakage, you should always run `mdbook-admonish install` in your CI pipeline.
 - Patch versions: Bug fixes only.
 
 ## Development

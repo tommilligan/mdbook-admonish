@@ -41,7 +41,11 @@ impl Preprocessor for Admonish {
 fn ensure_compatible_assets_version(ctx: &PreprocessorContext) -> Result<()> {
     use semver::{Version, VersionReq};
 
+    const REQUIRES_ASSETS_VERSION: &str = std::include_str!("./REQUIRED_ASSETS_VERSION");
+    let requirement = VersionReq::parse(REQUIRES_ASSETS_VERSION.trim()).unwrap();
+
     const USER_ACTION: &str = "Please run `mdbook-admonish install` to update installed assets.";
+    const DOCS_REFERENCE: &str = "For more information, see: https://github.com/tommilligan/mdbook-admonish#semantic-versioning";
 
     let version = match ctx
         .config
@@ -52,22 +56,21 @@ fn ensure_compatible_assets_version(ctx: &PreprocessorContext) -> Result<()> {
         None => {
             return Err(anyhow!(
                 r#"ERROR:
-  Incompatible assets installed: required mdbook-admonish assets version '{REQUIRES_ASSETS_VERSION}', but did not find a version.
-  {USER_ACTION}"#
+  Incompatible assets installed: required mdbook-admonish assets version '{requirement}', but did not find a version.
+  {USER_ACTION}
+  {DOCS_REFERENCE}"#
             ))
         }
     };
 
     let version = Version::parse(version).unwrap();
 
-    const REQUIRES_ASSETS_VERSION: &str = std::include_str!("./REQUIRED_ASSETS_VERSION");
-
-    let requirement = VersionReq::parse(REQUIRES_ASSETS_VERSION.trim()).unwrap();
     if !requirement.matches(&version) {
         return Err(anyhow!(
             r#"ERROR:
-  Incompatible assets installed: required mdbook-admonish assets version '{REQUIRES_ASSETS_VERSION}', but found '{version}'.
-  {USER_ACTION}"#
+  Incompatible assets installed: required mdbook-admonish assets version '{requirement}', but found '{version}'.
+  {USER_ACTION}
+  {DOCS_REFERENCE}"#
         ));
     };
     Ok(())
