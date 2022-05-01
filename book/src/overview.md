@@ -134,3 +134,11 @@ Will yield something like the following HTML, which you can then apply styles to
     ...
 </div>
 ```
+
+#### Invalid blocks
+
+If a rendering error occurs, an error will be rendered in the output:
+
+```admonish title="
+This block will error
+```
