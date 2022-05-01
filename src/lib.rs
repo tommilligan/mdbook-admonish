@@ -6,7 +6,12 @@ use mdbook::{
     utils::unique_id_from_content,
 };
 use pulldown_cmark::{CodeBlockKind::*, Event, Options, Parser, Tag};
-use std::{borrow::Cow, str::FromStr};
+use std::borrow::Cow;
+
+mod config;
+mod types;
+
+use crate::{config::AdmonitionInfo, types::Directive};
 
 pub struct Admonish;
 
@@ -76,44 +81,6 @@ fn ensure_compatible_assets_version(ctx: &PreprocessorContext) -> Result<()> {
     Ok(())
 }
 
-#[derive(Debug, PartialEq)]
-enum Directive {
-    Note,
-    Abstract,
-    Info,
-    Tip,
-    Success,
-    Question,
-    Warning,
-    Failure,
-    Danger,
-    Bug,
-    Example,
-    Quote,
-}
-
-impl FromStr for Directive {
-    type Err = ();
-
-    fn from_str(string: &str) -> Result<Self, ()> {
-        match string {
-            "note" => Ok(Self::Note),
-            "abstract" | "summary" | "tldr" => Ok(Self::Abstract),
-            "info" | "todo" => Ok(Self::Info),
-            "tip" | "hint" | "important" => Ok(Self::Tip),
-            "success" | "check" | "done" => Ok(Self::Success),
-            "question" | "help" | "faq" => Ok(Self::Question),
-            "warning" | "caution" | "attention" => Ok(Self::Warning),
-            "failure" | "fail" | "missing" => Ok(Self::Failure),
-            "danger" | "error" => Ok(Self::Danger),
-            "bug" => Ok(Self::Bug),
-            "example" => Ok(Self::Example),
-            "quote" | "cite" => Ok(Self::Quote),
-            _ => Err(()),
-        }
-    }
-}
-
 impl Directive {
     fn classname(&self) -> &'static str {
         match self {
@@ -134,52 +101,15 @@ impl Directive {
 }
 
 #[derive(Debug, PartialEq)]
-struct AdmonitionInfoRaw<'a> {
-    directive: &'a str,
-    title: Option<String>,
-    additional_classnames: Option<Vec<&'a str>>,
-}
-
-#[derive(Debug, PartialEq)]
-struct AdmonitionInfo<'a> {
-    directive: Directive,
-    title: Option<String>,
-    additional_classnames: Option<Vec<&'a str>>,
-}
-
-impl<'a> From<AdmonitionInfoRaw<'a>> for AdmonitionInfo<'a> {
-    fn from(other: AdmonitionInfoRaw<'a>) -> Self {
-        let AdmonitionInfoRaw {
-            directive: raw_directive,
-            title,
-            additional_classnames,
-        } = other;
-        let (directive, title) = match (Directive::from_str(raw_directive), title) {
-            (Ok(directive), None) => (directive, ucfirst(raw_directive)),
-            (Err(_), None) => (Directive::Note, "Note".to_owned()),
-            (Ok(directive), Some(title)) => (directive, title),
-            (Err(_), Some(title)) => (Directive::Note, title),
-        };
-        // If the user explicitly gave no title, then disable the title bar
-        let title = if title.is_empty() { None } else { Some(title) };
-        Self {
-            directive,
-            title,
-            additional_classnames,
-        }
-    }
-}
-
-#[derive(Debug, PartialEq)]
 struct Admonition<'a> {
     directive: Directive,
     title: Option<String>,
     content: &'a str,
-    additional_classnames: Option<Vec<&'a str>>,
+    additional_classnames: Vec<String>,
 }
 
 impl<'a> Admonition<'a> {
-    pub fn new(info: AdmonitionInfo<'a>, content: &'a str) -> Self {
+    pub fn new(info: AdmonitionInfo, content: &'a str) -> Self {
         let AdmonitionInfo {
             directive,
             title,
@@ -214,9 +144,9 @@ impl<'a> Admonition<'a> {
             })
             .unwrap_or(Cow::Borrowed(""));
 
-        if let Some(additional_classnames) = &self.additional_classnames {
+        if !self.additional_classnames.is_empty() {
             let mut buffer = additional_class.into_owned();
-            for additional_classname in additional_classnames {
+            for additional_classname in &self.additional_classnames {
                 buffer.push(' ');
                 buffer.push_str(additional_classname);
             }
@@ -240,69 +170,8 @@ impl<'a> Admonition<'a> {
     }
 }
 
-const ADMONISH_BLOCK_KEYWORD: &str = "admonish";
 const ANCHOR_ID_PREFIX: &str = "admonition";
 const ANCHOR_ID_DEFAULT: &str = "default";
-
-/// Returns:
-/// - `None` if this is not an `admonish` block.
-/// - `Some(AdmonitionInfoRaw)` if this is an `admonish` block
-fn parse_info_string(info_string: &str) -> Option<AdmonitionInfoRaw> {
-    // Get the rest of the info string if this is an admonition
-    let directive_title = if info_string == ADMONISH_BLOCK_KEYWORD {
-        ""
-    } else {
-        match info_string.split_once(' ') {
-            Some((ADMONISH_BLOCK_KEYWORD, rest)) => rest,
-            _ => return None,
-        }
-    };
-
-    // If we're just given the directive, handle that
-    let (directive, title) = directive_title
-        .split_once(' ')
-        .map(|(directive, title)| (directive, Some(title)))
-        .unwrap_or_else(|| (directive_title, None));
-
-    // The title is expected to be a quoted JSON string
-    // If parsing fails, output the error message as the title for the user to correct
-    let title = title.map(|title| {
-        serde_json::from_str::<String>(title)
-            .unwrap_or_else(|error| format!("Error parsing JSON string: {error}"))
-    });
-
-    // If the directive contains additional classes, parse them out
-    const CLASSNAME_SEPARATOR: char = '.';
-    let (directive, additional_classnames) = match directive.split_once(CLASSNAME_SEPARATOR) {
-        None => (directive, None),
-        Some((directive, additional_classnames)) => (
-            directive,
-            Some(
-                additional_classnames
-                    .split(CLASSNAME_SEPARATOR)
-                    .filter(|additional_classname| !additional_classname.is_empty())
-                    .collect(),
-            ),
-        ),
-    };
-
-    Some(AdmonitionInfoRaw {
-        directive,
-        title,
-        additional_classnames,
-    })
-}
-
-/// Make the first letter of `input` upppercase.
-///
-/// source: https://stackoverflow.com/a/38406885
-fn ucfirst(input: &str) -> String {
-    let mut chars = input.chars();
-    match chars.next() {
-        None => String::new(),
-        Some(f) => f.to_uppercase().collect::<String>() + chars.as_str(),
-    }
-}
 
 fn extract_admonish_body(content: &str) -> &str {
     const PRE_END: char = '\n';
@@ -331,8 +200,7 @@ fn extract_admonish_body(content: &str) -> &str {
 ///
 /// If the code block is not an admonition, return `None`.
 fn parse_admonition<'a>(info_string: &'a str, content: &'a str) -> Option<Admonition<'a>> {
-    let info = parse_info_string(info_string)?;
-    let info = AdmonitionInfo::from(info);
+    let info = AdmonitionInfo::from_info_string(info_string)?;
     let body = extract_admonish_body(content);
     Some(Admonition::new(info, body))
 }
@@ -379,52 +247,6 @@ mod test {
 
     fn prep(content: &str) -> String {
         preprocess(content).unwrap()
-    }
-
-    #[test]
-    fn test_parse_info_string() {
-        assert_eq!(parse_info_string(""), None);
-        assert_eq!(parse_info_string("adm"), None);
-        assert_eq!(
-            parse_info_string("admonish"),
-            Some(AdmonitionInfoRaw {
-                directive: "",
-                title: None,
-                additional_classnames: None
-            })
-        );
-        assert_eq!(
-            parse_info_string("admonish "),
-            Some(AdmonitionInfoRaw {
-                directive: "",
-                title: None,
-                additional_classnames: None
-            })
-        );
-        assert_eq!(
-            parse_info_string("admonish unknown"),
-            Some(AdmonitionInfoRaw {
-                directive: "unknown",
-                title: None,
-                additional_classnames: None
-            })
-        );
-        assert_eq!(
-            parse_info_string("admonish note"),
-            Some(AdmonitionInfoRaw {
-                directive: "note",
-                title: None,
-                additional_classnames: None
-            })
-        );
-        assert_eq!(
-            parse_info_string("admonish note.additional-classname"),
-            Some(AdmonitionInfoRaw {
-                directive: "note",
-                title: None,
-                additional_classnames: Some(vec!["additional-classname"])
-            })
-        );
     }
 
     #[test]
@@ -766,6 +588,35 @@ My Note
 <div>
 
 Content one.
+
+</div>
+</div>
+"##;
+
+        assert_eq!(expected, prep(content));
+    }
+
+    #[test]
+    fn v2_config_works() {
+        let content = r#"
+```admonish tip class="my other-style" title="Article Heading"
+Bonus content!
+```
+"#;
+
+        let expected = r##"
+
+<div id="admonition-article-heading" class="admonition tip my other-style">
+<div class="admonition-title">
+<a class="admonition-anchor-link" href="#admonition-article-heading">
+
+Article Heading
+
+</a>
+</div>
+<div>
+
+Bonus content!
 
 </div>
 </div>
