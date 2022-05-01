@@ -13,3 +13,7 @@ Simples
 ```admonish warning ""
 No title, only body
 ```
+
+```admonish title="
+No title, only body
+```

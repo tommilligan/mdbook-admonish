@@ -6,12 +6,47 @@ use mdbook::{
     utils::unique_id_from_content,
 };
 use pulldown_cmark::{CodeBlockKind::*, Event, Options, Parser, Tag};
-use std::borrow::Cow;
+use std::{borrow::Cow, str::FromStr};
 
 mod config;
 mod types;
 
 use crate::{config::AdmonitionInfo, types::Directive};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum OnFailure {
+    Bail,
+    Continue,
+}
+
+impl Default for OnFailure {
+    fn default() -> Self {
+        Self::Continue
+    }
+}
+
+impl FromStr for OnFailure {
+    type Err = ();
+
+    fn from_str(string: &str) -> Result<Self, ()> {
+        match string {
+            "bail" => Ok(Self::Bail),
+            "continue" => Ok(Self::Continue),
+            _ => Ok(Self::Continue),
+        }
+    }
+}
+
+impl OnFailure {
+    fn from_context(context: &PreprocessorContext) -> Self {
+        context
+            .config
+            .get("preprocessor.admonish.on_failure")
+            .and_then(|value| value.as_str())
+            .map(|value| OnFailure::from_str(value).unwrap_or_default())
+            .unwrap_or_default()
+    }
+}
 
 pub struct Admonish;
 
@@ -22,6 +57,8 @@ impl Preprocessor for Admonish {
 
     fn run(&self, ctx: &PreprocessorContext, mut book: Book) -> MdbookResult<Book> {
         ensure_compatible_assets_version(ctx)?;
+        let on_failure = OnFailure::from_context(ctx);
+
         let mut res = None;
         book.for_each_mut(|item: &mut BookItem| {
             if let Some(Err(_)) = res {
@@ -29,7 +66,7 @@ impl Preprocessor for Admonish {
             }
 
             if let BookItem::Chapter(ref mut chapter) = *item {
-                res = Some(preprocess(&chapter.content).map(|md| {
+                res = Some(preprocess(&chapter.content, on_failure).map(|md| {
                     chapter.content = md;
                 }));
             }
@@ -104,7 +141,7 @@ impl Directive {
 struct Admonition<'a> {
     directive: Directive,
     title: Option<String>,
-    content: &'a str,
+    content: Cow<'a, str>,
     additional_classnames: Vec<String>,
 }
 
@@ -118,7 +155,7 @@ impl<'a> Admonition<'a> {
         Self {
             directive,
             title,
-            content,
+            content: Cow::Borrowed(content),
             additional_classnames,
         }
     }
@@ -198,14 +235,48 @@ fn extract_admonish_body(content: &str) -> &str {
 /// Given the content in the span of the code block, and the info string,
 /// return `Some(Admonition)` if the code block is an admonition.
 ///
+/// If there is an error parsing the admonition, either:
+///
+/// - Display a UI error message output in the book.
+/// - If configured, break the build.
+///
 /// If the code block is not an admonition, return `None`.
-fn parse_admonition<'a>(info_string: &'a str, content: &'a str) -> Option<Admonition<'a>> {
+fn parse_admonition<'a>(
+    info_string: &'a str,
+    content: &'a str,
+    on_failure: OnFailure,
+) -> Option<MdbookResult<Admonition<'a>>> {
     let info = AdmonitionInfo::from_info_string(info_string)?;
+    let info = match info {
+        Ok(info) => info,
+        // FIXME return error messages to break build if configured
+        // Err(message) => return Some(Err(content)),
+        Err(message) => {
+            return Some(match on_failure {
+                OnFailure::Continue => Ok(Admonition {
+                    directive: Directive::Bug,
+                    title: Some("Error rendering admonishment".to_owned()),
+                    additional_classnames: Vec::new(),
+                    content: Cow::Owned(format!(
+                        r#"Failed with: {message}
+
+Original markdown input:
+
+``````
+{content}
+``````
+"#
+                    )),
+                }),
+                OnFailure::Bail => Err(anyhow!("Error processing admonition, bailing:\n{content}")),
+            })
+        }
+    };
     let body = extract_admonish_body(content);
-    Some(Admonition::new(info, body))
+    Some(Ok(Admonition::new(info, body)))
 }
 
-fn preprocess(content: &str) -> MdbookResult<String> {
+fn preprocess(content: &str, on_failure: OnFailure) -> MdbookResult<String> {
     let mut id_counter = Default::default();
     let mut opts = Options::empty();
     opts.insert(Options::ENABLE_TABLES);
@@ -219,10 +290,12 @@ fn preprocess(content: &str) -> MdbookResult<String> {
     for (e, span) in events.into_offset_iter() {
         if let Event::Start(Tag::CodeBlock(Fenced(info_string))) = e.clone() {
             let span_content = &content[span.start..span.end];
-            let admonition = match parse_admonition(info_string.as_ref(), span_content) {
+            let admonition = match parse_admonition(info_string.as_ref(), span_content, on_failure)
+            {
                 Some(admonition) => admonition,
                 None => continue,
             };
+            let admonition = admonition?;
             let anchor_id = unique_id_from_content(
                 admonition.title.as_deref().unwrap_or(ANCHOR_ID_DEFAULT),
                 &mut id_counter,
@@ -246,7 +319,7 @@ mod test {
     use pretty_assertions::assert_eq;
 
     fn prep(content: &str) -> String {
-        preprocess(content).unwrap()
+        preprocess(content, OnFailure::Continue).unwrap()
     }
 
     #[test]
@@ -623,5 +696,63 @@ Bonus content!
 "##;
 
         assert_eq!(expected, prep(content));
+    }
+
+    #[test]
+    fn continue_on_error_output() {
+        let content = r#"
+```admonish title="
+Bonus content!
+```
+"#;
+
+        let expected = r##"
+
+<div id="admonition-error-rendering-admonishment" class="admonition bug">
+<div class="admonition-title">
+<a class="admonition-anchor-link" href="#admonition-error-rendering-admonishment">
+
+Error rendering admonishment
+
+</a>
+</div>
+<div>
+
+Failed with: Invalid configuration string
+
+Original markdown input:
+
+``````
+```admonish title="
+Bonus content!
+```
+``````
+
+
+</div>
+</div>
+"##;
+
+        assert_eq!(expected, prep(content));
+    }
+
+    #[test]
+    fn bail_on_error_output() {
+        let content = r#"
+```admonish title="
+Bonus content!
+```
+"#;
+
+        assert_eq!(
+            preprocess(content, OnFailure::Bail)
+                .unwrap_err()
+                .to_string(),
+            r#"Error processing admonition, bailing:
+```admonish title="
+Bonus content!
+```"#
+                .to_owned()
+        )
     }
 }

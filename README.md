@@ -184,6 +184,19 @@ Alternatively, pin to a specific version for a reproducible installation:
 cargo install mdbook-admonish --vers "1.5.0" --locked
 ```
 
+#### Bail on error
+
+By default, if an adomnition is incorrectly configured, an error will be shown in the book.
+
+You can force it to break the build instead, with the following configuration:
+
+```toml
+[preprocessor.admonish]
+on_failure = "bail"
+```
+
+This may be useful for non-interative workflows.
+
 ### Semantic Versioning
 
 Guarantees provided are as follows:

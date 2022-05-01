@@ -59,14 +59,8 @@ pub(crate) struct AdmonitionInfo {
 }
 
 impl AdmonitionInfo {
-    pub fn from_info_string(info_string: &str) -> Option<Self> {
-        AdmonitionInfoRaw::from_info_string(info_string).map(|result| {
-            result.map(Into::into).unwrap_or_else(|error| Self {
-                directive: Directive::Bug,
-                title: Some(error),
-                additional_classnames: Vec::new(),
-            })
-        })
+    pub fn from_info_string(info_string: &str) -> Option<Result<Self, String>> {
+        AdmonitionInfoRaw::from_info_string(info_string).map(|result| result.map(Into::into))
     }
 }
 
