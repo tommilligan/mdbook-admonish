@@ -135,6 +135,22 @@ Will yield something like the following HTML, which you can then apply styles to
 </div>
 ```
 
+#### Collapsible
+
+For a block to be initially collapsible, and then be openable, set `collapsible=true`:
+
+````
+```admonish collapsible=true
+Content will be hidden initially.
+```
+````
+
+Will yield something like the following HTML, which you can then apply styles to:
+
+```admonish collapsible=true
+Content will be hidden initially.
+```
+
 #### Invalid blocks
 
 If a rendering error occurs, an error will be rendered in the output:

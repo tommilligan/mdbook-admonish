@@ -143,6 +143,7 @@ struct Admonition<'a> {
     title: Option<String>,
     content: Cow<'a, str>,
     additional_classnames: Vec<String>,
+    collapsible: bool,
 }
 
 impl<'a> Admonition<'a> {
@@ -151,12 +152,14 @@ impl<'a> Admonition<'a> {
             directive,
             title,
             additional_classnames,
+            collapsible,
         } = info;
         Self {
             directive,
             title,
             content: Cow::Borrowed(content),
             additional_classnames,
+            collapsible,
         }
     }
 
@@ -165,16 +168,18 @@ impl<'a> Admonition<'a> {
         let title = &self.title;
         let content = &self.content;
 
+        let title_block = if self.collapsible { "summary" } else { "div" };
+
         let title_html = title
             .as_ref()
             .map(|title| {
                 Cow::Owned(format!(
-                    r##"<div class="admonition-title">
+                    r##"<{title_block} class="admonition-title">
 
 {title}
 
 <a class="admonition-anchor-link" href="#{ANCHOR_ID_PREFIX}-{anchor_id}"></a>
-</div>
+</{title_block}>
 "##
                 ))
             })
@@ -190,18 +195,19 @@ impl<'a> Admonition<'a> {
             additional_class = Cow::Owned(buffer);
         }
 
+        let admonition_block = if self.collapsible { "details" } else { "div" };
         // Notes on the HTML template:
         // - the additional whitespace around the content are deliberate
         //   In line with the commonmark spec, this allows the inner content to be
         //   rendered as markdown paragraphs.
         format!(
-            r#"<div id="{ANCHOR_ID_PREFIX}-{anchor_id}" class="admonition {additional_class}">
+            r#"<{admonition_block} id="{ANCHOR_ID_PREFIX}-{anchor_id}" class="admonition {additional_class}">
 {title_html}<div>
 
 {content}
 
 </div>
-</div>"#,
+</{admonition_block}>"#,
         )
     }
 }
@@ -256,6 +262,7 @@ fn parse_admonition<'a>(
                     directive: Directive::Bug,
                     title: Some("Error rendering admonishment".to_owned()),
                     additional_classnames: Vec::new(),
+                    collapsible: false,
                     content: Cow::Owned(format!(
                         r#"Failed with: {message}
 
@@ -742,5 +749,33 @@ Bonus content!
 ```"#
                 .to_owned()
         )
+    }
+
+    #[test]
+    fn block_collapsible() {
+        let content = r#"
+```admonish collapsible=true
+Hidden
+```
+"#;
+
+        let expected = r##"
+
+<details id="admonition-note" class="admonition note">
+<summary class="admonition-title">
+
+Note
+
+<a class="admonition-anchor-link" href="#admonition-note"></a>
+</summary>
+<div>
+
+Hidden
+
+</div>
+</details>
+"##;
+
+        assert_eq!(expected, prep(content));
     }
 }

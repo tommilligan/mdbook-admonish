@@ -65,6 +65,8 @@ $admonitions: (
     --md-admonition-icon--#{nth($names, 1)}: 
       url("data:image/svg+xml;charset=utf-8,#{nth($props, 2)}");
   }
+  --md-details-icon:
+    url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M8.59 16.58 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42Z'/></svg>");
 }
 
 // ----------------------------------------------------------------------------
@@ -183,6 +185,30 @@ a.admonition-anchor-link {
   // Show anchor link on hover over title
   &:hover a.admonition-anchor-link {
     display: initial
+  }
+}
+
+summary.admonition-title {
+  details.admonition > &::after {
+    position: absolute;
+    top: .625em;
+    inset-inline-end: 1.6rem;
+    height: 2rem;
+    width: 2rem;
+    background-color: currentcolor;
+    mask-image: var(--md-details-icon);
+    -webkit-mask-image: var(--md-details-icon);
+    mask-repeat: no-repeat;
+    -webkit-mask-repeat: no-repeat;
+    mask-size: contain;
+    -webkit-mask-size: contain;
+    content: "";
+    transform: rotate(0deg);
+    transition: transform .25s;
+  }
+
+  details[open].admonition > &::after {
+    transform: rotate(90deg);
   }
 }
 

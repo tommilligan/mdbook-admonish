@@ -17,3 +17,7 @@ No title, only body
 ```admonish title="
 No title, only body
 ```
+
+```admonish collapsible=true
+Hidden on load
+```

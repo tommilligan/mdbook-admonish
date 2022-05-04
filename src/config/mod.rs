@@ -9,6 +9,7 @@ pub(crate) struct AdmonitionInfoRaw {
     directive: String,
     title: Option<String>,
     additional_classnames: Vec<String>,
+    collapsible: bool,
 }
 
 /// Extract the remaining info string, if this is an admonition block.
@@ -56,6 +57,7 @@ pub(crate) struct AdmonitionInfo {
     pub directive: Directive,
     pub title: Option<String>,
     pub additional_classnames: Vec<String>,
+    pub collapsible: bool,
 }
 
 impl AdmonitionInfo {
@@ -70,6 +72,7 @@ impl From<AdmonitionInfoRaw> for AdmonitionInfo {
             directive: raw_directive,
             title,
             additional_classnames,
+            collapsible,
         } = other;
         let (directive, title) = match (Directive::from_str(&raw_directive), title) {
             (Ok(directive), None) => (directive, ucfirst(&raw_directive)),
@@ -83,6 +86,7 @@ impl From<AdmonitionInfoRaw> for AdmonitionInfo {
             directive,
             title,
             additional_classnames,
+            collapsible,
         }
     }
 }
@@ -116,7 +120,8 @@ mod test {
             AdmonitionInfoRaw {
                 directive: "note".to_owned(),
                 title: None,
-                additional_classnames: vec!["additional-classname".to_owned()]
+                additional_classnames: vec!["additional-classname".to_owned()],
+                collapsible: false,
             }
         );
         // v2 syntax is supported
@@ -128,6 +133,7 @@ mod test {
                 directive: "question".to_owned(),
                 title: Some("Custom Title".to_owned()),
                 additional_classnames: Vec::new(),
+                collapsible: false,
             }
         );
     }
@@ -139,11 +145,13 @@ mod test {
                 directive: " ".to_owned(),
                 title: None,
                 additional_classnames: Vec::new(),
+                collapsible: false,
             }),
             AdmonitionInfo {
                 directive: Directive::Note,
                 title: Some("Note".to_owned()),
                 additional_classnames: Vec::new(),
+                collapsible: false,
             }
         );
     }
