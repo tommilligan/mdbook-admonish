@@ -53,6 +53,7 @@ pub(crate) fn from_config_string(config_string: &str) -> Result<AdmonitionInfoRa
         directive: directive.to_owned(),
         title,
         additional_classnames,
+        collapsible: false,
     })
 }
 
@@ -69,6 +70,7 @@ mod test {
                 directive: "".to_owned(),
                 title: None,
                 additional_classnames: Vec::new(),
+                collapsible: false,
             }
         );
         assert_eq!(
@@ -77,6 +79,7 @@ mod test {
                 directive: "".to_owned(),
                 title: None,
                 additional_classnames: Vec::new(),
+                collapsible: false,
             }
         );
         assert_eq!(
@@ -85,6 +88,7 @@ mod test {
                 directive: "unknown".to_owned(),
                 title: None,
                 additional_classnames: Vec::new(),
+                collapsible: false,
             }
         );
         assert_eq!(
@@ -93,6 +97,7 @@ mod test {
                 directive: "note".to_owned(),
                 title: None,
                 additional_classnames: Vec::new(),
+                collapsible: false,
             }
         );
         assert_eq!(
@@ -100,7 +105,8 @@ mod test {
             AdmonitionInfoRaw {
                 directive: "note".to_owned(),
                 title: None,
-                additional_classnames: vec!["additional-classname".to_owned()]
+                additional_classnames: vec!["additional-classname".to_owned()],
+                collapsible: false,
             }
         );
     }
