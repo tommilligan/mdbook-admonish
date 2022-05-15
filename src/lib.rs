@@ -170,11 +170,10 @@ impl<'a> Admonition<'a> {
             .map(|title| {
                 Cow::Owned(format!(
                     r##"<div class="admonition-title">
-<a class="admonition-anchor-link" href="#{ANCHOR_ID_PREFIX}-{anchor_id}">
 
 {title}
 
-</a>
+<a class="admonition-anchor-link" href="#{ANCHOR_ID_PREFIX}-{anchor_id}"></a>
 </div>
 "##
                 ))
@@ -335,11 +334,10 @@ Text
 
 <div id="admonition-note" class="admonition note">
 <div class="admonition-title">
-<a class="admonition-anchor-link" href="#admonition-note">
 
 Note
 
-</a>
+<a class="admonition-anchor-link" href="#admonition-note"></a>
 </div>
 <div>
 
@@ -366,11 +364,10 @@ Text
 
 <div id="admonition-warning" class="admonition warning">
 <div class="admonition-title">
-<a class="admonition-anchor-link" href="#admonition-warning">
 
 Warning
 
-</a>
+<a class="admonition-anchor-link" href="#admonition-warning"></a>
 </div>
 <div>
 
@@ -397,11 +394,10 @@ Text
 
 <div id="admonition-read-this" class="admonition warning">
 <div class="admonition-title">
-<a class="admonition-anchor-link" href="#admonition-read-this">
 
 Read **this**!
 
-</a>
+<a class="admonition-anchor-link" href="#admonition-read-this"></a>
 </div>
 <div>
 
@@ -492,11 +488,10 @@ hello
 
 <div id="admonition-and-in-the-title" class="admonition note">
 <div class="admonition-title">
-<a class="admonition-anchor-link" href="#admonition-and-in-the-title">
 
 And "<i>in</i>" the title
 
-</a>
+<a class="admonition-anchor-link" href="#admonition-and-in-the-title"></a>
 </div>
 <div>
 
@@ -523,11 +518,10 @@ hello
 
 <div id="admonition-trademark" class="admonition warning">
 <div class="admonition-title">
-<a class="admonition-anchor-link" href="#admonition-trademark">
 
 Trademark™
 
-</a>
+<a class="admonition-anchor-link" href="#admonition-trademark"></a>
 </div>
 <div>
 
@@ -553,11 +547,10 @@ Will have bonus classnames
 
 <div id="admonition-tip" class="admonition tip my-style other-style">
 <div class="admonition-title">
-<a class="admonition-anchor-link" href="#admonition-tip">
 
 Tip
 
-</a>
+<a class="admonition-anchor-link" href="#admonition-tip"></a>
 </div>
 <div>
 
@@ -582,11 +575,10 @@ Will have bonus classnames
 
 <div id="admonition-developers-dont-want-you-to-know-this-one-weird-tip" class="admonition tip my-style other-style">
 <div class="admonition-title">
-<a class="admonition-anchor-link" href="#admonition-developers-dont-want-you-to-know-this-one-weird-tip">
 
 Developers don't want you to know this one weird tip!
 
-</a>
+<a class="admonition-anchor-link" href="#admonition-developers-dont-want-you-to-know-this-one-weird-tip"></a>
 </div>
 <div>
 
@@ -636,11 +628,10 @@ Content one.
 
 <div id="admonition-my-note" class="admonition note">
 <div class="admonition-title">
-<a class="admonition-anchor-link" href="#admonition-my-note">
 
 My Note
 
-</a>
+<a class="admonition-anchor-link" href="#admonition-my-note"></a>
 </div>
 <div>
 
@@ -652,11 +643,10 @@ Content zero.
 
 <div id="admonition-my-note-1" class="admonition note">
 <div class="admonition-title">
-<a class="admonition-anchor-link" href="#admonition-my-note-1">
 
 My Note
 
-</a>
+<a class="admonition-anchor-link" href="#admonition-my-note-1"></a>
 </div>
 <div>
 
@@ -681,11 +671,10 @@ Bonus content!
 
 <div id="admonition-article-heading" class="admonition tip my other-style">
 <div class="admonition-title">
-<a class="admonition-anchor-link" href="#admonition-article-heading">
 
 Article Heading
 
-</a>
+<a class="admonition-anchor-link" href="#admonition-article-heading"></a>
 </div>
 <div>
 
@@ -710,11 +699,10 @@ Bonus content!
 
 <div id="admonition-error-rendering-admonishment" class="admonition bug">
 <div class="admonition-title">
-<a class="admonition-anchor-link" href="#admonition-error-rendering-admonishment">
 
 Error rendering admonishment
 
-</a>
+<a class="admonition-anchor-link" href="#admonition-error-rendering-admonishment"></a>
 </div>
 <div>
 
