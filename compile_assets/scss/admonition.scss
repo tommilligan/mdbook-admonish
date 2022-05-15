@@ -116,6 +116,15 @@ $admonitions: (
 
 // Anchor links
 a.admonition-anchor-link {
+  // Don't display the link by default
+  display: none;
+
+  // Position to the left of the element to link to
+  position: absolute;
+  left: -1.2rem;
+  // Ensure we have enough padding, so that we can move the mouse to click on it
+  padding-right: 1.0rem;
+
   &:link, &:visited {
     // Don't make links colored (override to standard text color)
     // variable provided downstream by mdbook
@@ -124,6 +133,10 @@ a.admonition-anchor-link {
   &:link:hover, &:visited:hover {
     // No underline on hover
     text-decoration: none;
+  }
+
+  &::before {
+    content: '§';
   }
 }
 
@@ -164,6 +177,12 @@ a.admonition-anchor-link {
     mask-size: contain;
     -webkit-mask-size: contain;
     content: "";
+  }
+
+
+  // Show anchor link on hover over title
+  &:hover a.admonition-anchor-link {
+    display: initial
   }
 }
 
