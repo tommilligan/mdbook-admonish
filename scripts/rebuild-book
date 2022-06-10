@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Development only. Rebuilds the book, including recompiling styles.
+
 set -euo pipefail
 
 cd "$(dirname "$0")"/..
@@ -13,15 +15,4 @@ pushd compile_assets
 yarn run build
 popd
 
-eprintln "Installing mdbook-admonish (to system)"
-cargo install --path . --force
-
-pushd book
-eprintln "Installing mdbook-admonish (to book)"
-mdbook-admonish install .
-
-eprintln "Building book"
-mdbook build
-popd
-
-eprintln "Book generated at ./book/book/index.html"
+./scripts/build-book
