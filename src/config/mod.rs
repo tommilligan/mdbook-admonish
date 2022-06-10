@@ -35,13 +35,13 @@ impl AdmonitionInfoRaw {
         let config_string = admonition_config_string(info_string)?;
 
         // If we succeed at parsing v2, return that. Otherwise hold onto the error
-        let config_v2_error = match v1::from_config_string(config_string) {
+        let config_v2_error = match v2::from_config_string(config_string) {
             Ok(config) => return Some(Ok(config)),
             Err(config) => config,
         };
 
         Some(
-            if let Ok(info_raw) = v2::from_config_string(config_string) {
+            if let Ok(info_raw) = v1::from_config_string(config_string) {
                 // If we succeed at parsing v1, return that.
                 Ok(info_raw)
             } else {
