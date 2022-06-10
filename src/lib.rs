@@ -713,7 +713,7 @@ Error rendering admonishment
 </div>
 <div>
 
-Failed with: Invalid configuration string
+Failed with: TOML parsing error: unterminated string at line 1 column 7
 
 Original markdown input:
 
