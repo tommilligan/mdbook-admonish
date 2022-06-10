@@ -58,28 +58,28 @@ A plain note.
 
 #### Custom title
 
-A custom title can be provided, contained in a double quoted JSON string.
-Note that JSON escapes must be escaped again - for instance, write `\"` as `\\"`.
+A custom title can be provided, contained in a double quoted TOML string.
+Note that TOML escapes must be escaped again - for instance, write `\"` as `\\"`.
 
 ````
-```admonish warning "Data loss"
+```admonish warning title="Data loss"
 The following steps can lead to irrecoverable data corruption.
 ```
 ````
 
-```admonish warning "Data loss"
+```admonish warning title="Data loss"
 The following steps can lead to irrecoverable data corruption.
 ```
 
 You can also remove the title bar entirely, by specifying the empty string:
 
 ````
-```admonish success ""
+```admonish success title=""
 This will take a while, go and grab a drink of water.
 ```
 ````
 
-```admonish success ""
+```admonish success title=""
 This will take a while, go and grab a drink of water.
 ```
 
@@ -88,13 +88,13 @@ This will take a while, go and grab a drink of water.
 Markdown and HTML can be used in the inner content, as you'd expect:
 
 ````
-```admonish tip "_Referencing_ and <i>dereferencing</i>"
+```admonish tip title="_Referencing_ and <i>dereferencing</i>"
 The opposite of *referencing* by using `&` is *dereferencing*, which is
 accomplished with the <span style="color: hotpink">dereference operator</span>, `*`.
 ```
 ````
 
-```admonish tip "_Referencing_ and <i>dereferencing</i>"
+```admonish tip title="_Referencing_ and <i>dereferencing</i>"
 The opposite of *referencing* by using `&` is *dereferencing*, which is
 accomplished with the <span style="color: hotpink">dereference operator</span>, `*`.
 ```
@@ -122,7 +122,7 @@ print "Hello, world!"
 If you want to provide custom styling to a specific admonition, you can attach one or more custom classnames:
 
 ````
-```admonish note.custom-0.custom-1
+```admonish note class="custom-0 custom-1"
 Styled with my custom CSS class.
 ```
 ````
@@ -155,6 +155,12 @@ Content will be hidden initially.
 
 If a rendering error occurs, an error will be rendered in the output:
 
-```admonish title="
+````
+```admonish title="\j"
+This block will error
+```
+````
+
+```admonish title="\j"
 This block will error
 ```

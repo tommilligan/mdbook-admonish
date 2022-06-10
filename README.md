@@ -1,7 +1,7 @@
 # mdbook-admonish
 
 [![Latest version](https://img.shields.io/crates/v/mdbook-admonish.svg)](https://crates.io/crates/mdbook-admonish)
-[![docs.rs](https://img.shields.io/docsrs/mdbook-admonish)](https://docs.rs/mdbook-admonish)
+[![docs.rs](https://img.shields.io/badge/docs-available-brightgreen)](https://tommilligan.github.io/mdbook-admonish/)
 
 A preprocessor for [mdbook](https://github.com/rust-lang-nursery/mdBook) to add [Material Design](https://material.io/design) admonishments, based on the [mkdocs-material](https://squidfunk.github.io/mkdocs-material/reference/admonitions/) implementation.
 
@@ -19,7 +19,7 @@ into this:
 
 ## Examples
 
-Read the usage and reference [here](https://tommilligan.github.io/mdbook-admonish/), to see the actual examples in action. You can see the source in the [`./book`](./book) subdirectory.
+Read the documentation [here](https://tommilligan.github.io/mdbook-admonish/), to see the actual examples in action. You can see the source in the [`./book`](./book) subdirectory.
 
 Other projects using mdbook-admonish:
 
@@ -58,72 +58,11 @@ A plain note.
 
 ### Additional Options
 
-#### Custom title
+See the [`mdbook-admonish` book](https://tommilligan.github.io/mdbook-admonish/) for additional options, such as:
 
-A custom title can be provided, contained in a double quoted JSON string.
-Note that JSON escapes must be escaped again - for instance, write `\"` as `\\"`.
-
-````
-```admonish warning "Data loss"
-The following steps can lead to irrecoverable data corruption.
-```
-````
-
-![Data Loss](img/data-loss.png)
-
-You can also remove the title bar entirely, by specifying the empty string:
-
-````
-```admonish success ""
-This will take a while, go and grab a drink of water.
-```
-````
-
-![No Title Bar](img/no-title-bar.png)
-
-#### Nested Markdown/HTML
-
-Markdown and HTML can be used in the inner content, as you'd expect:
-
-````
-```admonish tip "_Referencing_ and <i>dereferencing</i>"
-The opposite of *referencing* by using `&` is *dereferencing*, which is
-accomplished with the <span style="color: hotpink">dereference operator</span>, `*`.
-```
-````
-
-![Complex Message](img/complex-message.png)
-
-If you have code blocks you want to include in the content, use [tildes for the outer code fence](https://spec.commonmark.org/0.30/#fenced-code-blocks):
-
-````
-~~~admonish bug
-This syntax won't work in Python 3:
-```python
-print "Hello, world!"
-```
-~~~
-````
-
-![Code Bug](img/code-bug.png)
-
-#### Custom styling
-
-If you want to provide custom styling to a specific admonition, you can attach one or more custom classnames:
-
-````
-```admonish note.custom-0.custom-1
-Styled with my custom CSS class.
-```
-````
-
-Will yield something like the following HTML, which you can then apply styles to:
-
-```html
-<div class="admonition note custom-0 custom-1"
-    ...
-</div>
-```
+- Custom titles
+- Custom styling
+- Collapsible blocks
 
 ## Installation
 
