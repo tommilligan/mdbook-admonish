@@ -1,12 +1,12 @@
 [package]
 name = "mdbook-admonish"
-version = "1.6.0"
+version = "1.7.0"
 edition = "2021"
 
 authors = ["Tom Milligan <code@tommilligan.net>"]
 description = "A preprocessor for mdbook to add Material Design admonishments."
 repository = "https://github.com/tommilligan/mdbook-admonish"
-documentation = "https://docs.rs/mdbook-admonish"
+documentation = "https://tommilligan.github.io/mdbook-admonish/"
 
 license = "MIT"
 keywords = ["mdbook", "markdown", "material", "design", "ui"]

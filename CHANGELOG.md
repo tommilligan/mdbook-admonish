@@ -1,5 +1,20 @@
 ## Changelog
 
+## 1.7.0
+
+### Changed
+
+- Required styles version is now `^2.0.0` (release `1.7.0`). Run `mdbook-admonish install` to update.
+
+### Added
+
+- Support key/value configuration ([#24](https://github.com/tommilligan/mdbook-admonish/pull/24), thanks [@gggto](https://github.com/gggto) and [@schungx](https://github.com/schungx) for design input)
+- Support collapsiable admonition bodies ([#26](https://github.com/tommilligan/mdbook-admonish/pull/26), thanks [@gggto](https://github.com/gggto) for the suggestion and implementation!)
+- Make anchor links hoverable ([#27](https://github.com/tommilligan/mdbook-admonish/pull/27))
+- Better handling for misconfigured admonitions ([#25](https://github.com/tommilligan/mdbook-admonish/pull/25))
+  - Nicer in-book error messages
+  - Option to fail the build instead
+
 ## 1.6.0
 
 **Please note:** If updating from an older version, this release requires `mdboook-admonish install` to be rerun after installation.
