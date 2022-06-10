@@ -184,7 +184,7 @@ Alternatively, pin to a specific version for a reproducible installation:
 cargo install mdbook-admonish --vers "1.5.0" --locked
 ```
 
-#### Bail on error
+### Bail on error
 
 By default, if an adomnition is incorrectly configured, an error will be shown in the book.
 
@@ -204,6 +204,10 @@ Guarantees provided are as follows:
 - Major versions: Contain breaking changes to the user facing markdown API, or the public API of the crate itself.
 - Minor versions: Feature release. May contain changes to generated CSS/HTML requiring `mdbook-admonish install` to be rerun.
   - **Note:** updating acrosss minor versions without running `mdbook-admonish install` to reinstall assets may break your build.
+  - This is due to limitations in the `mdbook` preprocessor architecture. Relevant issues that may alleviate this:
+    - https://github.com/rust-lang/mdBook/issues/1222
+    - https://github.com/rust-lang/mdBook/issues/1687
+    - https://github.com/rust-lang/mdBook/issues/1689
 - Patch versions: Bug fixes only.
 
 ## Development
