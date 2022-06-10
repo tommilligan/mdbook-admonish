@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Install everything for development/CI
+#
+# Does not include offline node development stack (i.e. yarn)
+
 set -exuo pipefail
 
 cd "$(dirname "$0")"/..
@@ -9,6 +13,5 @@ rustup component add rustfmt clippy
 if ! cargo audit --version; then
   cargo install cargo-audit --force
 fi
-if ! mdbook --version; then
-  cargo install mdbook --force
-fi
+
+./scripts/install-mdbook

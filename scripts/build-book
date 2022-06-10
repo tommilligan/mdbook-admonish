@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Build book, using styles present in the repository.
+
+set -euo pipefail
+
+cd "$(dirname "$0")"/..
+
+function eprintln() {
+  >&2 echo "$1"
+}
+
+eprintln "Installing mdbook-admonish (to system)"
+cargo install --path . --force
+
+pushd book
+eprintln "Installing mdbook-admonish (to book)"
+mdbook-admonish install .
+
+eprintln "Building book"
+mdbook build
+popd
+
+eprintln "Book generated at ./book/book/index.html"
