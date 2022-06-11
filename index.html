@@ -155,9 +155,8 @@ A beautifully styled message.
 <p>into this:</p>
 <div id="admonition-info" class="admonition info">
 <div class="admonition-title">
-<a class="admonition-anchor-link" href="#admonition-info">
 <p>Info</p>
-</a>
+<p><a class="admonition-anchor-link" href="#admonition-info"></a></p>
 </div>
 <div>
 <p>A beautifully styled message.</p>
@@ -171,9 +170,8 @@ My example is the best!
 </code></pre>
 <div id="admonition-example" class="admonition example">
 <div class="admonition-title">
-<a class="admonition-anchor-link" href="#admonition-example">
 <p>Example</p>
-</a>
+<p><a class="admonition-anchor-link" href="#admonition-example"></a></p>
 </div>
 <div>
 <p>My example is the best!</p>
@@ -194,9 +192,8 @@ A plain note.
 </code></pre>
 <div id="admonition-note" class="admonition note">
 <div class="admonition-title">
-<a class="admonition-anchor-link" href="#admonition-note">
 <p>Note</p>
-</a>
+<p><a class="admonition-anchor-link" href="#admonition-note"></a></p>
 </div>
 <div>
 <p>A plain note.</p>
@@ -204,24 +201,23 @@ A plain note.
 </div>
 <h3 id="additional-options"><a class="header" href="#additional-options">Additional Options</a></h3>
 <h4 id="custom-title"><a class="header" href="#custom-title">Custom title</a></h4>
-<p>A custom title can be provided, contained in a double quoted JSON string.
-Note that JSON escapes must be escaped again - for instance, write <code>\&quot;</code> as <code>\\&quot;</code>.</p>
-<pre><code>```admonish warning &quot;Data loss&quot;
+<p>A custom title can be provided, contained in a double quoted TOML string.
+Note that TOML escapes must be escaped again - for instance, write <code>\&quot;</code> as <code>\\&quot;</code>.</p>
+<pre><code>```admonish warning title=&quot;Data loss&quot;
 The following steps can lead to irrecoverable data corruption.
 ```
 </code></pre>
 <div id="admonition-data-loss" class="admonition warning">
 <div class="admonition-title">
-<a class="admonition-anchor-link" href="#admonition-data-loss">
 <p>Data loss</p>
-</a>
+<p><a class="admonition-anchor-link" href="#admonition-data-loss"></a></p>
 </div>
 <div>
 <p>The following steps can lead to irrecoverable data corruption.</p>
 </div>
 </div>
 <p>You can also remove the title bar entirely, by specifying the empty string:</p>
-<pre><code>```admonish success &quot;&quot;
+<pre><code>```admonish success title=&quot;&quot;
 This will take a while, go and grab a drink of water.
 ```
 </code></pre>
@@ -232,16 +228,15 @@ This will take a while, go and grab a drink of water.
 </div>
 <h4 id="nested-markdownhtml"><a class="header" href="#nested-markdownhtml">Nested Markdown/HTML</a></h4>
 <p>Markdown and HTML can be used in the inner content, as you'd expect:</p>
-<pre><code>```admonish tip &quot;_Referencing_ and &lt;i&gt;dereferencing&lt;/i&gt;&quot;
+<pre><code>```admonish tip title=&quot;_Referencing_ and &lt;i&gt;dereferencing&lt;/i&gt;&quot;
 The opposite of *referencing* by using `&amp;` is *dereferencing*, which is
 accomplished with the &lt;span style=&quot;color: hotpink&quot;&gt;dereference operator&lt;/span&gt;, `*`.
 ```
 </code></pre>
 <div id="admonition-_referencing_-and-dereferencing" class="admonition tip">
 <div class="admonition-title">
-<a class="admonition-anchor-link" href="#admonition-_referencing_-and-dereferencing">
 <p><em>Referencing</em> and <i>dereferencing</i></p>
-</a>
+<p><a class="admonition-anchor-link" href="#admonition-_referencing_-and-dereferencing"></a></p>
 </div>
 <div>
 <p>The opposite of <em>referencing</em> by using <code>&amp;</code> is <em>dereferencing</em>, which is
@@ -258,9 +253,8 @@ print &quot;Hello, world!&quot;
 </code></pre>
 <div id="admonition-bug" class="admonition bug">
 <div class="admonition-title">
-<a class="admonition-anchor-link" href="#admonition-bug">
 <p>Bug</p>
-</a>
+<p><a class="admonition-anchor-link" href="#admonition-bug"></a></p>
 </div>
 <div>
 <p>This syntax won't work in Python 3:</p>
@@ -270,7 +264,7 @@ print &quot;Hello, world!&quot;
 </div>
 <h4 id="custom-styling"><a class="header" href="#custom-styling">Custom styling</a></h4>
 <p>If you want to provide custom styling to a specific admonition, you can attach one or more custom classnames:</p>
-<pre><code>```admonish note.custom-0.custom-1
+<pre><code>```admonish note class=&quot;custom-0 custom-1&quot;
 Styled with my custom CSS class.
 ```
 </code></pre>
@@ -279,6 +273,42 @@ Styled with my custom CSS class.
     ...
 &lt;/div&gt;
 </code></pre>
+<h4 id="collapsible"><a class="header" href="#collapsible">Collapsible</a></h4>
+<p>For a block to be initially collapsible, and then be openable, set <code>collapsible=true</code>:</p>
+<pre><code>```admonish collapsible=true
+Content will be hidden initially.
+```
+</code></pre>
+<p>Will yield something like the following HTML, which you can then apply styles to:</p>
+<details id="admonition-note-1" class="admonition note">
+<summary class="admonition-title">
+<p>Note</p>
+<p><a class="admonition-anchor-link" href="#admonition-note-1"></a></p>
+</summary>
+<div>
+<p>Content will be hidden initially.</p>
+</div>
+</details>
+<h4 id="invalid-blocks"><a class="header" href="#invalid-blocks">Invalid blocks</a></h4>
+<p>If a rendering error occurs, an error will be rendered in the output:</p>
+<pre><code>```admonish title=&quot;\j&quot;
+This block will error
+```
+</code></pre>
+<div id="admonition-error-rendering-admonishment" class="admonition bug">
+<div class="admonition-title">
+<p>Error rendering admonishment</p>
+<p><a class="admonition-anchor-link" href="#admonition-error-rendering-admonishment"></a></p>
+</div>
+<div>
+<p>Failed with: TOML parsing error: invalid escape character in string: <code>j</code> at line 1 column 9</p>
+<p>Original markdown input:</p>
+<pre><code>```admonish title=&quot;\j&quot;
+This block will error
+```
+</code></pre>
+</div>
+</div>
 
                     </main>
 
