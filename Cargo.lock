@@ -141,7 +141,7 @@ checksum = "86447ad904c7fb335a790c9d7fe3d0d971dc523b8ccd1561a520de9a85302750"
 dependencies = [
  "atty",
  "bitflags",
- "clap_lex",
+ "clap_lex 0.2.4",
  "indexmap",
  "once_cell",
  "strsim",
@@ -150,12 +150,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "clap"
+version = "4.0.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5840cd9093aabeabf7fd932754c435b7674520fc3ddc935c397837050f0f1e4b"
+dependencies = [
+ "bitflags",
+ "clap_lex 0.3.0",
+ "once_cell",
+]
+
+[[package]]
 name = "clap_complete"
 version = "3.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f7a2e0a962c45ce25afce14220bc24f9dade0a1787f185cecf96bfba7847cd8"
 dependencies = [
- "clap",
+ "clap 3.2.22",
 ]
 
 [[package]]
@@ -163,6 +174,15 @@ name = "clap_lex"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2850f2f5a82cbf437dd5af4d49848fbdfc27c157c3d010345776f952765261c5"
+dependencies = [
+ "os_str_bytes",
+]
+
+[[package]]
+name = "clap_lex"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0d4198f73e42b4936b35b5bb248d81d2b595ecb170da0bac7655c54eedfa8da8"
 dependencies = [
  "os_str_bytes",
 ]
@@ -767,7 +787,7 @@ dependencies = [
  "ammonia",
  "anyhow",
  "chrono",
- "clap",
+ "clap 3.2.22",
  "clap_complete",
  "elasticlunr-rs",
  "env_logger",
@@ -796,7 +816,7 @@ name = "mdbook-admonish"
 version = "1.7.0"
 dependencies = [
  "anyhow",
- "clap",
+ "clap 4.0.8",
  "env_logger",
  "log",
  "mdbook",
