@@ -11,7 +11,7 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
       - name: Cache build files
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.cargo/registry
@@ -37,7 +37,7 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
       - name: Cache build files
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.cargo/registry
@@ -89,7 +89,7 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
       - name: Cache build files
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.cargo/registry
