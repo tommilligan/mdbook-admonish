@@ -1,5 +1,11 @@
 ## Changelog
 
+## Unreleased
+
+### Changed
+
+- MSRV (minimum supported rust version) is now 1.60.0 for clap v4
+
 ## 1.7.0
 
 ### Changed

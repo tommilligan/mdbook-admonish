@@ -1,55 +1,59 @@
-use clap::{crate_version, Arg, ArgMatches, Command};
 use mdbook::{
     errors::Error,
     preprocess::{CmdPreprocessor, Preprocessor},
 };
 use mdbook_admonish::Admonish;
-use std::{io, process};
+use std::{io, path::PathBuf, process};
 
-pub fn make_app() -> Command<'static> {
-    let mut command = Command::new("mdbook-admonish")
-        .version(crate_version!())
-        .about("mdbook preprocessor to add support for admonitions");
-    command = command.subcommand(
-        Command::new("supports")
-            .arg(Arg::new("renderer").required(true))
-            .about("Check whether a renderer is supported by this preprocessor"),
-    );
+use clap::{Parser, Subcommand};
+
+/// mdbook preprocessor to add support for admonitions
+#[derive(Parser)]
+#[command(author, version, about, long_about = None)]
+struct Cli {
+    #[command(subcommand)]
+    command: Option<Commands>,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    /// Check whether a renderer is supported by this preprocessor
+    Supports { renderer: String },
 
     #[cfg(feature = "cli-install")]
-    {
-        command = command.subcommand(
-        Command::new("install")
-            .arg(Arg::new("css-dir").long("css-dir").default_value(".").help(
-                "Relative directory for the css assets,\nfrom the book directory root",
-            ))
-            .arg(Arg::new("dir").default_value(".").help(
-                "Root directory for the book,\nshould contain the configuration file (`book.toml`)",
-            ))
-            .about("Install the required assset files and include it in the config"));
-    }
-    command
+    /// Install the required assset files and include it in the config
+    Install {
+        /// Root directory for the book, should contain the configuration file (`book.toml`)
+        dir: Option<PathBuf>,
+
+        /// Relative directory for the css assets, from the book directory root
+        #[arg(long)]
+        css_dir: Option<PathBuf>,
+    },
 }
 
 fn main() {
     env_logger::init_from_env(env_logger::Env::default().default_filter_or("info"));
 
-    let matches = make_app().get_matches();
+    let cli = Cli::parse();
 
-    if let Some(sub_args) = matches.subcommand_matches("supports") {
-        handle_supports(sub_args);
-    } else if let Some(sub_args) = matches.subcommand_matches("install") {
+    match cli.command {
+        None => {
+            if let Err(e) = handle_preprocessing() {
+                eprintln!("{}", e);
+                process::exit(1);
+            }
+        }
+        Some(Commands::Supports { renderer }) => {
+            handle_supports(renderer);
+        }
         #[cfg(feature = "cli-install")]
-        {
-            install::handle_install(sub_args);
+        Some(Commands::Install { dir, css_dir }) => {
+            install::handle_install(
+                dir.unwrap_or_else(|| PathBuf::from(".")),
+                css_dir.unwrap_or_else(|| PathBuf::from(".")),
+            );
         }
-        #[cfg(not(feature = "cli-install"))]
-        {
-            panic!("cli-install feature not enabled: {:?}", sub_args)
-        }
-    } else if let Err(e) = handle_preprocessing() {
-        eprintln!("{}", e);
-        process::exit(1);
     }
 }
 
@@ -71,9 +75,8 @@ fn handle_preprocessing() -> Result<(), Error> {
     Ok(())
 }
 
-fn handle_supports(sub_args: &ArgMatches) -> ! {
-    let renderer = sub_args.value_of("renderer").expect("Required argument");
-    let supported = Admonish.supports_renderer(renderer);
+fn handle_supports(renderer: String) -> ! {
+    let supported = Admonish.supports_renderer(&renderer);
 
     // Signal whether the renderer is supported by exiting with 1 or 0.
     if supported {
@@ -85,7 +88,6 @@ fn handle_supports(sub_args: &ArgMatches) -> ! {
 
 #[cfg(feature = "cli-install")]
 mod install {
-    use clap::ArgMatches;
     use std::{
         fs::{self, File},
         io::Write,
@@ -112,10 +114,7 @@ mod install {
         }
     }
 
-    pub fn handle_install(sub_args: &ArgMatches) {
-        let dir = sub_args.value_of("dir").expect("Required argument");
-        let css_dir = sub_args.value_of("css-dir").expect("Required argument");
-        let proj_dir = PathBuf::from(dir);
+    pub fn handle_install(proj_dir: PathBuf, css_dir: PathBuf) {
         let config = proj_dir.join("book.toml");
 
         if !config.exists() {
@@ -142,7 +141,7 @@ mod install {
 
         let mut additional_css = additional_css(&mut doc);
         for (name, content) in ADMONISH_CSS_FILES {
-            let filepath = proj_dir.join(css_dir).join(name);
+            let filepath = proj_dir.join(&css_dir).join(name);
             let filepath_str = filepath.to_str().expect("non-utf8 filepath");
 
             if let Ok(ref mut additional_css) = additional_css {
