@@ -3,7 +3,9 @@ use mdbook::{
     preprocess::{CmdPreprocessor, Preprocessor},
 };
 use mdbook_admonish::Admonish;
-use std::{io, path::PathBuf, process};
+#[cfg(feature = "cli-install")]
+use std::path::PathBuf;
+use std::{io, process};
 
 use clap::{Parser, Subcommand};
 
