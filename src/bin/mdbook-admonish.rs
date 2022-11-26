@@ -1,3 +1,5 @@
+use anyhow::Result;
+use clap::{Parser, Subcommand};
 use mdbook::{
     errors::Error,
     preprocess::{CmdPreprocessor, Preprocessor},
@@ -6,8 +8,6 @@ use mdbook_admonish::Admonish;
 #[cfg(feature = "cli-install")]
 use std::path::PathBuf;
 use std::{io, process};
-
-use clap::{Parser, Subcommand};
 
 /// mdbook preprocessor to add support for admonitions
 #[derive(Parser)]
@@ -26,9 +26,13 @@ enum Commands {
     /// Install the required assset files and include it in the config
     Install {
         /// Root directory for the book, should contain the configuration file (`book.toml`)
+        ///
+        /// If not set, defaults to the current directory.
         dir: Option<PathBuf>,
 
         /// Relative directory for the css assets, from the book directory root
+        ///
+        /// If not set, defaults to the current directory.
         #[arg(long)]
         css_dir: Option<PathBuf>,
     },
@@ -38,24 +42,26 @@ fn main() {
     env_logger::init_from_env(env_logger::Env::default().default_filter_or("info"));
 
     let cli = Cli::parse();
-
-    match cli.command {
-        None => {
-            if let Err(e) = handle_preprocessing() {
-                eprintln!("{}", e);
-                process::exit(1);
-            }
+    if let Err(error) = run(cli) {
+        log::error!("Fatal error: {}", error);
+        for error in error.chain() {
+            log::error!("  - {}", error);
         }
+        process::exit(1);
+    }
+}
+
+fn run(cli: Cli) -> Result<()> {
+    match cli.command {
+        None => handle_preprocessing(),
         Some(Commands::Supports { renderer }) => {
             handle_supports(renderer);
         }
         #[cfg(feature = "cli-install")]
-        Some(Commands::Install { dir, css_dir }) => {
-            install::handle_install(
-                dir.unwrap_or_else(|| PathBuf::from(".")),
-                css_dir.unwrap_or_else(|| PathBuf::from(".")),
-            );
-        }
+        Some(Commands::Install { dir, css_dir }) => install::handle_install(
+            dir.unwrap_or_else(|| PathBuf::from(".")),
+            css_dir.unwrap_or_else(|| PathBuf::from(".")),
+        ),
     }
 }
 
@@ -90,11 +96,11 @@ fn handle_supports(renderer: String) -> ! {
 
 #[cfg(feature = "cli-install")]
 mod install {
+    use anyhow::{Context, Result};
     use std::{
         fs::{self, File},
         io::Write,
         path::PathBuf,
-        process,
     };
     use toml_edit::{self, Array, Document, Item, Table, Value};
 
@@ -116,19 +122,14 @@ mod install {
         }
     }
 
-    pub fn handle_install(proj_dir: PathBuf, css_dir: PathBuf) {
+    pub fn handle_install(proj_dir: PathBuf, css_dir: PathBuf) -> Result<()> {
         let config = proj_dir.join("book.toml");
-
-        if !config.exists() {
-            log::error!("Configuration file '{}' missing", config.display());
-            process::exit(1);
-        }
-
         log::info!("Reading configuration file '{}'", config.display());
-        let toml = fs::read_to_string(&config).expect("can't read configuration file");
+        let toml = fs::read_to_string(&config)
+            .with_context(|| format!("can't read configuration file '{}'", config.display()))?;
         let mut doc = toml
             .parse::<Document>()
-            .expect("configuration is not valid TOML");
+            .context("configuration is not valid TOML")?;
 
         if let Ok(preprocessor) = preprocessor(&mut doc) {
             const ASSETS_VERSION: &str = std::include_str!("./assets/VERSION");
@@ -144,7 +145,7 @@ mod install {
         let mut additional_css = additional_css(&mut doc);
         for (name, content) in ADMONISH_CSS_FILES {
             let filepath = proj_dir.join(&css_dir).join(name);
-            let filepath_str = filepath.to_str().expect("non-utf8 filepath");
+            let filepath_str = filepath.to_str().context("non-utf8 filepath")?;
 
             if let Ok(ref mut additional_css) = additional_css {
                 if !additional_css.contains_str(filepath_str) {
@@ -159,18 +160,18 @@ mod install {
                 "Copying '{name}' to '{filepath}'",
                 filepath = filepath.display()
             );
-            let mut file = File::create(filepath).expect("can't open file for writing");
+            let mut file = File::create(&filepath).context("can't open file for writing")?;
             file.write_all(content)
-                .expect("can't write content to file");
+                .context("can't write content to file")?;
         }
 
         let new_toml = doc.to_string();
         if new_toml != toml {
             log::info!("Saving changed configuration to '{}'", config.display());
             let mut file =
-                File::create(config).expect("can't open configuration file for writing.");
+                File::create(config).context("can't open configuration file for writing.")?;
             file.write_all(new_toml.as_bytes())
-                .expect("can't write configuration");
+                .context("can't write configuration")?;
         } else {
             log::info!("Configuration '{}' already up to date", config.display());
         }
@@ -180,8 +181,7 @@ mod install {
 A beautifully styled message.
 ```"#;
         log::info!("Add a code block like:\n{}", codeblock);
-
-        process::exit(0);
+        Ok(())
     }
 
     /// Return the `additional-css` field, initializing if required.
