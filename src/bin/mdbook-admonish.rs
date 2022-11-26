@@ -145,6 +145,9 @@ mod install {
         let mut additional_css = additional_css(&mut doc);
         for (name, content) in ADMONISH_CSS_FILES {
             let filepath = proj_dir.join(&css_dir).join(name);
+            // Normalize path to remove no-op components
+            // https://github.com/tommilligan/mdbook-admonish/issues/47
+            let filepath: PathBuf = filepath.components().collect();
             let filepath_str = filepath.to_str().context("non-utf8 filepath")?;
 
             if let Ok(ref mut additional_css) = additional_css {

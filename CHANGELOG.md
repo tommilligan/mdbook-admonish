@@ -1,6 +1,10 @@
-## Changelog
+# Changelog
 
 ## Unreleased
+
+### Fixed
+
+- Custom installation and CSS directories are now normalized ([#49](https://github.com/tommilligan/mdbook-admonish/pull/49))
 
 ## 1.8.0
 
