@@ -342,15 +342,24 @@ dependencies = [
 
 [[package]]
 name = "env_logger"
-version = "0.9.1"
+version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c90bf5f19754d10198ccb95b70664fc925bd1fc090a0fd9a6ebc54acc8cd6272"
+checksum = "a12e6657c4c97ebab115a42dcee77225f7f482cdd841cf7088c657a42e9e00e7"
 dependencies = [
  "atty",
  "humantime",
  "log",
  "regex",
  "termcolor",
+]
+
+[[package]]
+name = "env_logger"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "85cdab6a89accf66733ad5a1693a4dcced6aeff64602b634530dd73c1f3ee9f0"
+dependencies = [
+ "log",
 ]
 
 [[package]]
@@ -890,7 +899,7 @@ dependencies = [
  "clap 3.2.23",
  "clap_complete",
  "elasticlunr-rs",
- "env_logger",
+ "env_logger 0.9.3",
  "futures-util",
  "gitignore",
  "handlebars",
@@ -917,7 +926,7 @@ version = "1.8.0"
 dependencies = [
  "anyhow",
  "clap 4.0.18",
- "env_logger",
+ "env_logger 0.10.0",
  "log",
  "mdbook",
  "once_cell",
