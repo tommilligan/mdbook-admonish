@@ -144,7 +144,7 @@ mod install {
 
         let mut additional_css = additional_css(&mut doc);
         for (name, content) in ADMONISH_CSS_FILES {
-            let filepath = proj_dir.join(&css_dir).join(name);
+            let filepath = proj_dir.join(css_dir.clone()).join(name);
             // Normalize path to remove no-op components
             // https://github.com/tommilligan/mdbook-admonish/issues/47
             let filepath: PathBuf = filepath.components().collect();
