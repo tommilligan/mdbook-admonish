@@ -22,7 +22,7 @@ name = "mdbook_admonish"
 path = "src/lib.rs"
 
 [dependencies]
-anyhow = "1.0.65"
+anyhow = "1.0.68"
 clap = { version = "4", default_features = false, features = ["std", "derive"], optional = true }
 env_logger = { version = "0.10", default_features = false, optional = true }
 log = { version = "0.4.17", optional = true }
