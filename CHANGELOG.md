@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Changed
+
+- MSRV (minimum supported rust version) is now 1.64.0 for clap v4 ([#79](https://github.com/tommilligan/mdbook-admonish/pull/79))
+- More verbose error messages for invalid TOML configurations ([#79](https://github.com/tommilligan/mdbook-admonish/pull/79))
+
 ### Fixed
 
 - Custom installation and CSS directories are now normalized ([#49](https://github.com/tommilligan/mdbook-admonish/pull/49))
