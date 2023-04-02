@@ -21,3 +21,5 @@ No title, only body
 ```admonish collapsible=true
 Hidden on load
 ```
+
+{{#include common_warning.md}}

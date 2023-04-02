@@ -136,6 +136,17 @@ on_failure = "bail"
 
 This may be useful for non-interative workflows.
 
+### Process included files
+
+You can ensure that content inlined with `{{#include}}` is also processed by [setting the `after` option](https://rust-lang.github.io/mdBook/format/configuration/preprocessors.html#require-a-certain-order):
+
+```toml
+[preprocessor.admonish]
+after = ["links"]
+```
+
+This will expand `include` directives, before expanding `admonish` blocks.
+
 ### Semantic Versioning
 
 Guarantees provided are as follows:
