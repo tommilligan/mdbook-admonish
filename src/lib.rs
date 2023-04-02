@@ -264,7 +264,11 @@ fn parse_admonition<'a>(
                     additional_classnames: Vec::new(),
                     collapsible: false,
                     content: Cow::Owned(format!(
-                        r#"Failed with: {message}
+                        r#"Failed with:
+
+```
+{message}
+```
 
 Original markdown input:
 
@@ -713,7 +717,16 @@ Error rendering admonishment
 </div>
 <div>
 
-Failed with: TOML parsing error: unterminated string at line 1 column 7
+Failed with:
+
+```
+TOML parsing error: TOML parse error at line 1, column 8
+  |
+1 | title="
+  |        ^
+invalid basic string
+
+```
 
 Original markdown input:
 

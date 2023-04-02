@@ -166,7 +166,12 @@ mod test {
     fn test_from_config_string_invalid_toml_value() {
         assert_eq!(
             from_config_string(r#"note titlel=""#).unwrap_err(),
-            "TOML parsing error: expected an equals, found a newline at line 1 column 6".to_owned()
+            r#"TOML parsing error: TOML parse error at line 1, column 6
+  |
+1 | note 
+  |      ^
+expected `.`, `=`
+"#
         );
     }
 }
