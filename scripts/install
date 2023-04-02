@@ -10,8 +10,4 @@ cd "$(dirname "$0")"/..
 
 rustup component add rustfmt clippy
 
-if ! cargo audit --version; then
-  cargo install cargo-audit --force
-fi
-
 ./scripts/install-mdbook

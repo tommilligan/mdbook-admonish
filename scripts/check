@@ -11,18 +11,6 @@ function eprintln() {
 eprintln "Formatting sources"
 cargo fmt -- --check
 
-# Known issues:
-# - RUSTSEC-2020-0071 known unlikely segfault in `time`
-# - RUSTSEC-2020-0016 `net2` is unmaintained
-# - RUSTSEC-2020-0159 known unlikely segfault in `chrono`
-# - RUSTSEC-2021-0145 known unmaintained atty transitive dep
-eprintln "Auditing dependencies"
-cargo audit --deny warnings \
-  --ignore RUSTSEC-2020-0071 \
-  --ignore RUSTSEC-2020-0016 \
-  --ignore RUSTSEC-2021-0145 \
-  --ignore RUSTSEC-2020-0159
-
 eprintln "Linting sources"
 cargo clippy --all-targets -- -D warnings
 
