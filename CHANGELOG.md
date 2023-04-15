@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- User can set book-wide default for title and collapsible properties ([#84](https://github.com/tommilligan/mdbook-admonish/pull/84)), thanks to [@ShaunSHamilton](https://github.com/ShaunSHamilton)
+
 ### Changed
 
 - MSRV (minimum supported rust version) is now 1.64.0 for clap v4 ([#79](https://github.com/tommilligan/mdbook-admonish/pull/79))
@@ -27,7 +31,7 @@
 ### Added
 
 - Support key/value configuration ([#24](https://github.com/tommilligan/mdbook-admonish/pull/24), thanks [@gggto](https://github.com/gggto) and [@schungx](https://github.com/schungx) for design input)
-- Support collapsiable admonition bodies ([#26](https://github.com/tommilligan/mdbook-admonish/pull/26), thanks [@gggto](https://github.com/gggto) for the suggestion and implementation!)
+- Support collapsible admonition bodies ([#26](https://github.com/tommilligan/mdbook-admonish/pull/26), thanks [@gggto](https://github.com/gggto) for the suggestion and implementation!)
 - Make anchor links hoverable ([#27](https://github.com/tommilligan/mdbook-admonish/pull/27))
 - Better handling for misconfigured admonitions ([#25](https://github.com/tommilligan/mdbook-admonish/pull/25))
   - Nicer in-book error messages

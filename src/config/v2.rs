@@ -12,7 +12,7 @@ struct AdmonitionInfoConfig {
     #[serde(default)]
     class: Option<String>,
     #[serde(default)]
-    collapsible: bool,
+    collapsible: Option<bool>,
 }
 
 /// Transform our config string into valid toml
@@ -106,7 +106,7 @@ mod test {
                 directive: "".to_owned(),
                 title: None,
                 additional_classnames: Vec::new(),
-                collapsible: false,
+                collapsible: None,
             }
         );
         assert_eq!(
@@ -115,17 +115,19 @@ mod test {
                 directive: "".to_owned(),
                 title: None,
                 additional_classnames: Vec::new(),
-                collapsible: false,
+                collapsible: None,
             }
         );
         assert_eq!(
-            from_config_string(r#"type="note" class="additional classname" title="Никита""#)
-                .unwrap(),
+            from_config_string(
+                r#"type="note" class="additional classname" title="Никита" collapsible=true"#
+            )
+            .unwrap(),
             AdmonitionInfoRaw {
                 directive: "note".to_owned(),
                 title: Some("Никита".to_owned()),
                 additional_classnames: vec!["additional".to_owned(), "classname".to_owned()],
-                collapsible: false,
+                collapsible: Some(true),
             }
         );
         // Specifying unknown keys is okay, as long as they're valid
@@ -135,7 +137,7 @@ mod test {
                 directive: "".to_owned(),
                 title: None,
                 additional_classnames: Vec::new(),
-                collapsible: false,
+                collapsible: None,
             }
         );
         // Just directive is fine
@@ -145,17 +147,17 @@ mod test {
                 directive: "info".to_owned(),
                 title: None,
                 additional_classnames: Vec::new(),
-                collapsible: false,
+                collapsible: None,
             }
         );
         // Directive plus toml config
         assert_eq!(
-            from_config_string(r#"info title="Information""#).unwrap(),
+            from_config_string(r#"info title="Information" collapsible=false"#).unwrap(),
             AdmonitionInfoRaw {
                 directive: "info".to_owned(),
                 title: Some("Information".to_owned()),
                 additional_classnames: Vec::new(),
-                collapsible: false,
+                collapsible: Some(false),
             }
         );
         // Directive after toml config is an error

@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use mdbook::{
     book::{Book, BookItem},
     errors::Result as MdbookResult,
@@ -9,9 +9,13 @@ use pulldown_cmark::{CodeBlockKind::*, Event, Options, Parser, Tag};
 use std::{borrow::Cow, str::FromStr};
 
 mod config;
+mod resolve;
 mod types;
 
-use crate::{config::AdmonitionInfo, types::Directive};
+use crate::{
+    resolve::AdmonitionInfo,
+    types::{AdmonitionDefaults, Directive},
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum OnFailure {
@@ -66,7 +70,7 @@ impl Preprocessor for Admonish {
             }
 
             if let BookItem::Chapter(ref mut chapter) = *item {
-                res = Some(preprocess(&chapter.content, on_failure).map(|md| {
+                res = Some(preprocess(&chapter.content, ctx, on_failure).map(|md| {
                     chapter.content = md;
                 }));
             }
@@ -140,7 +144,7 @@ impl Directive {
 #[derive(Debug, PartialEq)]
 struct Admonition<'a> {
     directive: Directive,
-    title: Option<String>,
+    title: String,
     content: Cow<'a, str>,
     additional_classnames: Vec<String>,
     collapsible: bool,
@@ -170,20 +174,19 @@ impl<'a> Admonition<'a> {
 
         let title_block = if self.collapsible { "summary" } else { "div" };
 
-        let title_html = title
-            .as_ref()
-            .map(|title| {
-                Cow::Owned(format!(
-                    r##"<{title_block} class="admonition-title">
+        let title_html = if !title.is_empty() {
+            Cow::Owned(format!(
+                r##"<{title_block} class="admonition-title">
 
 {title}
 
 <a class="admonition-anchor-link" href="#{ANCHOR_ID_PREFIX}-{anchor_id}"></a>
 </{title_block}>
 "##
-                ))
-            })
-            .unwrap_or(Cow::Borrowed(""));
+            ))
+        } else {
+            Cow::Borrowed("")
+        };
 
         if !self.additional_classnames.is_empty() {
             let mut buffer = additional_class.into_owned();
@@ -248,10 +251,11 @@ fn extract_admonish_body(content: &str) -> &str {
 /// If the code block is not an admonition, return `None`.
 fn parse_admonition<'a>(
     info_string: &'a str,
+    admonition_defaults: &'a AdmonitionDefaults,
     content: &'a str,
     on_failure: OnFailure,
 ) -> Option<MdbookResult<Admonition<'a>>> {
-    let info = AdmonitionInfo::from_info_string(info_string)?;
+    let info = AdmonitionInfo::from_info_string(info_string, admonition_defaults)?;
     let info = match info {
         Ok(info) => info,
         // FIXME return error messages to break build if configured
@@ -260,7 +264,7 @@ fn parse_admonition<'a>(
             return Some(match on_failure {
                 OnFailure::Continue => Ok(Admonition {
                     directive: Directive::Bug,
-                    title: Some("Error rendering admonishment".to_owned()),
+                    title: "Error rendering admonishment".to_owned(),
                     additional_classnames: Vec::new(),
                     collapsible: false,
                     content: Cow::Owned(format!(
@@ -286,7 +290,26 @@ Original markdown input:
     Some(Ok(Admonition::new(info, body)))
 }
 
-fn preprocess(content: &str, on_failure: OnFailure) -> MdbookResult<String> {
+fn load_defaults(ctx: &PreprocessorContext) -> Result<AdmonitionDefaults> {
+    let table_op = ctx.config.get("preprocessor.admonish.default");
+
+    Ok(if let Some(table) = table_op {
+        table
+            .to_owned()
+            .try_into()
+            .context("preprocessor.admonish.default could not be parsed from book.toml")?
+    } else {
+        Default::default()
+    })
+}
+
+fn preprocess(
+    content: &str,
+    ctx: &PreprocessorContext,
+    on_failure: OnFailure,
+) -> MdbookResult<String> {
+    let admonition_defaults = load_defaults(ctx)?;
+
     let mut id_counter = Default::default();
     let mut opts = Options::empty();
     opts.insert(Options::ENABLE_TABLES);
@@ -297,19 +320,31 @@ fn preprocess(content: &str, on_failure: OnFailure) -> MdbookResult<String> {
     let mut admonish_blocks = vec![];
 
     let events = Parser::new_ext(content, opts);
+
     for (e, span) in events.into_offset_iter() {
         if let Event::Start(Tag::CodeBlock(Fenced(info_string))) = e.clone() {
             let span_content = &content[span.start..span.end];
-            let admonition = match parse_admonition(info_string.as_ref(), span_content, on_failure)
-            {
+
+            let admonition = match parse_admonition(
+                info_string.as_ref(),
+                &admonition_defaults,
+                span_content,
+                on_failure,
+            ) {
                 Some(admonition) => admonition,
                 None => continue,
             };
+
             let admonition = admonition?;
             let anchor_id = unique_id_from_content(
-                admonition.title.as_deref().unwrap_or(ANCHOR_ID_DEFAULT),
+                if !admonition.title.is_empty() {
+                    &admonition.title
+                } else {
+                    ANCHOR_ID_DEFAULT
+                },
                 &mut id_counter,
             );
+
             admonish_blocks.push((span, admonition.html(&anchor_id)));
         }
     }
@@ -320,6 +355,7 @@ fn preprocess(content: &str, on_failure: OnFailure) -> MdbookResult<String> {
         let post_content = &content[span.end..];
         content = format!("{}\n{}{}", pre_content, block, post_content);
     }
+
     Ok(content)
 }
 
@@ -328,8 +364,53 @@ mod test {
     use super::*;
     use pretty_assertions::assert_eq;
 
+    fn create_mock_context(admonish_ops: &str) -> PreprocessorContext {
+        let input_json = format!(
+            r##"[
+                {{
+                    "root": "/path/to/book",
+                    "config": {{
+                        "book": {{
+                            "authors": ["AUTHOR"],
+                            "language": "en",
+                            "multilingual": false,
+                            "src": "src",
+                            "title": "TITLE"
+                        }},
+                        "preprocessor": {{
+                            "admonish": {admonish_ops}
+                        }}
+                    }},
+                    "renderer": "html",
+                    "mdbook_version": "0.4.21"
+                }},
+                {{
+                    "sections": [
+                        {{
+                            "Chapter": {{
+                                "name": "Chapter 1",
+                                "content": "# Chapter 1\n",
+                                "number": [1],
+                                "sub_items": [],
+                                "path": "chapter_1.md",
+                                "source_path": "chapter_1.md",
+                                "parent_names": []
+                            }}
+                        }}
+                    ],
+                    "__non_exhaustive": null
+                }}
+            ]"##
+        );
+        let input_json = input_json.as_bytes();
+
+        let (ctx, _) = mdbook::preprocess::CmdPreprocessor::parse_input(input_json).unwrap();
+        ctx
+    }
+
     fn prep(content: &str) -> String {
-        preprocess(content, OnFailure::Continue).unwrap()
+        let ctx = create_mock_context("{}");
+        preprocess(content, &ctx, OnFailure::Continue).unwrap()
     }
 
     #[test]
@@ -781,9 +862,9 @@ Bonus content!
 Bonus content!
 ```
 "#;
-
+        let ctx = create_mock_context(r#"{}"#);
         assert_eq!(
-            preprocess(content, OnFailure::Bail)
+            preprocess(content, &ctx, OnFailure::Bail)
                 .unwrap_err()
                 .to_string(),
             r#"Error processing admonition, bailing:
@@ -817,6 +898,88 @@ Hidden
 
 </div>
 </details>
+"##;
+
+        assert_eq!(expected, prep(content));
+    }
+
+    #[test]
+    fn default_toml_title() {
+        let content = r#"# Chapter
+```admonish
+A simple admonition.
+```
+Text
+"#;
+
+        let expected = r##"# Chapter
+
+<div id="admonition-admonish" class="admonition note">
+<div class="admonition-title">
+
+Admonish
+
+<a class="admonition-anchor-link" href="#admonition-admonish"></a>
+</div>
+<div>
+
+A simple admonition.
+
+</div>
+</div>
+Text
+"##;
+
+        let ctx = create_mock_context(r#"{"default": {"title": "Admonish"}}"#);
+        let preprocess_result = preprocess(content, &ctx, OnFailure::Continue).unwrap();
+        assert_eq!(expected, preprocess_result);
+    }
+
+    #[test]
+    fn empty_explicit_title_with_default() {
+        let content = r#"# Chapter
+```admonish title=""
+A simple admonition.
+```
+Text
+"#;
+
+        let expected = r##"# Chapter
+
+<div id="admonition-default" class="admonition note">
+<div>
+
+A simple admonition.
+
+</div>
+</div>
+Text
+"##;
+
+        let ctx = create_mock_context(r#"{"default": {"title": "Admonish"}}"#);
+        let preprocess_result = preprocess(content, &ctx, OnFailure::Continue).unwrap();
+        assert_eq!(expected, preprocess_result);
+    }
+
+    #[test]
+    fn empty_explicit_title() {
+        let content = r#"# Chapter
+```admonish title=""
+A simple admonition.
+```
+Text
+"#;
+
+        let expected = r##"# Chapter
+
+<div id="admonition-default" class="admonition note">
+<div>
+
+A simple admonition.
+
+</div>
+</div>
+Text
 "##;
 
         assert_eq!(expected, prep(content));
