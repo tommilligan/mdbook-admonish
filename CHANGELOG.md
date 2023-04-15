@@ -10,6 +10,7 @@
 ### Fixed
 
 - Custom installation and CSS directories are now normalized ([#49](https://github.com/tommilligan/mdbook-admonish/pull/49))
+- Fix title bars with no text rendering badly ([#83](https://github.com/tommilligan/mdbook-admonish/pull/83)), thanks to [@ShaunSHamilton](https://github.com/ShaunSHamilton)
 
 ## 1.8.0
 

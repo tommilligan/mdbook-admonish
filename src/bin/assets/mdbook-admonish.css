@@ -77,6 +77,7 @@ a.admonition-anchor-link::before {
 
 :is(.admonition-title, summary) {
   position: relative;
+  min-height: 4rem;
   margin-block: 0;
   margin-inline: -1.6rem -1.2rem;
   padding-block: 0.8rem;
