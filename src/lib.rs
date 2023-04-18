@@ -393,6 +393,36 @@ Text
     }
 
     #[test]
+    fn adds_admonish_directive_alternate() {
+        let content = r#"# Chapter
+```admonish caution
+A warning with alternate title.
+```
+Text
+"#;
+
+        let expected = r##"# Chapter
+
+<div id="admonition-caution" class="admonition warning">
+<div class="admonition-title">
+
+Caution
+
+<a class="admonition-anchor-link" href="#admonition-caution"></a>
+</div>
+<div>
+
+A warning with alternate title.
+
+</div>
+</div>
+Text
+"##;
+
+        assert_eq!(expected, prep(content));
+    }
+
+    #[test]
     fn adds_admonish_directive_title() {
         let content = r#"# Chapter
 ```admonish warning "Read **this**!"
