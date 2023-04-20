@@ -1,10 +1,10 @@
-use super::AdmonitionInfoRaw;
+use super::InstanceConfig;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::Deserialize;
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
-struct AdmonitionInfoConfig {
+struct UserInput {
     #[serde(default)]
     r#type: Option<String>,
     #[serde(default)]
@@ -12,7 +12,7 @@ struct AdmonitionInfoConfig {
     #[serde(default)]
     class: Option<String>,
     #[serde(default)]
-    collapsible: bool,
+    collapsible: Option<bool>,
 }
 
 /// Transform our config string into valid toml
@@ -43,11 +43,11 @@ fn bare_key_value_pairs_to_toml(pairs: &str) -> String {
 ///
 /// Note that if an error occurs, a parsed struct that can be returned to
 /// show the error message will be returned.
-pub(crate) fn from_config_string(config_string: &str) -> Result<AdmonitionInfoRaw, String> {
+pub(crate) fn from_config_string(config_string: &str) -> Result<InstanceConfig, String> {
     let config_toml = bare_key_value_pairs_to_toml(config_string);
     let config_toml = config_toml.trim();
 
-    let config: AdmonitionInfoConfig = match toml::from_str(config_toml) {
+    let config: UserInput = match toml::from_str(config_toml) {
         Ok(config) => config,
         Err(error) => {
             let original_error = Err(format!("TOML parsing error: {error}"));
@@ -67,7 +67,7 @@ pub(crate) fn from_config_string(config_string: &str) -> Result<AdmonitionInfoRa
                 return original_error;
             }
 
-            let mut config: AdmonitionInfoConfig = match toml::from_str(config_toml) {
+            let mut config: UserInput = match toml::from_str(config_toml) {
                 Ok(config) => config,
                 Err(_) => return original_error,
             };
@@ -85,7 +85,7 @@ pub(crate) fn from_config_string(config_string: &str) -> Result<AdmonitionInfoRa
                 .collect()
         })
         .unwrap_or_default();
-    Ok(AdmonitionInfoRaw {
+    Ok(InstanceConfig {
         directive: config.r#type.unwrap_or_default(),
         title: config.title,
         additional_classnames,
@@ -102,60 +102,62 @@ mod test {
     fn test_from_config_string_v2() {
         assert_eq!(
             from_config_string("").unwrap(),
-            AdmonitionInfoRaw {
+            InstanceConfig {
                 directive: "".to_owned(),
                 title: None,
                 additional_classnames: Vec::new(),
-                collapsible: false,
+                collapsible: None,
             }
         );
         assert_eq!(
             from_config_string(" ").unwrap(),
-            AdmonitionInfoRaw {
+            InstanceConfig {
                 directive: "".to_owned(),
                 title: None,
                 additional_classnames: Vec::new(),
-                collapsible: false,
+                collapsible: None,
             }
         );
         assert_eq!(
-            from_config_string(r#"type="note" class="additional classname" title="Никита""#)
-                .unwrap(),
-            AdmonitionInfoRaw {
+            from_config_string(
+                r#"type="note" class="additional classname" title="Никита" collapsible=true"#
+            )
+            .unwrap(),
+            InstanceConfig {
                 directive: "note".to_owned(),
                 title: Some("Никита".to_owned()),
                 additional_classnames: vec!["additional".to_owned(), "classname".to_owned()],
-                collapsible: false,
+                collapsible: Some(true),
             }
         );
         // Specifying unknown keys is okay, as long as they're valid
         assert_eq!(
             from_config_string(r#"unkonwn="but valid toml""#).unwrap(),
-            AdmonitionInfoRaw {
+            InstanceConfig {
                 directive: "".to_owned(),
                 title: None,
                 additional_classnames: Vec::new(),
-                collapsible: false,
+                collapsible: None,
             }
         );
         // Just directive is fine
         assert_eq!(
             from_config_string(r#"info"#).unwrap(),
-            AdmonitionInfoRaw {
+            InstanceConfig {
                 directive: "info".to_owned(),
                 title: None,
                 additional_classnames: Vec::new(),
-                collapsible: false,
+                collapsible: None,
             }
         );
         // Directive plus toml config
         assert_eq!(
-            from_config_string(r#"info title="Information""#).unwrap(),
-            AdmonitionInfoRaw {
+            from_config_string(r#"info title="Information" collapsible=false"#).unwrap(),
+            InstanceConfig {
                 directive: "info".to_owned(),
                 title: Some("Information".to_owned()),
                 additional_classnames: Vec::new(),
-                collapsible: false,
+                collapsible: Some(false),
             }
         );
         // Directive after toml config is an error

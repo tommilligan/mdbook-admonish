@@ -1,4 +1,15 @@
+use serde::{Deserialize, Serialize};
 use std::str::FromStr;
+
+/// Book wide defaults that may be provided by the user.
+#[derive(Deserialize, Serialize, Debug, Default)]
+pub(crate) struct AdmonitionDefaults {
+    #[serde(default)]
+    pub(crate) title: Option<String>,
+
+    #[serde(default)]
+    pub(crate) collapsible: Option<bool>,
+}
 
 #[derive(Debug, PartialEq)]
 pub(crate) enum Directive {

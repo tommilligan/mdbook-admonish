@@ -1,8 +1,8 @@
-use super::AdmonitionInfoRaw;
+use super::InstanceConfig;
 use once_cell::sync::Lazy;
 use regex::Regex;
 
-pub(crate) fn from_config_string(config_string: &str) -> Result<AdmonitionInfoRaw, String> {
+pub(crate) fn from_config_string(config_string: &str) -> Result<InstanceConfig, String> {
     let config_string = config_string.trim();
 
     static RX_CONFIG_STRING_V1: Lazy<Regex> = Lazy::new(|| {
@@ -49,11 +49,11 @@ pub(crate) fn from_config_string(config_string: &str) -> Result<AdmonitionInfoRa
         ),
     };
 
-    Ok(AdmonitionInfoRaw {
+    Ok(InstanceConfig {
         directive: directive.to_owned(),
         title,
         additional_classnames,
-        collapsible: false,
+        collapsible: None,
     })
 }
 
@@ -66,47 +66,47 @@ mod test {
     fn test_from_config_string() {
         assert_eq!(
             from_config_string("").unwrap(),
-            AdmonitionInfoRaw {
+            InstanceConfig {
                 directive: "".to_owned(),
                 title: None,
                 additional_classnames: Vec::new(),
-                collapsible: false,
+                collapsible: None,
             }
         );
         assert_eq!(
             from_config_string(" ").unwrap(),
-            AdmonitionInfoRaw {
+            InstanceConfig {
                 directive: "".to_owned(),
                 title: None,
                 additional_classnames: Vec::new(),
-                collapsible: false,
+                collapsible: None,
             }
         );
         assert_eq!(
             from_config_string("unknown").unwrap(),
-            AdmonitionInfoRaw {
+            InstanceConfig {
                 directive: "unknown".to_owned(),
                 title: None,
                 additional_classnames: Vec::new(),
-                collapsible: false,
+                collapsible: None,
             }
         );
         assert_eq!(
             from_config_string("note").unwrap(),
-            AdmonitionInfoRaw {
+            InstanceConfig {
                 directive: "note".to_owned(),
                 title: None,
                 additional_classnames: Vec::new(),
-                collapsible: false,
+                collapsible: None,
             }
         );
         assert_eq!(
             from_config_string("note.additional-classname").unwrap(),
-            AdmonitionInfoRaw {
+            InstanceConfig {
                 directive: "note".to_owned(),
                 title: None,
                 additional_classnames: vec!["additional-classname".to_owned()],
-                collapsible: false,
+                collapsible: None,
             }
         );
     }
