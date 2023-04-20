@@ -1,4 +1,4 @@
-use crate::config::AdmonitionInfoRaw;
+use crate::config::InstanceConfig;
 use crate::types::{AdmonitionDefaults, Directive};
 use std::str::FromStr;
 
@@ -6,26 +6,26 @@ use std::str::FromStr;
 ///
 /// i.e. all configured options have been resolved at this point.
 #[derive(Debug, PartialEq)]
-pub(crate) struct AdmonitionInfo {
+pub(crate) struct AdmonitionMeta {
     pub directive: Directive,
     pub title: String,
     pub additional_classnames: Vec<String>,
     pub collapsible: bool,
 }
 
-impl AdmonitionInfo {
+impl AdmonitionMeta {
     pub fn from_info_string(
         info_string: &str,
         defaults: &AdmonitionDefaults,
     ) -> Option<Result<Self, String>> {
-        AdmonitionInfoRaw::from_info_string(info_string)
+        InstanceConfig::from_info_string(info_string)
             .map(|raw| raw.map(|raw| Self::resolve(raw, defaults)))
     }
 
     /// Combine the per-admonition configuration with global defaults (and
     /// other logic) to resolve the values needed for rendering.
-    fn resolve(raw: AdmonitionInfoRaw, defaults: &AdmonitionDefaults) -> Self {
-        let AdmonitionInfoRaw {
+    fn resolve(raw: InstanceConfig, defaults: &AdmonitionDefaults) -> Self {
+        let InstanceConfig {
             directive: raw_directive,
             title,
             additional_classnames,
@@ -72,8 +72,8 @@ mod test {
     #[test]
     fn test_admonition_info_from_raw() {
         assert_eq!(
-            AdmonitionInfo::resolve(
-                AdmonitionInfoRaw {
+            AdmonitionMeta::resolve(
+                InstanceConfig {
                     directive: " ".to_owned(),
                     title: None,
                     additional_classnames: Vec::new(),
@@ -81,7 +81,7 @@ mod test {
                 },
                 &Default::default()
             ),
-            AdmonitionInfo {
+            AdmonitionMeta {
                 directive: Directive::Note,
                 title: "Note".to_owned(),
                 additional_classnames: Vec::new(),

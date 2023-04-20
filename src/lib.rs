@@ -13,7 +13,7 @@ mod resolve;
 mod types;
 
 use crate::{
-    resolve::AdmonitionInfo,
+    resolve::AdmonitionMeta,
     types::{AdmonitionDefaults, Directive},
 };
 
@@ -151,8 +151,8 @@ struct Admonition<'a> {
 }
 
 impl<'a> Admonition<'a> {
-    pub fn new(info: AdmonitionInfo, content: &'a str) -> Self {
-        let AdmonitionInfo {
+    pub fn new(info: AdmonitionMeta, content: &'a str) -> Self {
+        let AdmonitionMeta {
             directive,
             title,
             additional_classnames,
@@ -255,7 +255,7 @@ fn parse_admonition<'a>(
     content: &'a str,
     on_failure: OnFailure,
 ) -> Option<MdbookResult<Admonition<'a>>> {
-    let info = AdmonitionInfo::from_info_string(info_string, admonition_defaults)?;
+    let info = AdmonitionMeta::from_info_string(info_string, admonition_defaults)?;
     let info = match info {
         Ok(info) => info,
         // FIXME return error messages to break build if configured
