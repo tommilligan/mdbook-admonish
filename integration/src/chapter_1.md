@@ -23,3 +23,9 @@ Hidden on load
 ```
 
 {{#include common_warning.md}}
+
+````admonish
+```bash
+Nested code block
+```
+````
