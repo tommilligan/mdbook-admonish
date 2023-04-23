@@ -1,0 +1,14 @@
+action:
+  ready:
+    type: link
+    name: "Push New Version Tag"
+    url: "https://github.com/tommilligan/mdbook-admonish"
+
+commit:
+  ignore:
+    merges: true
+
+release:
+  identifiers:
+    - type: tag
+      pattern: "^v[0-9]"
