@@ -2,19 +2,24 @@
 
 ## Unreleased
 
-### Added
-
-- User can set book-wide default for title and collapsible properties ([#84](https://github.com/tommilligan/mdbook-admonish/pull/84)), thanks to [@ShaunSHamilton](https://github.com/ShaunSHamilton)
+## 1.9.0
 
 ### Changed
 
+- Styles updated to `^2.0.1`. Run `mdbook-admonish install` to update.
 - MSRV (minimum supported rust version) is now 1.64.0 for clap v4 ([#79](https://github.com/tommilligan/mdbook-admonish/pull/79))
 - More verbose error messages for invalid TOML configurations ([#79](https://github.com/tommilligan/mdbook-admonish/pull/79))
+
+### Added
+
+- User can set book-wide default for title and collapsible properties ([#84](https://github.com/tommilligan/mdbook-admonish/pull/84)), thanks to [@ShaunSHamilton](https://github.com/ShaunSHamilton)
 
 ### Fixed
 
 - Custom installation and CSS directories are now normalized ([#49](https://github.com/tommilligan/mdbook-admonish/pull/49))
 - Fix title bars with no text rendering badly ([#83](https://github.com/tommilligan/mdbook-admonish/pull/83)), thanks to [@ShaunSHamilton](https://github.com/ShaunSHamilton)
+- Better error message display on crash ([#48](https://github.com/tommilligan/mdbook-admonish/pull/48))
+- Better support for commonmark code fence syntax ([#88](https://github.com/tommilligan/mdbook-admonish/pull/88), [#89](https://github.com/tommilligan/mdbook-admonish/pull/89))
 
 ## 1.8.0
 
