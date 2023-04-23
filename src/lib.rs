@@ -234,12 +234,21 @@ fn parse_admonition<'a>(
     content: &'a str,
     on_failure: OnFailure,
 ) -> Option<MdbookResult<Admonition<'a>>> {
+    // We need to know fence details anyway for error messages
+    let extracted = parse::extract_admonish_body(content);
+
     let info = AdmonitionMeta::from_info_string(info_string, admonition_defaults)?;
     let info = match info {
         Ok(info) => info,
         // FIXME return error messages to break build if configured
         // Err(message) => return Some(Err(content)),
         Err(message) => {
+            // Construct a fence capable of enclosing whatever we wrote for the
+            // actual input block
+            let fence = extracted.fence;
+            let enclosing_fence: String = std::iter::repeat(fence.character)
+                .take(fence.length + 1)
+                .collect();
             return Some(match on_failure {
                 OnFailure::Continue => Ok(Admonition {
                     directive: Directive::Bug,
@@ -255,18 +264,18 @@ fn parse_admonition<'a>(
 
 Original markdown input:
 
-``````
+{enclosing_fence}
 {content}
-``````
+{enclosing_fence}
 "#
                     )),
                 }),
                 OnFailure::Bail => Err(anyhow!("Error processing admonition, bailing:\n{content}")),
-            })
+            });
         }
     };
-    let body = parse::extract_admonish_body(content);
-    Some(Ok(Admonition::new(info, body)))
+
+    Some(Ok(Admonition::new(info, extracted.body)))
 }
 
 fn load_defaults(ctx: &PreprocessorContext) -> Result<AdmonitionDefaults> {
@@ -854,11 +863,11 @@ invalid basic string
 
 Original markdown input:
 
-``````
+````
 ```admonish title="
 Bonus content!
 ```
-``````
+````
 
 
 </div>
