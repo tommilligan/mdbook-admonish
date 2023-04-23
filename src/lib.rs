@@ -9,6 +9,7 @@ use pulldown_cmark::{CodeBlockKind::*, Event, Options, Parser, Tag};
 use std::{borrow::Cow, str::FromStr};
 
 mod config;
+mod parse;
 mod resolve;
 mod types;
 
@@ -218,28 +219,6 @@ impl<'a> Admonition<'a> {
 const ANCHOR_ID_PREFIX: &str = "admonition";
 const ANCHOR_ID_DEFAULT: &str = "default";
 
-fn extract_admonish_body(content: &str) -> &str {
-    const PRE_END: char = '\n';
-    const POST: &str = "```";
-
-    // We can't trust the info string length to find the start of the body
-    // it may change length if it contains HTML or character escapes.
-    //
-    // So we scan for the first newline and use that.
-    // If gods forbid it doesn't exist for some reason, just include the whole info string.
-    let start_index = content
-        // Start one character _after_ the newline
-        .find(PRE_END)
-        .map(|index| index + 1)
-        .unwrap_or_default();
-    let end_index = content.len() - POST.len();
-
-    let admonish_content = &content[start_index..end_index];
-    // The newline after a code block is technically optional, so we have to
-    // trim it off dynamically.
-    admonish_content.trim()
-}
-
 /// Given the content in the span of the code block, and the info string,
 /// return `Some(Admonition)` if the code block is an admonition.
 ///
@@ -286,7 +265,7 @@ Original markdown input:
             })
         }
     };
-    let body = extract_admonish_body(content);
+    let body = parse::extract_admonish_body(content);
     Some(Ok(Admonition::new(info, body)))
 }
 
@@ -321,8 +300,8 @@ fn preprocess(
 
     let events = Parser::new_ext(content, opts);
 
-    for (e, span) in events.into_offset_iter() {
-        if let Event::Start(Tag::CodeBlock(Fenced(info_string))) = e.clone() {
+    for (event, span) in events.into_offset_iter() {
+        if let Event::Start(Tag::CodeBlock(Fenced(info_string))) = event.clone() {
             let span_content = &content[span.start..span.end];
 
             let admonition = match parse_admonition(
@@ -434,6 +413,40 @@ Note
 <div>
 
 A simple admonition.
+
+</div>
+</div>
+Text
+"##;
+
+        assert_eq!(expected, prep(content));
+    }
+
+    #[test]
+    fn adds_admonish_longer_code_fence() {
+        let content = r#"# Chapter
+````admonish
+```json
+{}
+```
+````
+Text
+"#;
+
+        let expected = r##"# Chapter
+
+<div id="admonition-note" class="admonition note">
+<div class="admonition-title">
+
+Note
+
+<a class="admonition-anchor-link" href="#admonition-note"></a>
+</div>
+<div>
+
+```json
+{}
+```
 
 </div>
 </div>
