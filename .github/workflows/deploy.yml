@@ -109,9 +109,14 @@ jobs:
       - name: Setup | Artifacts
         uses: actions/download-artifact@v3
 
+      - name: Setup | Extract version
+        shell: bash
+        run: echo "##[set-output name=version;]$(echo ${GITHUB_REF#refs/tags/v})"
+        id: extract_version
+
       - name: Setup | Release notes
         run: |
-          git log -1 --pretty='%s' > RELEASE.md
+          cat CHANGELOG.md | sed -n '/^## ${{ steps.extract_version.outputs.version }}$/,/^## /p' | sed '$d' > RELEASE.md
       - name: Build | Publish
         uses: softprops/action-gh-release@v1
         with:
@@ -119,3 +124,30 @@ jobs:
           body_path: RELEASE.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Upload to crates.io
+  publish:
+    name: Publish to crates.io
+    needs: github_release
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+            ~/.cargo/bin
+            cargo_target
+          # We reuse the cache from our detailed test environment, if available
+          key: detailed-test-${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - name: Publish crate
+        env:
+          CARGO_LOGIN_TOKEN: ${{ secrets.CARGO_LOGIN_TOKEN }}
+        run: ./scripts/publish
