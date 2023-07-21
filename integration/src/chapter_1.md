@@ -29,3 +29,15 @@ Hidden on load
 Nested code block
 ```
 ````
+
+````admonish
+```rust
+let x = 10;
+x = 20;
+```
+
+```rust
+let x = 10;
+let x = 20;
+```
+````

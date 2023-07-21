@@ -25,7 +25,7 @@ fn extract_admonish_body_start_index(content: &str) -> usize {
 }
 
 fn extract_admonish_body_end_index(content: &str) -> (usize, Fence) {
-    let fence_character = content.chars().rev().next().unwrap_or('`');
+    let fence_character = content.chars().next_back().unwrap_or('`');
     let number_fence_characters = content
         .chars()
         .rev()

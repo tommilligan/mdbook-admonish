@@ -19,6 +19,50 @@ use crate::{
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum RenderTextMode {
+    Strip,
+    Html,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum RenderMode {
+    Preserve,
+    Strip,
+    Html,
+}
+
+impl FromStr for RenderMode {
+    type Err = ();
+
+    fn from_str(string: &str) -> Result<Self, ()> {
+        match string {
+            "preserve" => Ok(Self::Preserve),
+            "strip" => Ok(Self::Strip),
+            _ => Err(()),
+        }
+    }
+}
+
+fn test_render_mode(context: &PreprocessorContext) -> Result<RenderMode> {
+    const TOML_KEY: &str = "preprocessor.admonish.renderer.test.render_mode";
+    let value = context.config.get(TOML_KEY);
+
+    // If no key set, return default
+    let value = if let Some(value) = value {
+        value
+    } else {
+        return Ok(RenderMode::Preserve);
+    };
+
+    // Othersise, parse value
+    let value = value
+        .as_str()
+        .with_context(|| format!("Invalid value for {TOML_KEY}: {value:?}"))?;
+
+    RenderMode::from_str(value).map_err(|_| anyhow!("Invalid value for {TOML_KEY}: {value}"))
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum OnFailure {
     Bail,
     Continue,
@@ -53,6 +97,24 @@ impl OnFailure {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Renderer {
+    Html,
+    Test,
+}
+
+impl FromStr for Renderer {
+    type Err = ();
+
+    fn from_str(string: &str) -> Result<Self, ()> {
+        match string {
+            "html" => Ok(Self::Html),
+            "test" => Ok(Self::Test),
+            _ => Err(()),
+        }
+    }
+}
+
 pub struct Admonish;
 
 impl Preprocessor for Admonish {
@@ -63,6 +125,22 @@ impl Preprocessor for Admonish {
     fn run(&self, ctx: &PreprocessorContext, mut book: Book) -> MdbookResult<Book> {
         ensure_compatible_assets_version(ctx)?;
         let on_failure = OnFailure::from_context(ctx);
+        let admonition_defaults = load_defaults(ctx)?;
+        let renderer = Renderer::from_str(&ctx.renderer).map_err(|_| {
+            anyhow!(
+                "mdbook-admonish called with unsupported renderer '{}",
+                &ctx.renderer
+            )
+        })?;
+        let render_mode = match renderer {
+            Renderer::Html => RenderMode::Html,
+            Renderer::Test => test_render_mode(ctx)?,
+        };
+        let render_text_mode = match render_mode {
+            RenderMode::Preserve => return Ok(book),
+            RenderMode::Html => RenderTextMode::Html,
+            RenderMode::Strip => RenderTextMode::Strip,
+        };
 
         let mut res = None;
         book.for_each_mut(|item: &mut BookItem| {
@@ -71,9 +149,17 @@ impl Preprocessor for Admonish {
             }
 
             if let BookItem::Chapter(ref mut chapter) = *item {
-                res = Some(preprocess(&chapter.content, ctx, on_failure).map(|md| {
-                    chapter.content = md;
-                }));
+                res = Some(
+                    preprocess(
+                        &chapter.content,
+                        on_failure,
+                        &admonition_defaults,
+                        render_text_mode,
+                    )
+                    .map(|md| {
+                        chapter.content = md;
+                    }),
+                );
             }
         });
 
@@ -81,7 +167,7 @@ impl Preprocessor for Admonish {
     }
 
     fn supports_renderer(&self, renderer: &str) -> bool {
-        renderer == "html"
+        Renderer::from_str(renderer).is_ok()
     }
 }
 
@@ -215,6 +301,13 @@ impl<'a> Admonition<'a> {
 </{admonition_block}>"#,
         )
     }
+
+    /// Strips all admonish syntax, leaving the plain content of the block.
+    fn strip(&self) -> String {
+        // Add in newlines to preserve line numbering for test output
+        // These replace the code fences we stripped out
+        format!("\n{}\n", self.content)
+    }
 }
 
 const ANCHOR_ID_PREFIX: &str = "admonition";
@@ -259,13 +352,13 @@ fn parse_admonition<'a>(
                     content: Cow::Owned(format!(
                         r#"Failed with:
 
-```
+```log
 {message}
 ```
 
 Original markdown input:
 
-{enclosing_fence}
+{enclosing_fence}markdown
 {content}
 {enclosing_fence}
 "#
@@ -280,9 +373,9 @@ Original markdown input:
 }
 
 fn load_defaults(ctx: &PreprocessorContext) -> Result<AdmonitionDefaults> {
-    let table_op = ctx.config.get("preprocessor.admonish.default");
+    let table = ctx.config.get("preprocessor.admonish.default");
 
-    Ok(if let Some(table) = table_op {
+    Ok(if let Some(table) = table {
         table
             .to_owned()
             .try_into()
@@ -294,11 +387,10 @@ fn load_defaults(ctx: &PreprocessorContext) -> Result<AdmonitionDefaults> {
 
 fn preprocess(
     content: &str,
-    ctx: &PreprocessorContext,
     on_failure: OnFailure,
+    admonition_defaults: &AdmonitionDefaults,
+    render_text_mode: RenderTextMode,
 ) -> MdbookResult<String> {
-    let admonition_defaults = load_defaults(ctx)?;
-
     let mut id_counter = Default::default();
     let mut opts = Options::empty();
     opts.insert(Options::ENABLE_TABLES);
@@ -325,16 +417,25 @@ fn preprocess(
             };
 
             let admonition = admonition?;
-            let anchor_id = unique_id_from_content(
-                if !admonition.title.is_empty() {
-                    &admonition.title
-                } else {
-                    ANCHOR_ID_DEFAULT
-                },
-                &mut id_counter,
-            );
 
-            admonish_blocks.push((span, admonition.html(&anchor_id)));
+            // Once we've identitified admonition blocks, handle them differently
+            // depending on our render mode
+            let new_content = match render_text_mode {
+                RenderTextMode::Html => {
+                    let anchor_id = unique_id_from_content(
+                        if !admonition.title.is_empty() {
+                            &admonition.title
+                        } else {
+                            ANCHOR_ID_DEFAULT
+                        },
+                        &mut id_counter,
+                    );
+                    admonition.html(&anchor_id)
+                }
+                RenderTextMode::Strip => admonition.strip(),
+            };
+
+            admonish_blocks.push((span, new_content));
         }
     }
 
@@ -352,54 +453,58 @@ fn preprocess(
 mod test {
     use super::*;
     use pretty_assertions::assert_eq;
+    use serde_json::{json, Value};
 
-    fn create_mock_context(admonish_ops: &str) -> PreprocessorContext {
-        let input_json = format!(
-            r##"[
-                {{
-                    "root": "/path/to/book",
-                    "config": {{
-                        "book": {{
-                            "authors": ["AUTHOR"],
-                            "language": "en",
-                            "multilingual": false,
-                            "src": "src",
-                            "title": "TITLE"
-                        }},
-                        "preprocessor": {{
-                            "admonish": {admonish_ops}
-                        }}
-                    }},
-                    "renderer": "html",
-                    "mdbook_version": "0.4.21"
-                }},
-                {{
-                    "sections": [
-                        {{
-                            "Chapter": {{
-                                "name": "Chapter 1",
-                                "content": "# Chapter 1\n",
-                                "number": [1],
-                                "sub_items": [],
-                                "path": "chapter_1.md",
-                                "source_path": "chapter_1.md",
-                                "parent_names": []
-                            }}
-                        }}
-                    ],
-                    "__non_exhaustive": null
-                }}
-            ]"##
-        );
-        let input_json = input_json.as_bytes();
+    fn mock_book(content: &str) -> Book {
+        serde_json::from_value(json!({
+            "sections": [
+                {
+                    "Chapter": {
+                        "name": "Chapter 1",
+                        "content": content,
+                        "number": [1],
+                        "sub_items": [],
+                        "path": "chapter_1.md",
+                        "source_path": "chapter_1.md",
+                        "parent_names": []
+                    }
+                }
+            ],
+            "__non_exhaustive": null
+        }))
+        .unwrap()
+    }
 
-        let (ctx, _) = mdbook::preprocess::CmdPreprocessor::parse_input(input_json).unwrap();
-        ctx
+    fn mock_context(admonish: &Value, renderer: &str) -> PreprocessorContext {
+        let value = json!({
+            "root": "/path/to/book",
+            "config": {
+                "book": {
+                    "authors": ["AUTHOR"],
+                    "language": "en",
+                    "multilingual": false,
+                    "src": "src",
+                    "title": "TITLE"
+                },
+                "preprocessor": {
+                    "admonish": admonish,
+                }
+            },
+            "renderer": renderer,
+            "mdbook_version": "0.4.21"
+        });
+
+        serde_json::from_value(value).unwrap()
     }
 
     fn prep(content: &str) -> String {
-        let ctx = create_mock_context("{}");
-        preprocess(content, &ctx, OnFailure::Continue).unwrap()
+        preprocess(
+            content,
+            OnFailure::Continue,
+            &AdmonitionDefaults::default(),
+            RenderTextMode::Html,
+        )
+        .unwrap()
     }
 
     #[test]
@@ -853,7 +958,7 @@ Error rendering admonishment
 
 Failed with:
 
-```
+```log
 TOML parsing error: TOML parse error at line 1, column 8
   |
 1 | title="
@@ -864,7 +969,7 @@ invalid basic string
 
 Original markdown input:
 
-````
+````markdown
 ```admonish title="
 Bonus content!
 ```
@@ -885,16 +990,149 @@ Bonus content!
 Bonus content!
 ```
 "#;
-        let ctx = create_mock_context(r#"{}"#);
         assert_eq!(
-            preprocess(content, &ctx, OnFailure::Bail)
-                .unwrap_err()
-                .to_string(),
+            preprocess(
+                content,
+                OnFailure::Bail,
+                &AdmonitionDefaults::default(),
+                RenderTextMode::Html
+            )
+            .unwrap_err()
+            .to_string(),
             r#"Error processing admonition, bailing:
 ```admonish title="
 Bonus content!
 ```"#
                 .to_owned()
+        )
+    }
+
+    #[test]
+    fn run_html() {
+        let content = r#"
+````admonish title="Title"
+```rust
+let x = 10;
+x = 20;
+```
+````
+"#;
+        let expected_content = r##"
+
+<div id="admonition-title" class="admonition note">
+<div class="admonition-title">
+
+Title
+
+<a class="admonition-anchor-link" href="#admonition-title"></a>
+</div>
+<div>
+
+```rust
+let x = 10;
+x = 20;
+```
+
+</div>
+</div>
+"##;
+
+        let ctx = mock_context(
+            &json!({
+                "assets_version": "2.0.0"
+            }),
+            "html",
+        );
+        let book = mock_book(content);
+        let expected_book = mock_book(expected_content);
+
+        assert_eq!(Admonish.run(&ctx, book).unwrap(), expected_book)
+    }
+
+    #[test]
+    fn run_test_preserves_by_default() {
+        let content = r#"
+````admonish title="Title"
+```rust
+let x = 10;
+x = 20;
+```
+````
+"#;
+        let ctx = mock_context(
+            &json!({
+                "assets_version": "2.0.0"
+            }),
+            "test",
+        );
+        let book = mock_book(content);
+        let expected_book = book.clone();
+
+        assert_eq!(Admonish.run(&ctx, book).unwrap(), expected_book)
+    }
+
+    #[test]
+    fn run_test_can_strip() {
+        let content = r#"
+````admonish title="Title"
+```rust
+let x = 10;
+x = 20;
+```
+````
+"#;
+        let expected_content = r#"
+
+```rust
+let x = 10;
+x = 20;
+```
+
+"#;
+        let ctx = mock_context(
+            &json!({
+                "assets_version": "2.0.0",
+                "renderer": {
+                    "test": {
+                        "render_mode": "strip",
+                    },
+                },
+            }),
+            "test",
+        );
+        let book = mock_book(content);
+        let expected_book = mock_book(expected_content);
+
+        assert_eq!(Admonish.run(&ctx, book).unwrap(), expected_book)
+    }
+
+    #[test]
+    fn test_renderer_strip_explicit() {
+        let content = r#"
+````admonish title="Title"
+```rust
+let x = 10;
+x = 20;
+```
+````
+"#;
+        assert_eq!(
+            preprocess(
+                content,
+                OnFailure::Bail,
+                &AdmonitionDefaults::default(),
+                RenderTextMode::Strip
+            )
+            .unwrap(),
+            r#"
+
+```rust
+let x = 10;
+x = 20;
+```
+
+"#
+            .to_owned()
         )
     }
 
@@ -953,8 +1191,16 @@ A simple admonition.
 Text
 "##;
 
-        let ctx = create_mock_context(r#"{"default": {"title": "Admonish"}}"#);
-        let preprocess_result = preprocess(content, &ctx, OnFailure::Continue).unwrap();
+        let preprocess_result = preprocess(
+            content,
+            OnFailure::Continue,
+            &AdmonitionDefaults {
+                title: Some("Admonish".to_owned()),
+                collapsible: None,
+            },
+            RenderTextMode::Html,
+        )
+        .unwrap();
         assert_eq!(expected, preprocess_result);
     }
 
@@ -979,8 +1225,16 @@ A simple admonition.
 Text
 "##;
 
-        let ctx = create_mock_context(r#"{"default": {"title": "Admonish"}}"#);
-        let preprocess_result = preprocess(content, &ctx, OnFailure::Continue).unwrap();
+        let preprocess_result = preprocess(
+            content,
+            OnFailure::Continue,
+            &AdmonitionDefaults {
+                title: Some("Admonish".to_owned()),
+                collapsible: None,
+            },
+            RenderTextMode::Html,
+        )
+        .unwrap();
         assert_eq!(expected, preprocess_result);
     }
 
