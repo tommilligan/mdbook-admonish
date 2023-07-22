@@ -205,7 +205,8 @@ impl<'a> Admonition<'a> {
         //   In line with the commonmark spec, this allows the inner content to be
         //   rendered as markdown paragraphs.
         format!(
-            r#"<{admonition_block} id="{ANCHOR_ID_PREFIX}-{anchor_id}" class="admonition {additional_class}">
+            r#"
+<{admonition_block} id="{ANCHOR_ID_PREFIX}-{anchor_id}" class="admonition {additional_class}">
 {title_html}<div>
 
 {content}
@@ -341,7 +342,7 @@ fn preprocess(
     for (span, block) in admonish_blocks.iter().rev() {
         let pre_content = &content[..span.start];
         let post_content = &content[span.end..];
-        content = format!("{}\n{}{}", pre_content, block, post_content);
+        content = format!("{}{}{}", pre_content, block, post_content);
     }
 
     Ok(content)
