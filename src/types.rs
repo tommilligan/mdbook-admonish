@@ -48,3 +48,9 @@ impl FromStr for Directive {
         }
     }
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum RenderTextMode {
+    Strip,
+    Html,
+}
