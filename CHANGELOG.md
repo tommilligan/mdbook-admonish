@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+## 1.10.0
+
+### Changed
+
+- MSRV (minimum supported rust version) is now 1.66.0 for mdbook v0.4.32 ([#109](https://github.com/tommilligan/mdbook-admonish/pull/109))
+
+### Added
+
+- Support `mdbook test` running doctests inside admonish blocks. Opt-in to this by setting `renderer.test.action_mode = "strip"` ([#109](https://github.com/tommilligan/mdbook-admonish/pull/109))
+- Log a warning when an invalid admonish block is encountered ([#109](https://github.com/tommilligan/mdbook-admonish/pull/109))
+
+### Fixed
+
+- Document all `book.toml` configuration options [in the reference](https://tommilligan.github.io/mdbook-admonish/reference.html), some of which were previously undocumened ([#109](https://github.com/tommilligan/mdbook-admonish/pull/109))
+
 ## 1.9.0
 
 ### Changed
