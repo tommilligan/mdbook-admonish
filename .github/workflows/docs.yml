@@ -30,6 +30,8 @@ jobs:
           override: true
       - name: Install mdbook
         run: ./scripts/install-mdbook
+      - name: Install mdbook extras
+        run: ./book/scripts/install-mdbook-extras
       - name: Build book
         run: ./scripts/build-book
       - name: Push docs

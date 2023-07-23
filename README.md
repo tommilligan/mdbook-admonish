@@ -123,19 +123,6 @@ Alternatively, pin to a specific version for a reproducible installation:
 cargo install mdbook-admonish --vers "1.5.0" --locked
 ```
 
-### Bail on error
-
-By default, if an adomnition is incorrectly configured, an error will be shown in the book.
-
-You can force it to break the build instead, with the following configuration:
-
-```toml
-[preprocessor.admonish]
-on_failure = "bail"
-```
-
-This may be useful for non-interative workflows.
-
 ### Process included files
 
 You can ensure that content inlined with `{{#include}}` is also processed by [setting the `after` option](https://rust-lang.github.io/mdBook/format/configuration/preprocessors.html#require-a-certain-order):
