@@ -34,7 +34,7 @@ impl AdmonitionMeta {
 
         // Use values from block, else load default value
         let title = title.or_else(|| defaults.title.clone());
-        let collapsible = collapsible.or(defaults.collapsible).unwrap_or_default();
+        let collapsible = collapsible.unwrap_or(defaults.collapsible);
 
         // Load the directive (and title, if one still not given)
         let (directive, title) = match (Directive::from_str(&raw_directive), title) {
@@ -86,6 +86,30 @@ mod test {
                 title: "Note".to_owned(),
                 additional_classnames: Vec::new(),
                 collapsible: false,
+            }
+        );
+    }
+
+    #[test]
+    fn test_admonition_info_from_raw_with_defaults() {
+        assert_eq!(
+            AdmonitionMeta::resolve(
+                InstanceConfig {
+                    directive: " ".to_owned(),
+                    title: None,
+                    additional_classnames: Vec::new(),
+                    collapsible: None,
+                },
+                &AdmonitionDefaults {
+                    title: Some("Important!!!".to_owned()),
+                    collapsible: true,
+                },
+            ),
+            AdmonitionMeta {
+                directive: Directive::Note,
+                title: "Important!!!".to_owned(),
+                additional_classnames: Vec::new(),
+                collapsible: true,
             }
         );
     }

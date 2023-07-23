@@ -40,13 +40,17 @@ pub(crate) fn parse_admonition<'a>(
                 .take(fence.length + 1)
                 .collect();
             return Some(match on_failure {
-                OnFailure::Continue => Ok(Admonition {
-                    directive: Directive::Bug,
-                    title: "Error rendering admonishment".to_owned(),
-                    additional_classnames: Vec::new(),
-                    collapsible: false,
-                    content: Cow::Owned(format!(
-                        r#"Failed with:
+                OnFailure::Continue => {
+                    log::warn!(
+                        r#"Error processing admonition. To fail the build instead of continuing, set 'on_failure = "bail"'"#
+                    );
+                    Ok(Admonition {
+                        directive: Directive::Bug,
+                        title: "Error rendering admonishment".to_owned(),
+                        additional_classnames: Vec::new(),
+                        collapsible: false,
+                        content: Cow::Owned(format!(
+                            r#"Failed with:
 
 ```log
 {message}
@@ -58,8 +62,9 @@ Original markdown input:
 {content}
 {enclosing_fence}
 "#
-                    )),
-                }),
+                        )),
+                    })
+                }
                 OnFailure::Bail => Err(anyhow!("Error processing admonition, bailing:\n{content}")),
             });
         }

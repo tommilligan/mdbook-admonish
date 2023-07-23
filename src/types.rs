@@ -8,7 +8,7 @@ pub(crate) struct AdmonitionDefaults {
     pub(crate) title: Option<String>,
 
     #[serde(default)]
-    pub(crate) collapsible: Option<bool>,
+    pub(crate) collapsible: bool,
 }
 
 #[derive(Debug, PartialEq)]

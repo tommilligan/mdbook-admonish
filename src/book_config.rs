@@ -19,9 +19,6 @@ pub(crate) fn admonish_config_from_context(ctx: &PreprocessorContext) -> Result<
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub(crate) struct Config {
     #[serde(default)]
-    pub assets_version: Option<String>,
-
-    #[serde(default)]
     pub on_failure: OnFailure,
 
     #[serde(default)]
@@ -29,6 +26,9 @@ pub(crate) struct Config {
 
     #[serde(default)]
     pub renderer: HashMap<String, RendererConfig>,
+
+    #[serde(default)]
+    pub assets_version: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
