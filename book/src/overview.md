@@ -1,5 +1,9 @@
 # mdbook-admonish
 
+<!-- toc -->
+
+## Intoduction
+
 [![Latest version](https://img.shields.io/crates/v/mdbook-admonish.svg)](https://crates.io/crates/mdbook-admonish)
 [![docs.rs](https://img.shields.io/docsrs/mdbook-admonish)](https://docs.rs/mdbook-admonish)
 
@@ -21,6 +25,8 @@ A beautifully styled message.
 
 ## Usage
 
+### A basic `admonish` block
+
 Use any [fenced code-block](https://spec.commonmark.org/0.30/#fenced-code-blocks) as you normally would, but annotate it with `admonish <admonition type>`:
 
 ````
@@ -33,7 +39,7 @@ My example is the best!
 My example is the best!
 ```
 
-See the [mkdocs-material docs](https://squidfunk.github.io/mkdocs-material/reference/admonitions/#supported-types) for a list of supported admonitions. You'll find:
+See the [list of directives](./reference.md) for a full list of supported admonitions. You'll find:
 
 - `info`
 - `warning`
@@ -54,7 +60,27 @@ A plain note.
 A plain note.
 ```
 
+### Invalid blocks
+
+By default, if an `admonish` block cannot be parsed, an error will be rendered in the output:
+
+````
+```admonish title="\j"
+This block will error
+```
+````
+
+```admonish title="\j"
+This block will error
+```
+
+You can also configure the build to fail loudly, by setting `on_failure = "bail"` in `book.toml`. See the [configuration reference](./reference.md) for more details.
+
 ### Additional Options
+
+You can pass additional options to each block. The options are structured as TOML key-value pairs.
+
+Note that some options can be passed globally, through the `default` section in `book.toml`. See the [configuration reference](./reference.md) for more details.
 
 #### Custom title
 
@@ -149,18 +175,4 @@ Will yield something like the following HTML, which you can then apply styles to
 
 ```admonish collapsible=true
 Content will be hidden initially.
-```
-
-#### Invalid blocks
-
-If a rendering error occurs, an error will be rendered in the output:
-
-````
-```admonish title="\j"
-This block will error
-```
-````
-
-```admonish title="\j"
-This block will error
 ```

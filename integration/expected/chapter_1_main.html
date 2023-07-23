@@ -30,7 +30,7 @@
 </div>
 <div>
 <p>Failed with:</p>
-<pre><code>TOML parsing error: TOML parse error at line 1, column 8
+<pre><code class="language-log">TOML parsing error: TOML parse error at line 1, column 8
   |
 1 | title=&quot;
   |        ^
@@ -38,7 +38,7 @@ invalid basic string
 
 </code></pre>
 <p>Original markdown input:</p>
-<pre><code>```admonish title=&quot;
+<pre><code class="language-markdown">```admonish title=&quot;
 No title, only body
 ```
 </code></pre>
@@ -70,6 +70,24 @@ No title, only body
 <div>
 <pre><code class="language-bash">Nested code block
 </code></pre>
+</div>
+</div>
+<div id="admonition-note-3" class="admonition note">
+<div class="admonition-title">
+<p>Note</p>
+<p><a class="admonition-anchor-link" href="#admonition-note-3"></a></p>
+</div>
+<div>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let x = 10;
+x = 20;
+<span class="boring">}</span></code></pre></pre>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let x = 10;
+let x = 20;
+<span class="boring">}</span></code></pre></pre>
 </div>
 </div>
 

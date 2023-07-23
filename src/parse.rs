@@ -1,3 +1,78 @@
+use anyhow::{anyhow, Result};
+use std::borrow::Cow;
+
+pub use crate::preprocessor::Admonish;
+use crate::{
+    book_config::OnFailure,
+    render::Admonition,
+    resolve::AdmonitionMeta,
+    types::{AdmonitionDefaults, Directive},
+};
+
+/// Given the content in the span of the code block, and the info string,
+/// return `Some(Admonition)` if the code block is an admonition.
+///
+/// If there is an error parsing the admonition, either:
+///
+/// - Display a UI error message output in the book.
+/// - If configured, break the build.
+///
+/// If the code block is not an admonition, return `None`.
+pub(crate) fn parse_admonition<'a>(
+    info_string: &'a str,
+    admonition_defaults: &'a AdmonitionDefaults,
+    content: &'a str,
+    on_failure: OnFailure,
+) -> Option<Result<Admonition<'a>>> {
+    // We need to know fence details anyway for error messages
+    let extracted = extract_admonish_body(content);
+
+    let info = AdmonitionMeta::from_info_string(info_string, admonition_defaults)?;
+    let info = match info {
+        Ok(info) => info,
+        // FIXME return error messages to break build if configured
+        // Err(message) => return Some(Err(content)),
+        Err(message) => {
+            // Construct a fence capable of enclosing whatever we wrote for the
+            // actual input block
+            let fence = extracted.fence;
+            let enclosing_fence: String = std::iter::repeat(fence.character)
+                .take(fence.length + 1)
+                .collect();
+            return Some(match on_failure {
+                OnFailure::Continue => {
+                    log::warn!(
+                        r#"Error processing admonition. To fail the build instead of continuing, set 'on_failure = "bail"'"#
+                    );
+                    Ok(Admonition {
+                        directive: Directive::Bug,
+                        title: "Error rendering admonishment".to_owned(),
+                        additional_classnames: Vec::new(),
+                        collapsible: false,
+                        content: Cow::Owned(format!(
+                            r#"Failed with:
+
+```log
+{message}
+```
+
+Original markdown input:
+
+{enclosing_fence}markdown
+{content}
+{enclosing_fence}
+"#
+                        )),
+                    })
+                }
+                OnFailure::Bail => Err(anyhow!("Error processing admonition, bailing:\n{content}")),
+            });
+        }
+    };
+
+    Some(Ok(Admonition::new(info, extracted.body)))
+}
+
 /// We can't trust the info string length to find the start of the body
 /// it may change length if it contains HTML or character escapes.
 ///
@@ -25,7 +100,7 @@ fn extract_admonish_body_start_index(content: &str) -> usize {
 }
 
 fn extract_admonish_body_end_index(content: &str) -> (usize, Fence) {
-    let fence_character = content.chars().rev().next().unwrap_or('`');
+    let fence_character = content.chars().next_back().unwrap_or('`');
     let number_fence_characters = content
         .chars()
         .rev()
@@ -38,21 +113,21 @@ fn extract_admonish_body_end_index(content: &str) -> (usize, Fence) {
 }
 
 #[derive(Debug, PartialEq)]
-pub(crate) struct Fence {
-    pub(crate) character: char,
-    pub(crate) length: usize,
+struct Fence {
+    character: char,
+    length: usize,
 }
 
 impl Fence {
-    pub fn new(character: char, length: usize) -> Self {
+    fn new(character: char, length: usize) -> Self {
         Self { character, length }
     }
 }
 
 #[derive(Debug, PartialEq)]
-pub(crate) struct Extracted<'a> {
-    pub(crate) body: &'a str,
-    pub(crate) fence: Fence,
+struct Extracted<'a> {
+    body: &'a str,
+    fence: Fence,
 }
 
 /// Given the whole text content of the code fence, extract the body.
@@ -61,7 +136,7 @@ pub(crate) struct Extracted<'a> {
 /// but it's not really clear a good way of doing that.
 ///
 /// ref: https://spec.commonmark.org/0.30/#fenced-code-blocks
-pub(crate) fn extract_admonish_body(content: &str) -> Extracted<'_> {
+fn extract_admonish_body(content: &str) -> Extracted<'_> {
     let start_index = extract_admonish_body_start_index(content);
     let (end_index, fence) = extract_admonish_body_end_index(content);
 

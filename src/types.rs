@@ -2,13 +2,13 @@ use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
 /// Book wide defaults that may be provided by the user.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, Default)]
 pub(crate) struct AdmonitionDefaults {
     #[serde(default)]
     pub(crate) title: Option<String>,
 
     #[serde(default)]
-    pub(crate) collapsible: Option<bool>,
+    pub(crate) collapsible: bool,
 }
 
 #[derive(Debug, PartialEq)]
@@ -47,4 +47,10 @@ impl FromStr for Directive {
             _ => Err(()),
         }
     }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum RenderTextMode {
+    Strip,
+    Html,
 }

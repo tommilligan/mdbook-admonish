@@ -1,8 +1,9 @@
 name: docs
 
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - "main"
   workflow_dispatch:
 
 permissions:
@@ -30,6 +31,8 @@ jobs:
           override: true
       - name: Install mdbook
         run: ./scripts/install-mdbook
+      - name: Install mdbook extras
+        run: ./book/scripts/install-mdbook-extras
       - name: Build book
         run: ./scripts/build-book
       - name: Push docs

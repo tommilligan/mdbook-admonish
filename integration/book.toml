@@ -12,6 +12,9 @@ command = "mdbook-admonish"
 assets_version = "2.0.1" # do not edit: managed by `mdbook-admonish install`
 after = ["links"]
 
+[preprocessor.admonish.renderer.test]
+render_mode = "strip"
+
 [output]
 
 [output.html]

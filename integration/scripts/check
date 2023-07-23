@@ -51,7 +51,21 @@ if [ "$DIFF_RESULT" != 0 ]; then
   eprintln "error: generated html was different than expected"
   eprintln ""
   eprintln "error: If you expected the output to change, run:"
-  eprintln "./integration/update-snapshot"
+  eprintln "./integration/scripts/update-snapshot"
   eprintln "and commit the result"
+  exit 1
+fi
+
+eprintln "Verifying mdbook test runs doctests"
+set +e
+TEST_RESULT="$(mdbook test 2>&1 | grep "1 passed; 1 failed")"
+set -e
+
+if [[ "$TEST_RESULT" != "test result: FAILED. 1 passed; 1 failed;"* ]]; then
+  eprintln ""
+  eprintln "error: mdbook test did not complete as expected"
+  eprintln ""
+  eprintln "Full output:"
+  mdbook test
   exit 1
 fi
