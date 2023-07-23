@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
 /// Book wide defaults that may be provided by the user.
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, Default)]
 pub(crate) struct AdmonitionDefaults {
     #[serde(default)]
     pub(crate) title: Option<String>,
