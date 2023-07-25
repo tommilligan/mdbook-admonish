@@ -74,13 +74,13 @@ This block will error
 This block will error
 ```
 
-You can also configure the build to fail loudly, by setting `on_failure = "bail"` in `book.toml`. See the [configuration reference](./reference.md) for more details.
+You can also configure the build to fail loudly, by setting `on_failure = "bail"` in `book.toml`. See the [configuration reference](./reference.md#booktoml-configuration) for more details.
 
 ### Additional Options
 
 You can pass additional options to each block. The options are structured as TOML key-value pairs.
 
-Note that some options can be passed globally, through the `default` section in `book.toml`. See the [configuration reference](./reference.md) for more details.
+Note that some options can be passed globally, through the `default` section in `book.toml`. See the [configuration reference](./reference.mdbooktoml-configuration) for more details.
 
 #### Custom title
 
