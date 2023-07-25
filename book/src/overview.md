@@ -39,7 +39,7 @@ My example is the best!
 My example is the best!
 ```
 
-See the [list of directives](./reference.md) for a full list of supported admonitions. You'll find:
+See the [list of directives](./reference.md#directives) for a full list of supported admonitions. You'll find:
 
 - `info`
 - `warning`
