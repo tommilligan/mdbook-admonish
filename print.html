@@ -189,7 +189,7 @@
 <h2 id="intoduction"><a class="header" href="#intoduction">Intoduction</a></h2>
 <p><a href="https://crates.io/crates/mdbook-admonish"><img src="https://img.shields.io/crates/v/mdbook-admonish.svg" alt="Latest version" /></a>
 <a href="https://docs.rs/mdbook-admonish"><img src="https://img.shields.io/docsrs/mdbook-admonish" alt="docs.rs" /></a></p>
-<p>A preprocessor for <a href="https://github.com/rust-lang-nursery/mdBook">mdbook</a> to add <a href="https://material.io/design">Material Design</a> admonishments, based on the <a href="https://squidfunk.github.io/mkdocs-material/reference/admonitions/">mkdocs-material</a> implementation.</p>
+<p>A preprocessor for <a href="https://github.com/rust-lang/mdBook">mdbook</a> to add <a href="https://material.io/design">Material Design</a> admonishments, based on the <a href="https://squidfunk.github.io/mkdocs-material/reference/admonitions/">mkdocs-material</a> implementation.</p>
 <p>It turns this:</p>
 <pre><code>```admonish info
 A beautifully styled message.
@@ -221,7 +221,7 @@ My example is the best!
 <p>My example is the best!</p>
 </div>
 </div>
-<p>See the <a href="./reference.html">list of directives</a> for a full list of supported admonitions. You'll find:</p>
+<p>See the <a href="./reference.html#directives">list of directives</a> for a full list of supported admonitions. You'll find:</p>
 <ul>
 <li><code>info</code></li>
 <li><code>warning</code></li>
@@ -271,10 +271,10 @@ This block will error
 </code></pre>
 </div>
 </div>
-<p>You can also configure the build to fail loudly, by setting <code>on_failure = &quot;bail&quot;</code> in <code>book.toml</code>. See the <a href="./reference.html">configuration reference</a> for more details.</p>
+<p>You can also configure the build to fail loudly, by setting <code>on_failure = &quot;bail&quot;</code> in <code>book.toml</code>. See the <a href="./reference.html#booktoml-configuration">configuration reference</a> for more details.</p>
 <h3 id="additional-options"><a class="header" href="#additional-options">Additional Options</a></h3>
 <p>You can pass additional options to each block. The options are structured as TOML key-value pairs.</p>
-<p>Note that some options can be passed globally, through the <code>default</code> section in <code>book.toml</code>. See the <a href="./reference.html">configuration reference</a> for more details.</p>
+<p>Note that some options can be passed globally, through the <code>default</code> section in <code>book.toml</code>. See the <a href="./reference.html#booktoml-configuration">configuration reference</a> for more details.</p>
 <h4 id="custom-title"><a class="header" href="#custom-title">Custom title</a></h4>
 <p>A custom title can be provided, contained in a double quoted TOML string.
 Note that TOML escapes must be escaped again - for instance, write <code>\&quot;</code> as <code>\\&quot;</code>.</p>
