@@ -233,7 +233,7 @@ summary.admonition-title {
   }
 
   // Admonition flavour title
-  :is(#{$flavours}) > :is(.admonition-title, summary) {
+  :is(#{$flavours}) > :is(.admonition-title, summary.admonition-title) {
     background-color: color.adjust($tint, $alpha: -0.9);
 
     // Admonition icon
