@@ -174,8 +174,6 @@ You must make the next `mdbook-admonish` crate version at least a **minor** vers
 
 Github workflows are setup such that pushing a `vX.Y.Z` tag will trigger a release to be cut.
 
-Once the release is created, copy and paste the relevant section of `CHANGELOG.md` manually to update the description.
-
 ## Thanks
 
 This utility is heavily drawn from and inspired by other projects, namely:
