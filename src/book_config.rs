@@ -5,15 +5,17 @@ use std::collections::HashMap;
 
 use crate::types::AdmonitionDefaults;
 
+/// Loads the plugin configuration from mdbook internals.
+///
+/// Roundtrips config to string, to avoid linking the plugin's internal version of toml
+/// to the one publically exposed by the mdbook library.
 pub(crate) fn admonish_config_from_context(ctx: &PreprocessorContext) -> Result<Config> {
-    let table: toml::Table = ctx
-        .config
-        .get_preprocessor("admonish")
-        .context("No configuration for mdbook-admonish in book.toml")?
-        .to_owned();
-    table
-        .try_into()
-        .context("Invalid mdbook-admonish configuration in book.toml")
+    let table: String = toml_mdbook::to_string(
+        ctx.config
+            .get_preprocessor("admonish")
+            .context("No configuration for mdbook-admonish in book.toml")?,
+    )?;
+    toml::from_str(&table).context("Invalid mdbook-admonish configuration in book.toml")
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
