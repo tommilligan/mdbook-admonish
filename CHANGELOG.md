@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 1.10.2
+
+### Fixed
+
+- Fixed `cargo install mdbook-admonish` failing due to an internal dependency mismatch with `mdbook` ([#115](https://github.com/tommilligan/mdbook-admonish/pull/115))
+
 ## 1.10.1
 
 ### Fixed
