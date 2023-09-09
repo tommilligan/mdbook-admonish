@@ -5,5 +5,5 @@ set -exuo pipefail
 cd "$(dirname "$0")"/../..
 
 if ! mdbook-toc --version; then
-  cargo install mdbook-toc --version 0.13.0 --force
+  cargo install mdbook-toc --version 0.14.1 --force
 fi
