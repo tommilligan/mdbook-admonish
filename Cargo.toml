@@ -17,6 +17,9 @@ name = "mdbook-admonish"
 path = "src/bin/mdbook-admonish.rs"
 required-features = ["cli"]
 
+[profile.release]
+strip = true
+
 [lib]
 name = "mdbook_admonish"
 path = "src/lib.rs"

@@ -16,12 +16,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target:
-          - x86_64-unknown-linux-gnu
-          - x86_64-unknown-linux-musl
-          - x86_64-apple-darwin
-          - x86_64-pc-windows-msvc
         include:
+          - target: aarch64-unknown-linux-musl
+            os: ubuntu-latest
+            name: aarch64-unknown-linux-musl.tar.gz
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
             name: x86_64-unknown-linux-gnu.tar.gz
@@ -56,17 +54,19 @@ jobs:
           profile: minimal
           target: ${{ matrix.target }}
 
-      - name: Setup | musl tools
-        if: matrix.target == 'x86_64-unknown-linux-musl'
-        run: sudo apt install -y musl-tools
+      - name: Setup | cross
+        if: endsWith(matrix.target, '-unknown-linux-musl')
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cross
 
       - name: Build | Build
-        if: matrix.target != 'x86_64-unknown-linux-musl'
+        if: ${{ !endsWith(matrix.target, '-unknown-linux-musl') }}
         run: cargo build --release --target ${{ matrix.target }}
 
       - name: Build | Build (musl)
-        if: matrix.target == 'x86_64-unknown-linux-musl'
-        run: cargo build --release --target ${{ matrix.target }}
+        if: endsWith(matrix.target, '-unknown-linux-musl')
+        run: cross build --release --target ${{ matrix.target }}
 
       - name: Post Setup | Extract tag name
         shell: bash
@@ -78,7 +78,6 @@ jobs:
         run: |
           mkdir target/stage
           cd target/${{ matrix.target }}/release
-          strip ${{ env.CRATE_NAME }}.exe
           7z a ../../stage/${{ env.CRATE_NAME }}-${{ steps.extract_tag.outputs.tag }}-${{ matrix.name }} ${{ env.CRATE_NAME }}.exe
           cd -
       - name: Post Setup | Prepare artifacts [-nix]
@@ -86,7 +85,6 @@ jobs:
         run: |
           mkdir target/stage
           cd target/${{ matrix.target }}/release
-          strip ${{ env.CRATE_NAME }}
           tar czvf ../../stage/${{ env.CRATE_NAME }}-${{ steps.extract_tag.outputs.tag }}-${{ matrix.name }} ${{ env.CRATE_NAME }}
           cd -
       - name: Post Setup | Upload artifacts
