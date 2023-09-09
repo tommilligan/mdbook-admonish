@@ -31,10 +31,11 @@ pub(crate) struct Admonition<'a> {
     pub(crate) content: Cow<'a, str>,
     pub(crate) additional_classnames: Vec<String>,
     pub(crate) collapsible: bool,
+    pub(crate) indent: usize,
 }
 
 impl<'a> Admonition<'a> {
-    pub(crate) fn new(info: AdmonitionMeta, content: &'a str) -> Self {
+    pub(crate) fn new(info: AdmonitionMeta, content: &'a str, indent: usize) -> Self {
         let AdmonitionMeta {
             directive,
             title,
@@ -47,6 +48,7 @@ impl<'a> Admonition<'a> {
             content: Cow::Borrowed(content),
             additional_classnames,
             collapsible,
+            indent,
         }
     }
 
@@ -66,17 +68,18 @@ impl<'a> Admonition<'a> {
         let mut additional_class = Cow::Borrowed(self.directive.classname());
         let title = &self.title;
         let content = &self.content;
+        let indent = " ".repeat(self.indent);
 
         let title_block = if self.collapsible { "summary" } else { "div" };
 
         let title_html = if !title.is_empty() {
             Cow::Owned(format!(
-                r##"<{title_block} class="admonition-title">
-
-{title}
-
-<a class="admonition-anchor-link" href="#{ANCHOR_ID_PREFIX}-{anchor_id}"></a>
-</{title_block}>
+                r##"{indent}<{title_block} class="admonition-title">
+{indent}
+{indent}{title}
+{indent}
+{indent}<a class="admonition-anchor-link" href="#{ANCHOR_ID_PREFIX}-{anchor_id}"></a>
+{indent}</{title_block}>
 "##
             ))
         } else {
@@ -100,13 +103,13 @@ impl<'a> Admonition<'a> {
         //   rendered as markdown paragraphs.
         format!(
             r#"
-<{admonition_block} id="{ANCHOR_ID_PREFIX}-{anchor_id}" class="admonition {additional_class}">
-{title_html}<div>
-
-{content}
-
-</div>
-</{admonition_block}>"#,
+{indent}<{admonition_block} id="{ANCHOR_ID_PREFIX}-{anchor_id}" class="admonition {additional_class}">
+{title_html}{indent}<div>
+{indent}
+{indent}{content}
+{indent}
+{indent}</div>
+{indent}</{admonition_block}>"#,
         )
     }
 
