@@ -418,7 +418,7 @@ Will have bonus classnames
 ```
 "#;
 
-        let expected = r##"
+        let expected = r#"
 
 <div id="admonition-default" class="admonition note">
 <div>
@@ -427,7 +427,7 @@ Will have bonus classnames
 
 </div>
 </div>
-"##;
+"#;
 
         assert_eq!(expected, prep(content));
     }
@@ -684,7 +684,7 @@ A simple admonition.
 Text
 "#;
 
-        let expected = r##"# Chapter
+        let expected = r#"# Chapter
 
 <div id="admonition-default" class="admonition note">
 <div>
@@ -694,7 +694,7 @@ A simple admonition.
 </div>
 </div>
 Text
-"##;
+"#;
 
         let preprocess_result = preprocess(
             content,
@@ -718,7 +718,7 @@ A simple admonition.
 Text
 "#;
 
-        let expected = r##"# Chapter
+        let expected = r#"# Chapter
 
 <div id="admonition-default" class="admonition note">
 <div>
@@ -728,7 +728,7 @@ A simple admonition.
 </div>
 </div>
 Text
-"##;
+"#;
 
         assert_eq!(expected, prep(content));
     }
