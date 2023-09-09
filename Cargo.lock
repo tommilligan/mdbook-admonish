@@ -949,7 +949,7 @@ dependencies = [
 
 [[package]]
 name = "mdbook-admonish"
-version = "1.10.2"
+version = "1.11.0"
 dependencies = [
  "anyhow",
  "clap",

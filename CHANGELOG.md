@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## 1.11.0
+
+### Changed
+
+- `gnu` prebuilt binaries are now built on `ubuntu-20.04` to match `mdbook` binaries. Thanks to [@eitsupi](https://github.com/eitsupi) for the fix! ([#118](https://github.com/tommilligan/mdbook-admonish/pull/118))
+
+### Added
+
+- `aarch64-unknown-linux-musl` prebuilt binary now available ([#119](https://github.com/tommilligan/mdbook-admonish/pull/119))
+
 ## 1.10.2
 
 ### Fixed
