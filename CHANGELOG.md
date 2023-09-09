@@ -2,7 +2,17 @@
 
 ## Unreleased
 
-## 1.11.0
+## 1.11.1
+
+### Fixed
+
+- Reverted internal dependency upgrades that unintentionally increased MSRV from 1.66.0 in 1.11.0
+
+## 1.11.0 (yanked)
+
+**Note:** This release has been yanked.
+
+It unintentionally increased the MSRV from 1.66.0
 
 ### Changed
 
@@ -146,7 +156,11 @@ This behaviour is [documented in the readme here](https://github.com/tommilligan
 - Flattened indentation of generated HTML, otherwise it's styled as a markdown code block
 - Fixed edge cases where the info string changes length when parsed, causing title/body to be incorrectly split
 
-## 1.3.0
+## 1.3.0 (yanked)
+
+**Note:** This release has been yanked.
+
+It unintentionally introduced a serious parsing bug.
 
 ### Added
 
