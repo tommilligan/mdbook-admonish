@@ -29,11 +29,24 @@ pub(crate) fn preprocess(
         if let Event::Start(Tag::CodeBlock(Fenced(info_string))) = event.clone() {
             let span_content = &content[span.start..span.end];
 
+            // Scan for a line start before this span.
+            // For safety, only scan up to a fixed limit of the text
+            const INDENT_SCAN_MAX: usize = 1024;
+            // If there's less text than that, just scan from the start
+            let line_scan_start = span.start.checked_sub(INDENT_SCAN_MAX).unwrap_or_default();
+            // If we can't find a newline, assume no indent
+            let indent = content[line_scan_start..span.start]
+                .chars()
+                .rev()
+                .position(|c| c == '\n')
+                .unwrap_or_default();
+
             let admonition = match parse_admonition(
                 info_string.as_ref(),
                 admonition_defaults,
                 span_content,
                 on_failure,
+                indent,
             ) {
                 Some(admonition) => admonition,
                 None => continue,
@@ -729,6 +742,64 @@ A simple admonition.
 </div>
 Text
 "#;
+
+        assert_eq!(expected, prep(content));
+    }
+
+    #[test]
+    fn list_embed() {
+        let content = r#"# Chapter
+
+1. Thing one
+
+   ```sh
+   Thing one
+   ```
+
+1. Thing two
+
+   ```admonish
+   Thing two
+   ```
+
+1. Thing three
+
+   ```sh
+   Thing three
+   ```
+"#;
+
+        let expected = r##"# Chapter
+
+1. Thing one
+
+   ```sh
+   Thing one
+   ```
+
+1. Thing two
+
+   
+   <div id="admonition-note" class="admonition note">
+   <div class="admonition-title">
+   
+   Note
+   
+   <a class="admonition-anchor-link" href="#admonition-note"></a>
+   </div>
+   <div>
+   
+      Thing two
+   
+   </div>
+   </div>
+
+1. Thing three
+
+   ```sh
+   Thing three
+   ```
+"##;
 
         assert_eq!(expected, prep(content));
     }

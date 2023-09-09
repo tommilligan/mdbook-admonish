@@ -23,6 +23,7 @@ pub(crate) fn parse_admonition<'a>(
     admonition_defaults: &'a AdmonitionDefaults,
     content: &'a str,
     on_failure: OnFailure,
+    indent: usize,
 ) -> Option<Result<Admonition<'a>>> {
     // We need to know fence details anyway for error messages
     let extracted = extract_admonish_body(content);
@@ -30,8 +31,6 @@ pub(crate) fn parse_admonition<'a>(
     let info = AdmonitionMeta::from_info_string(info_string, admonition_defaults)?;
     let info = match info {
         Ok(info) => info,
-        // FIXME return error messages to break build if configured
-        // Err(message) => return Some(Err(content)),
         Err(message) => {
             // Construct a fence capable of enclosing whatever we wrote for the
             // actual input block
@@ -63,6 +62,7 @@ Original markdown input:
 {enclosing_fence}
 "#
                         )),
+                        indent,
                     })
                 }
                 OnFailure::Bail => Err(anyhow!("Error processing admonition, bailing:\n{content}")),
@@ -70,7 +70,24 @@ Original markdown input:
         }
     };
 
-    Some(Ok(Admonition::new(info, extracted.body)))
+    Some(Ok(Admonition::new(
+        info,
+        extracted.body,
+        // Note that this is a bit hacky - the fence information comes from the start
+        // of the block, and includes the whole line.
+        //
+        // This is more likely to be what we want, as ending indentation is unrelated
+        // according to the commonmark spec (ref https://spec.commonmark.org/0.12/#example-85)
+        //
+        // The main case we're worried about here is indenting enough to be inside list items,
+        // and in this case the starting code fence must be indented enough to be considered
+        // part of the list item.
+        //
+        // The hacky thing is that we're considering line indent in the document as a whole,
+        // not relative to the context of some containing item. But I think that's what we
+        // want for now, anyway.
+        indent,
+    )))
 }
 
 /// We can't trust the info string length to find the start of the body

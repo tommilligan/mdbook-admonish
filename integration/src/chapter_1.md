@@ -41,3 +41,23 @@ let x = 10;
 let x = 20;
 ```
 ````
+
+In a list:
+
+1. Thing one
+
+   ```sh
+   Thing one
+   ```
+
+1. Thing two
+
+   ```admonish
+   Thing two
+   ```
+
+1. Thing three
+
+   ```sh
+   Thing three
+   ```
