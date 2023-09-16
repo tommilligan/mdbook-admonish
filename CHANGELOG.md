@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 1.12.0
+
+### Added
+
+- Admonitions are now supported when indented inside other elements, such as a list. Thanks to [@mattburgess](https://github.com/mattburgess) for the report! ([#124](https://github.com/tommilligan/mdbook-admonish/pull/124)
+
 ## 1.11.1
 
 ### Fixed
