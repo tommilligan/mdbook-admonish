@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 1.12.1
+
+### Fixed
+
+- Panic when searching for an indent in non-ASCII content. Thanks to [@CoralPink](https://github.com/CoralPink) for the report! ([#128](https://github.com/tommilligan/mdbook-admonish/pull/128)
+
 ## 1.12.0
 
 ### Added
