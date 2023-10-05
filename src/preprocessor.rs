@@ -170,7 +170,7 @@ x = 20;
 "#;
         let expected_content = r##"
 
-<div id="admonition-title" class="admonition note">
+<div id="admonition-title" class="admonition admonish-note">
 <div class="admonition-title">
 
 Title
@@ -190,7 +190,7 @@ x = 20;
 
         let ctx = mock_context(
             &json!({
-                "assets_version": "2.0.0"
+                "assets_version": "3.0.0"
             }),
             "html",
         );
@@ -212,7 +212,7 @@ x = 20;
 "#;
         let ctx = mock_context(
             &json!({
-                "assets_version": "2.0.0"
+                "assets_version": "3.0.0"
             }),
             "test",
         );
@@ -242,7 +242,7 @@ x = 20;
 "#;
         let ctx = mock_context(
             &json!({
-                "assets_version": "2.0.0",
+                "assets_version": "3.0.0",
                 "renderer": {
                     "test": {
                         "render_mode": "strip",

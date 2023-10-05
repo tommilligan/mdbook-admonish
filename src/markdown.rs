@@ -153,7 +153,7 @@ Text
 
         let expected = r##"# Chapter
 
-<div id="admonition-note" class="admonition note">
+<div id="admonition-note" class="admonition admonish-note">
 <div class="admonition-title">
 
 Note
@@ -185,7 +185,7 @@ Text
 
         let expected = r##"# Chapter
 
-<div id="admonition-note" class="admonition note">
+<div id="admonition-note" class="admonition admonish-note">
 <div class="admonition-title">
 
 Note
@@ -217,7 +217,7 @@ Text
 
         let expected = r##"# Chapter
 
-<div id="admonition-warning" class="admonition warning">
+<div id="admonition-warning" class="admonition admonish-warning">
 <div class="admonition-title">
 
 Warning
@@ -247,7 +247,7 @@ Text
 
         let expected = r##"# Chapter
 
-<div id="admonition-caution" class="admonition warning">
+<div id="admonition-caution" class="admonition admonish-warning">
 <div class="admonition-title">
 
 Caution
@@ -277,7 +277,7 @@ Text
 
         let expected = r##"# Chapter
 
-<div id="admonition-read-this" class="admonition warning">
+<div id="admonition-read-this" class="admonition admonish-warning">
 <div class="admonition-title">
 
 Read **this**!
@@ -371,7 +371,7 @@ hello
 
         let expected = r##"
 
-<div id="admonition-and-in-the-title" class="admonition note">
+<div id="admonition-and-in-the-title" class="admonition admonish-note">
 <div class="admonition-title">
 
 And "<i>in</i>" the title
@@ -401,7 +401,7 @@ hello
 
         let expected = r##"
 
-<div id="admonition-trademark" class="admonition warning">
+<div id="admonition-trademark" class="admonition admonish-warning">
 <div class="admonition-title">
 
 Trademark™
@@ -430,7 +430,7 @@ Will have bonus classnames
 
         let expected = r##"
 
-<div id="admonition-tip" class="admonition tip my-style other-style">
+<div id="admonition-tip" class="admonition admonish-tip my-style other-style">
 <div class="admonition-title">
 
 Tip
@@ -458,7 +458,7 @@ Will have bonus classnames
 
         let expected = r##"
 
-<div id="admonition-developers-dont-want-you-to-know-this-one-weird-tip" class="admonition tip my-style other-style">
+<div id="admonition-developers-dont-want-you-to-know-this-one-weird-tip" class="admonition admonish-tip my-style other-style">
 <div class="admonition-title">
 
 Developers don't want you to know this one weird tip!
@@ -485,7 +485,7 @@ Will have bonus classnames
 
         let expected = r#"
 
-<div id="admonition-default" class="admonition note">
+<div id="admonition-default" class="admonition admonish-note">
 <div>
 
 
@@ -511,7 +511,7 @@ Content one.
 
         let expected = r##"
 
-<div id="admonition-my-note" class="admonition note">
+<div id="admonition-my-note" class="admonition admonish-note">
 <div class="admonition-title">
 
 My Note
@@ -526,7 +526,7 @@ Content zero.
 </div>
 
 
-<div id="admonition-my-note-1" class="admonition note">
+<div id="admonition-my-note-1" class="admonition admonish-note">
 <div class="admonition-title">
 
 My Note
@@ -554,7 +554,7 @@ Bonus content!
 
         let expected = r##"
 
-<div id="admonition-article-heading" class="admonition tip my other-style">
+<div id="admonition-article-heading" class="admonition admonish-tip my other-style">
 <div class="admonition-title">
 
 Article Heading
@@ -582,7 +582,7 @@ Bonus content!
 
         let expected = r##"
 
-<div id="admonition-error-rendering-admonishment" class="admonition bug">
+<div id="admonition-error-rendering-admonishment" class="admonition admonish-bug">
 <div class="admonition-title">
 
 Error rendering admonishment
@@ -682,7 +682,7 @@ Hidden
 
         let expected = r##"
 
-<details id="admonition-note" class="admonition note">
+<details id="admonition-note" class="admonition admonish-note">
 <summary class="admonition-title">
 
 Note
@@ -711,7 +711,7 @@ Text
 
         let expected = r##"# Chapter
 
-<div id="admonition-admonish" class="admonition note">
+<div id="admonition-admonish" class="admonition admonish-note">
 <div class="admonition-title">
 
 Admonish
@@ -751,7 +751,7 @@ Text
 
         let expected = r#"# Chapter
 
-<div id="admonition-default" class="admonition note">
+<div id="admonition-default" class="admonition admonish-note">
 <div>
 
 A simple admonition.
@@ -785,7 +785,7 @@ Text
 
         let expected = r#"# Chapter
 
-<div id="admonition-default" class="admonition note">
+<div id="admonition-default" class="admonition admonish-note">
 <div>
 
 A simple admonition.
@@ -832,7 +832,7 @@ Text
 1. Thing two
 
    
-   <div id="admonition-note" class="admonition note">
+   <div id="admonition-note" class="admonition admonish-note">
    <div class="admonition-title">
    
    Note

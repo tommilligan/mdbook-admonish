@@ -8,18 +8,18 @@ use crate::{resolve::AdmonitionMeta, types::Directive};
 impl Directive {
     fn classname(&self) -> &'static str {
         match self {
-            Directive::Note => "note",
-            Directive::Abstract => "abstract",
-            Directive::Info => "info",
-            Directive::Tip => "tip",
-            Directive::Success => "success",
-            Directive::Question => "question",
-            Directive::Warning => "warning",
-            Directive::Failure => "failure",
-            Directive::Danger => "danger",
-            Directive::Bug => "bug",
-            Directive::Example => "example",
-            Directive::Quote => "quote",
+            Directive::Note => "admonish-note",
+            Directive::Abstract => "admonish-abstract",
+            Directive::Info => "admonish-info",
+            Directive::Tip => "admonish-tip",
+            Directive::Success => "admonish-success",
+            Directive::Question => "admonish-question",
+            Directive::Warning => "admonish-warning",
+            Directive::Failure => "admonish-failure",
+            Directive::Danger => "admonish-danger",
+            Directive::Bug => "admonish-bug",
+            Directive::Example => "admonish-example",
+            Directive::Quote => "admonish-quote",
         }
     }
 }
