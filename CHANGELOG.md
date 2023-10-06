@@ -2,17 +2,28 @@
 
 ## Unreleased
 
+## 1.13.0
+
+### Changed
+
+- Required styles version is now `^3.0.0` (release `1.13.0`). Run `mdbook-admonish install` to update.
+- Internal CSS classnames for directives are now prefixed with `admonish-`, so `warning` is now `admonish-warning`. This avoids a conflict with upstream classnames introduced in `mdbook 0.4.35`. Thanks to [@phoenixr-codes](https://github.com/phoenixr-codes) for the report and fix! ([#139](https://github.com/tommilligan/mdbook-admonish/pull/139))
+
+### Fixed
+
+- Some minor inconsistencies in SCSS (and downstream CSS) styles were fixed by adopting Prettier linting ([#138](https://github.com/tommilligan/mdbook-admonish/pull/138))
+
 ## 1.12.1
 
 ### Fixed
 
-- Panic when searching for an indent in non-ASCII content. Thanks to [@CoralPink](https://github.com/CoralPink) for the report! ([#128](https://github.com/tommilligan/mdbook-admonish/pull/128)
+- Panic when searching for an indent in non-ASCII content. Thanks to [@CoralPink](https://github.com/CoralPink) for the report! ([#128](https://github.com/tommilligan/mdbook-admonish/pull/128))
 
 ## 1.12.0
 
 ### Added
 
-- Admonitions are now supported when indented inside other elements, such as a list. Thanks to [@mattburgess](https://github.com/mattburgess) for the report! ([#124](https://github.com/tommilligan/mdbook-admonish/pull/124)
+- Admonitions are now supported when indented inside other elements, such as a list. Thanks to [@mattburgess](https://github.com/mattburgess) for the report! ([#124](https://github.com/tommilligan/mdbook-admonish/pull/124))
 
 ## 1.11.1
 
