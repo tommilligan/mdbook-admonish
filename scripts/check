@@ -8,6 +8,21 @@ function eprintln() {
   >&2 echo "$1"
 }
 
+# Node things
+pushd compile_assets > /dev/null
+
+eprintln "Linting style sources"
+yarn run lint
+
+eprintln "Checking compiled styles up to date"
+COMITTED_ASSETS="$(cat ../src/bin/assets/mdbook-admonish.css)"
+yarn run build
+RECOMPILED_ASSETS="$(cat ../src/bin/assets/mdbook-admonish.css)"
+diff -u <(printf "%s" "$COMITTED_ASSETS") <(printf "%s" "$RECOMPILED_ASSETS")
+
+popd > /dev/null
+
+# Rust things
 eprintln "Formatting sources"
 cargo fmt -- --check
 
@@ -24,5 +39,6 @@ cargo test --no-default-features --features cli
 eprintln "Building documentation"
 cargo doc --no-deps --lib
 
+# Integration test
 eprintln "Running mdbook integration test"
 ./integration/scripts/check

@@ -4,10 +4,21 @@
 #
 # Does not include offline node development stack (i.e. yarn)
 
-set -exuo pipefail
+set -euo pipefail
+
+function eprintln() {
+  >&2 echo "$1"
+}
 
 cd "$(dirname "$0")"/..
 
+eprintln "Installing additional Rust components"
 rustup component add rustfmt clippy
 
+eprintln "Installing mdbook"
 ./scripts/install-mdbook
+
+eprintln "Installing node dependencies"
+pushd compile_assets > /dev/null
+yarn install --frozen-lockfile
+popd > /dev/null
