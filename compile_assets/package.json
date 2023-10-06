@@ -4,9 +4,14 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "build": "sass --no-source-map scss/mdbook-admonish.scss ../src/bin/assets/mdbook-admonish.css"
+    "build": "sass --no-source-map scss/mdbook-admonish.scss ../src/bin/assets/mdbook-admonish.css",
+    "lint": "prettier --check .",
+    "fix": "prettier --write ."
   },
   "dependencies": {
     "sass": "^1.49.7"
+  },
+  "devDependencies": {
+    "prettier": "^3.0.3"
   }
 }

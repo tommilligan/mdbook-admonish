@@ -51,6 +51,12 @@ jobs:
         with:
           toolchain: stable
           override: true
+      - name: Install node toolchain
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+          cache: "yarn"
+          cache-dependency-path: compile_assets/yarn.lock
       - name: Install additional test dependencies
         env:
           CARGO_TARGET_DIR: cargo_target
