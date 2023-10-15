@@ -2,6 +2,7 @@
 name = "mdbook-admonish"
 version = "1.13.0"
 edition = "2021"
+rust-version = "1.66.0"
 
 authors = ["Tom Milligan <code@tommilligan.net>"]
 description = "A preprocessor for mdbook to add Material Design admonishments."
@@ -27,7 +28,9 @@ path = "src/lib.rs"
 [dependencies]
 anyhow = "1.0.75"
 # Note: clap 4.4 increases MSRV to 1.70.0 (2023-06-01)
-clap = { version = "~4.3", default_features = false, features = ["std", "derive"], optional = true }
+# To use MSRV supported dependencies, install using the lockfile with
+# `cargo install mdbook-admonish --locked`
+clap = { version = "4.3", default_features = false, features = ["std", "derive"], optional = true }
 env_logger = { version = "0.10", default_features = false, optional = true }
 log = "0.4.20"
 mdbook = "0.4.35"
