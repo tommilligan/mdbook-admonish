@@ -12,6 +12,9 @@ license = "MIT"
 keywords = ["mdbook", "markdown", "material", "design", "ui"]
 readme = "README.md"
 
+rust-version = "1.70.0"
+
+
 [[bin]]
 name = "mdbook-admonish"
 path = "src/bin/mdbook-admonish.rs"
@@ -27,7 +30,10 @@ path = "src/lib.rs"
 [dependencies]
 anyhow = "1.0.75"
 # Note: clap 4.4 increases MSRV to 1.70.0 (2023-06-01)
-clap = { version = "~4.3", default_features = false, features = ["std", "derive"], optional = true }
+clap = { version = "4.4.6", default_features = false, features = [
+    "std",
+    "derive",
+], optional = true }
 env_logger = { version = "0.10", default_features = false, optional = true }
 log = "0.4.20"
 mdbook = "0.4.35"
