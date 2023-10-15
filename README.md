@@ -70,6 +70,9 @@ Install the tool:
 
 ```bash
 cargo install mdbook-admonish
+
+# If you get compilation/installation errors, try a locked installation
+cargo install mdbook-admonish --locked
 ```
 
 Then let `mdbook-admonish` add the required files and configuration:
@@ -101,6 +104,21 @@ Then, build your book as usual:
 mdbook path/to/book
 ```
 
+### Reproducible builds
+
+For a reproducible build suitable for use in CI or scripts, please:
+
+- Pin to a specific version
+- Install with lockfile dependencies
+- Always install the latest CSS assets
+
+```bash
+cargo install mdbook-admonish --vers "1.5.0" --locked
+mdbook-admonish install path/to/your/book
+```
+
+The Minimum Supported Rust Version (MSRV) is documented in `Cargo.toml`, and noted in the `CHANGELOG.md`. We aims to support around six months of stable Rust.
+
 ### Updates
 
 **Please note**, when updating your version of `mdbook-admonish`, updated styles will not be applied unless you rerun `mdbook-admonish install` to update the additional CSS files in your book.
@@ -116,12 +134,6 @@ ERROR:
 ```
 
 If you want to update across minor versions without breakage, you should always run `mdbook-admonish install`.
-
-Alternatively, pin to a specific version for a reproducible installation:
-
-```bash
-cargo install mdbook-admonish --vers "1.5.0" --locked
-```
 
 ### Process included files
 
