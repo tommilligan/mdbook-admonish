@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## 1.13.1
+
+### Changed
+
+- Bumped internal `mdbook` version to `0.4.35` ([#142](https://github.com/tommilligan/mdbook-admonish/pull/142))
+
+### Fixed
+
+- Relaxed `clap` dependency to fix compilation error when using other `mdbook-*` plugins. Thanks to [@joshka](https://github.com/joshka) for the [report](https://github.com/tommilligan/mdbook-admonish/pull/141)! ([#142](https://github.com/tommilligan/mdbook-admonish/pull/142))
+
 ## 1.13.0
 
 ### Changed
