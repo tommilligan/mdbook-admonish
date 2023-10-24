@@ -1,5 +1,5 @@
 use crate::config::InstanceConfig;
-use crate::types::{AdmonitionDefaults, Directive};
+use crate::types::{AdmonitionDefaults, CssIdType, Directive};
 use std::str::FromStr;
 
 /// All information required to render an admonition.
@@ -9,6 +9,7 @@ use std::str::FromStr;
 pub(crate) struct AdmonitionMeta {
     pub directive: Directive,
     pub title: String,
+    pub css_id: Option<CssIdType>,
     pub additional_classnames: Vec<String>,
     pub collapsible: bool,
 }
@@ -28,6 +29,7 @@ impl AdmonitionMeta {
         let InstanceConfig {
             directive: raw_directive,
             title,
+            id,
             additional_classnames,
             collapsible,
         } = raw;
@@ -44,9 +46,19 @@ impl AdmonitionMeta {
             (Err(_), Some(title)) => (Directive::Note, title),
         };
 
+        let css_id = if let Some(verbatim) = id {
+            Some(CssIdType::Verbatim(verbatim))
+        } else {
+            defaults
+                .css_id_prefix
+                .as_ref()
+                .map(|prefix| CssIdType::Prefix(prefix.clone()))
+        };
+
         Self {
             directive,
             title,
+            css_id,
             additional_classnames,
             collapsible,
         }
@@ -64,7 +76,7 @@ fn format_directive_title(input: &str) -> String {
     }
 }
 
-/// Make the first letter of `input` upppercase.
+/// Make the first letter of `input` uppercase.
 ///
 /// source: https://stackoverflow.com/a/38406885
 fn uppercase_first(input: &str) -> String {
@@ -99,6 +111,7 @@ mod test {
                 InstanceConfig {
                     directive: " ".to_owned(),
                     title: None,
+                    id: None,
                     additional_classnames: Vec::new(),
                     collapsible: None,
                 },
@@ -107,6 +120,7 @@ mod test {
             AdmonitionMeta {
                 directive: Directive::Note,
                 title: "Note".to_owned(),
+                css_id: None,
                 additional_classnames: Vec::new(),
                 collapsible: false,
             }
@@ -120,17 +134,47 @@ mod test {
                 InstanceConfig {
                     directive: " ".to_owned(),
                     title: None,
+                    id: None,
                     additional_classnames: Vec::new(),
                     collapsible: None,
                 },
                 &AdmonitionDefaults {
                     title: Some("Important!!!".to_owned()),
+                    css_id_prefix: Some("custom-prefix-".to_owned()),
                     collapsible: true,
                 },
             ),
             AdmonitionMeta {
                 directive: Directive::Note,
                 title: "Important!!!".to_owned(),
+                css_id: Some(CssIdType::Prefix("custom-prefix-".to_owned())),
+                additional_classnames: Vec::new(),
+                collapsible: true,
+            }
+        );
+    }
+
+    #[test]
+    fn test_admonition_info_from_raw_with_defaults_and_custom_id() {
+        assert_eq!(
+            AdmonitionMeta::resolve(
+                InstanceConfig {
+                    directive: " ".to_owned(),
+                    title: None,
+                    id: Some("my-custom-id".to_owned()),
+                    additional_classnames: Vec::new(),
+                    collapsible: None,
+                },
+                &AdmonitionDefaults {
+                    title: Some("Important!!!".to_owned()),
+                    css_id_prefix: Some("ignored-custom-prefix-".to_owned()),
+                    collapsible: true,
+                },
+            ),
+            AdmonitionMeta {
+                directive: Directive::Note,
+                title: "Important!!!".to_owned(),
+                css_id: Some(CssIdType::Verbatim("my-custom-id".to_owned())),
                 additional_classnames: Vec::new(),
                 collapsible: true,
             }
