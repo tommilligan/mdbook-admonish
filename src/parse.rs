@@ -46,6 +46,7 @@ pub(crate) fn parse_admonition<'a>(
                     Ok(Admonition {
                         directive: Directive::Bug,
                         title: "Error rendering admonishment".to_owned(),
+                        css_id: None,
                         additional_classnames: Vec::new(),
                         collapsible: false,
                         content: Cow::Owned(format!(

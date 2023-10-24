@@ -3,7 +3,10 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 
 pub use crate::preprocessor::Admonish;
-use crate::{resolve::AdmonitionMeta, types::Directive};
+use crate::{
+    resolve::AdmonitionMeta,
+    types::{CssIdType, Directive},
+};
 
 impl Directive {
     fn classname(&self) -> &'static str {
@@ -29,6 +32,7 @@ pub(crate) struct Admonition<'a> {
     pub(crate) directive: Directive,
     pub(crate) title: String,
     pub(crate) content: Cow<'a, str>,
+    pub(crate) css_id: Option<CssIdType>,
     pub(crate) additional_classnames: Vec<String>,
     pub(crate) collapsible: bool,
     pub(crate) indent: usize,
@@ -39,6 +43,7 @@ impl<'a> Admonition<'a> {
         let AdmonitionMeta {
             directive,
             title,
+            css_id,
             additional_classnames,
             collapsible,
         } = info;
@@ -46,25 +51,34 @@ impl<'a> Admonition<'a> {
             directive,
             title,
             content: Cow::Borrowed(content),
+            css_id,
             additional_classnames,
             collapsible,
             indent,
         }
     }
 
-    pub(crate) fn html_with_unique_ids(&self, id_counter: &mut HashMap<String, usize>) -> String {
-        let anchor_id = unique_id_from_content(
-            if !self.title.is_empty() {
-                &self.title
-            } else {
-                ANCHOR_ID_DEFAULT
-            },
-            id_counter,
-        );
-        self.html(&anchor_id)
-    }
+    pub(crate) fn html(&self, id_counter: &mut HashMap<String, usize>) -> String {
+        let css_id_type = self
+            .css_id
+            .clone()
+            .unwrap_or_else(|| CssIdType::Prefix(ANCHOR_DEFAULT_ID_PREFIX.to_owned()));
+        let anchor_id = match css_id_type {
+            CssIdType::Verbatim(id) => id,
+            CssIdType::Prefix(prefix) => {
+                let id = unique_id_from_content(
+                    if !self.title.is_empty() {
+                        &self.title
+                    } else {
+                        ANCHOR_ID_DEFAULT
+                    },
+                    id_counter,
+                );
 
-    fn html(&self, anchor_id: &str) -> String {
+                prefix + &id
+            }
+        };
+
         let mut additional_class = Cow::Borrowed(self.directive.classname());
         let title = &self.title;
         let content = &self.content;
@@ -78,7 +92,7 @@ impl<'a> Admonition<'a> {
 {indent}
 {indent}{title}
 {indent}
-{indent}<a class="admonition-anchor-link" href="#{ANCHOR_ID_PREFIX}-{anchor_id}"></a>
+{indent}<a class="admonition-anchor-link" href="#{anchor_id}"></a>
 {indent}</{title_block}>
 "##
             ))
@@ -103,7 +117,7 @@ impl<'a> Admonition<'a> {
         //   rendered as markdown paragraphs.
         format!(
             r#"
-{indent}<{admonition_block} id="{ANCHOR_ID_PREFIX}-{anchor_id}" class="admonition {additional_class}">
+{indent}<{admonition_block} id="{anchor_id}" class="admonition {additional_class}">
 {title_html}{indent}<div>
 {indent}
 {indent}{content}
@@ -121,5 +135,5 @@ impl<'a> Admonition<'a> {
     }
 }
 
-const ANCHOR_ID_PREFIX: &str = "admonition";
+const ANCHOR_DEFAULT_ID_PREFIX: &str = "admonition-";
 const ANCHOR_ID_DEFAULT: &str = "default";

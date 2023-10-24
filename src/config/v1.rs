@@ -52,6 +52,7 @@ pub(crate) fn from_config_string(config_string: &str) -> Result<InstanceConfig, 
     Ok(InstanceConfig {
         directive: directive.to_owned(),
         title,
+        id: None,
         additional_classnames,
         collapsible: None,
     })
@@ -69,6 +70,7 @@ mod test {
             InstanceConfig {
                 directive: "".to_owned(),
                 title: None,
+                id: None,
                 additional_classnames: Vec::new(),
                 collapsible: None,
             }
@@ -78,6 +80,7 @@ mod test {
             InstanceConfig {
                 directive: "".to_owned(),
                 title: None,
+                id: None,
                 additional_classnames: Vec::new(),
                 collapsible: None,
             }
@@ -87,6 +90,7 @@ mod test {
             InstanceConfig {
                 directive: "unknown".to_owned(),
                 title: None,
+                id: None,
                 additional_classnames: Vec::new(),
                 collapsible: None,
             }
@@ -96,6 +100,7 @@ mod test {
             InstanceConfig {
                 directive: "note".to_owned(),
                 title: None,
+                id: None,
                 additional_classnames: Vec::new(),
                 collapsible: None,
             }
@@ -105,6 +110,7 @@ mod test {
             InstanceConfig {
                 directive: "note".to_owned(),
                 title: None,
+                id: None,
                 additional_classnames: vec!["additional-classname".to_owned()],
                 collapsible: None,
             }

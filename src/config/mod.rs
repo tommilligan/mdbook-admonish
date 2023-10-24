@@ -9,6 +9,7 @@ mod v2;
 pub(crate) struct InstanceConfig {
     pub(crate) directive: String,
     pub(crate) title: Option<String>,
+    pub(crate) id: Option<String>,
     pub(crate) additional_classnames: Vec<String>,
     pub(crate) collapsible: Option<bool>,
 }
@@ -69,18 +70,22 @@ mod test {
             InstanceConfig {
                 directive: "note".to_owned(),
                 title: None,
+                id: None,
                 additional_classnames: vec!["additional-classname".to_owned()],
                 collapsible: None,
             }
         );
         // v2 syntax is supported
         assert_eq!(
-            InstanceConfig::from_info_string(r#"admonish title="Custom Title" type="question""#)
-                .unwrap()
-                .unwrap(),
+            InstanceConfig::from_info_string(
+                r#"admonish title="Custom Title" type="question" id="my-id""#
+            )
+            .unwrap()
+            .unwrap(),
             InstanceConfig {
                 directive: "question".to_owned(),
                 title: Some("Custom Title".to_owned()),
+                id: Some("my-id".to_owned()),
                 additional_classnames: Vec::new(),
                 collapsible: None,
             }

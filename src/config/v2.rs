@@ -10,6 +10,8 @@ struct UserInput {
     #[serde(default)]
     title: Option<String>,
     #[serde(default)]
+    id: Option<String>,
+    #[serde(default)]
     class: Option<String>,
     #[serde(default)]
     collapsible: Option<bool>,
@@ -88,6 +90,7 @@ pub(crate) fn from_config_string(config_string: &str) -> Result<InstanceConfig, 
     Ok(InstanceConfig {
         directive: config.r#type.unwrap_or_default(),
         title: config.title,
+        id: config.id,
         additional_classnames,
         collapsible: config.collapsible,
     })
@@ -105,6 +108,7 @@ mod test {
             InstanceConfig {
                 directive: "".to_owned(),
                 title: None,
+                id: None,
                 additional_classnames: Vec::new(),
                 collapsible: None,
             }
@@ -114,6 +118,7 @@ mod test {
             InstanceConfig {
                 directive: "".to_owned(),
                 title: None,
+                id: None,
                 additional_classnames: Vec::new(),
                 collapsible: None,
             }
@@ -126,6 +131,7 @@ mod test {
             InstanceConfig {
                 directive: "note".to_owned(),
                 title: Some("Никита".to_owned()),
+                id: None,
                 additional_classnames: vec!["additional".to_owned(), "classname".to_owned()],
                 collapsible: Some(true),
             }
@@ -136,6 +142,7 @@ mod test {
             InstanceConfig {
                 directive: "".to_owned(),
                 title: None,
+                id: None,
                 additional_classnames: Vec::new(),
                 collapsible: None,
             }
@@ -146,6 +153,7 @@ mod test {
             InstanceConfig {
                 directive: "info".to_owned(),
                 title: None,
+                id: None,
                 additional_classnames: Vec::new(),
                 collapsible: None,
             }
@@ -156,8 +164,20 @@ mod test {
             InstanceConfig {
                 directive: "info".to_owned(),
                 title: Some("Information".to_owned()),
+                id: None,
                 additional_classnames: Vec::new(),
                 collapsible: Some(false),
+            }
+        );
+        // Test custom id
+        assert_eq!(
+            from_config_string(r#"info title="My Info" id="my-info-custom-id""#).unwrap(),
+            InstanceConfig {
+                directive: "info".to_owned(),
+                title: Some("My Info".to_owned()),
+                id: Some("my-info-custom-id".to_owned()),
+                additional_classnames: Vec::new(),
+                collapsible: None,
             }
         );
         // Directive after toml config is an error

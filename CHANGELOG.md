@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- You can now set custom CSS ids for admonishment blocks with the `id` field.
+- You can now customize the default CSS id prefix (default is `"admonition-"`).
+
 ## 1.13.1
 
 ### Changed
