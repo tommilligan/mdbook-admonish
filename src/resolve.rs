@@ -9,7 +9,7 @@ use std::str::FromStr;
 pub(crate) struct AdmonitionMeta {
     pub directive: Directive,
     pub title: String,
-    pub css_id: Option<CssIdType>,
+    pub css_id: CssIdType,
     pub additional_classnames: Vec<String>,
     pub collapsible: bool,
 }
@@ -47,12 +47,15 @@ impl AdmonitionMeta {
         };
 
         let css_id = if let Some(verbatim) = id {
-            Some(CssIdType::Verbatim(verbatim))
+            CssIdType::Verbatim(verbatim)
         } else {
-            defaults
-                .css_id_prefix
-                .as_ref()
-                .map(|prefix| CssIdType::Prefix(prefix.clone()))
+            const DEFAULT_CSS_ID_PREFIX: &str = "admonition-";
+            CssIdType::Prefix(
+                defaults
+                    .css_id_prefix
+                    .clone()
+                    .unwrap_or_else(|| DEFAULT_CSS_ID_PREFIX.to_owned()),
+            )
         };
 
         Self {
@@ -120,7 +123,7 @@ mod test {
             AdmonitionMeta {
                 directive: Directive::Note,
                 title: "Note".to_owned(),
-                css_id: None,
+                css_id: CssIdType::Prefix("admonition-".to_owned()),
                 additional_classnames: Vec::new(),
                 collapsible: false,
             }
@@ -147,7 +150,7 @@ mod test {
             AdmonitionMeta {
                 directive: Directive::Note,
                 title: "Important!!!".to_owned(),
-                css_id: Some(CssIdType::Prefix("custom-prefix-".to_owned())),
+                css_id: CssIdType::Prefix("custom-prefix-".to_owned()),
                 additional_classnames: Vec::new(),
                 collapsible: true,
             }
@@ -174,7 +177,7 @@ mod test {
             AdmonitionMeta {
                 directive: Directive::Note,
                 title: "Important!!!".to_owned(),
-                css_id: Some(CssIdType::Verbatim("my-custom-id".to_owned())),
+                css_id: CssIdType::Verbatim("my-custom-id".to_owned()),
                 additional_classnames: Vec::new(),
                 collapsible: true,
             }

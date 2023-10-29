@@ -32,7 +32,7 @@ pub(crate) struct Admonition<'a> {
     pub(crate) directive: Directive,
     pub(crate) title: String,
     pub(crate) content: Cow<'a, str>,
-    pub(crate) css_id: Option<CssIdType>,
+    pub(crate) css_id: CssIdType,
     pub(crate) additional_classnames: Vec<String>,
     pub(crate) collapsible: bool,
     pub(crate) indent: usize,
@@ -59,12 +59,8 @@ impl<'a> Admonition<'a> {
     }
 
     pub(crate) fn html(&self, id_counter: &mut HashMap<String, usize>) -> String {
-        let css_id_type = self
-            .css_id
-            .clone()
-            .unwrap_or_else(|| CssIdType::Prefix(ANCHOR_DEFAULT_ID_PREFIX.to_owned()));
-        let anchor_id = match css_id_type {
-            CssIdType::Verbatim(id) => id,
+        let anchor_id = match &self.css_id {
+            CssIdType::Verbatim(id) => Cow::Borrowed(id),
             CssIdType::Prefix(prefix) => {
                 let id = unique_id_from_content(
                     if !self.title.is_empty() {
@@ -75,7 +71,7 @@ impl<'a> Admonition<'a> {
                     id_counter,
                 );
 
-                prefix + &id
+                Cow::Owned(format!("{}{}", prefix, id))
             }
         };
 
@@ -135,5 +131,4 @@ impl<'a> Admonition<'a> {
     }
 }
 
-const ANCHOR_DEFAULT_ID_PREFIX: &str = "admonition-";
 const ANCHOR_ID_DEFAULT: &str = "default";
