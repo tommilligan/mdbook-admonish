@@ -9,7 +9,7 @@ title = "The mdbook-admonish book"
 
 [preprocessor.admonish]
 command = "mdbook-admonish"
-assets_version = "3.0.0" # do not edit: managed by `mdbook-admonish install`
+assets_version = "3.0.1" # do not edit: managed by `mdbook-admonish install`
 
 [preprocessor.toc]
 command = "mdbook-toc"
