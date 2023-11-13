@@ -71,6 +71,8 @@ a.admonition-anchor-link::before {
   padding-inline: 4.4rem 1.2rem;
   font-weight: 700;
   background-color: rgba(68, 138, 255, 0.1);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
   display: flex;
 }
 :is(.admonition-title, summary.admonition-title) p {
@@ -86,6 +88,8 @@ html :is(.admonition-title, summary.admonition-title):last-child {
   width: 2rem;
   height: 2rem;
   background-color: #448aff;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
   mask-image: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"></svg>');
   -webkit-mask-image: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"></svg>');
   mask-repeat: no-repeat;
