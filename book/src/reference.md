@@ -38,6 +38,7 @@ Subfields:
 
 - `default.title` (optional): Title to use for blocks. Defaults to the directive used in titlecase.
 - `default.collapsible` (optional, default: `false`): Make blocks collapsible by default when set to `true`.
+- `default.css_id_prefix` (optional, default: `"admonition-"`): The default css id prefix to add to the id of all blocks. Ignored on blocks with an `id` field.
 
 ### `renderer`
 

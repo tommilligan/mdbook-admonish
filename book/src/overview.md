@@ -161,6 +161,23 @@ Will yield something like the following HTML, which you can then apply styles to
 </div>
 ```
 
+#### Custom CSS ID
+
+If you want to customize the CSS `id` field, set `id="custom-id"`.
+This will ignore [`default.css_id_prefix`](reference.md#default).
+
+The default id is a normalized version of the admonishment's title,
+prefixed with the `default.css_id_prefix`,
+with an appended number if multiple blocks would have the same id.
+
+Setting the `id` field will *ignore* all other ids and the duplicate counter.
+
+````
+```admonish info title="My Info" id="my-special-info"
+Link to this block with `#my-special-info` instead of the default `#admonition-my-info`.
+```
+````
+
 #### Collapsible
 
 For a block to be initially collapsible, and then be openable, set `collapsible=true`:
@@ -176,3 +193,4 @@ Will yield something like the following HTML, which you can then apply styles to
 ```admonish collapsible=true
 Content will be hidden initially.
 ```
+

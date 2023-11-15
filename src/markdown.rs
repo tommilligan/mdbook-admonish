@@ -47,7 +47,7 @@ pub(crate) fn preprocess(
             // Once we've identitified admonition blocks, handle them differently
             // depending on our render mode
             let new_content = match render_text_mode {
-                RenderTextMode::Html => admonition.html_with_unique_ids(&mut id_counter),
+                RenderTextMode::Html => admonition.html(&mut id_counter),
                 RenderTextMode::Strip => admonition.strip(),
             };
 
@@ -732,6 +732,7 @@ Text
             OnFailure::Continue,
             &AdmonitionDefaults {
                 title: Some("Admonish".to_owned()),
+                css_id_prefix: None,
                 collapsible: false,
             },
             RenderTextMode::Html,
@@ -766,6 +767,7 @@ Text
             OnFailure::Continue,
             &AdmonitionDefaults {
                 title: Some("Admonish".to_owned()),
+                css_id_prefix: None,
                 collapsible: false,
             },
             RenderTextMode::Html,
@@ -796,6 +798,219 @@ Text
 "#;
 
         assert_eq!(expected, prep(content));
+    }
+
+    #[test]
+    fn standard_custom_id() {
+        let content = r#"# Chapter
+```admonish check id="yay-custom-id"
+A simple admonition.
+```
+Text
+"#;
+
+        let expected = r##"# Chapter
+
+<div id="yay-custom-id" class="admonition admonish-success">
+<div class="admonition-title">
+
+Check
+
+<a class="admonition-anchor-link" href="#yay-custom-id"></a>
+</div>
+<div>
+
+A simple admonition.
+
+</div>
+</div>
+Text
+"##;
+
+        assert_eq!(expected, prep(content));
+    }
+
+    #[test]
+    fn no_custom_id_default_prefix() {
+        let content = r#"# Chapter
+```admonish check
+A simple admonition.
+```
+Text
+"#;
+
+        let expected = r##"# Chapter
+
+<div id="admonition-check" class="admonition admonish-success">
+<div class="admonition-title">
+
+Check
+
+<a class="admonition-anchor-link" href="#admonition-check"></a>
+</div>
+<div>
+
+A simple admonition.
+
+</div>
+</div>
+Text
+"##;
+
+        assert_eq!(expected, prep(content));
+    }
+
+    #[test]
+    fn no_custom_id_default_prefix_custom_title() {
+        let content = r#"# Chapter
+```admonish check title="Check Mark"
+A simple admonition.
+```
+Text
+"#;
+
+        let expected = r##"# Chapter
+
+<div id="admonition-check-mark" class="admonition admonish-success">
+<div class="admonition-title">
+
+Check Mark
+
+<a class="admonition-anchor-link" href="#admonition-check-mark"></a>
+</div>
+<div>
+
+A simple admonition.
+
+</div>
+</div>
+Text
+"##;
+
+        assert_eq!(expected, prep(content));
+    }
+
+    #[test]
+    fn empty_default_id_prefix() {
+        let content = r#"# Chapter
+```admonish info
+A simple admonition.
+```
+Text
+"#;
+
+        let expected = r##"# Chapter
+
+<div id="info" class="admonition admonish-info">
+<div class="admonition-title">
+
+Info
+
+<a class="admonition-anchor-link" href="#info"></a>
+</div>
+<div>
+
+A simple admonition.
+
+</div>
+</div>
+Text
+"##;
+
+        let preprocess_result = preprocess(
+            content,
+            OnFailure::Continue,
+            &AdmonitionDefaults {
+                title: Some("Info".to_owned()),
+                css_id_prefix: Some("".to_owned()),
+                collapsible: false,
+            },
+            RenderTextMode::Html,
+        )
+        .unwrap();
+        assert_eq!(expected, preprocess_result);
+    }
+
+    #[test]
+    fn custom_id_prefix_custom_title() {
+        let content = r#"# Chapter
+```admonish info title="My Title"
+A simple admonition.
+```
+Text
+"#;
+
+        let expected = r##"# Chapter
+
+<div id="prefix-my-title" class="admonition admonish-info">
+<div class="admonition-title">
+
+My Title
+
+<a class="admonition-anchor-link" href="#prefix-my-title"></a>
+</div>
+<div>
+
+A simple admonition.
+
+</div>
+</div>
+Text
+"##;
+
+        let preprocess_result = preprocess(
+            content,
+            OnFailure::Continue,
+            &AdmonitionDefaults {
+                title: Some("Info".to_owned()),
+                css_id_prefix: Some("prefix-".to_owned()),
+                collapsible: false,
+            },
+            RenderTextMode::Html,
+        )
+        .unwrap();
+        assert_eq!(expected, preprocess_result);
+    }
+
+    #[test]
+    fn custom_id_custom_title() {
+        let content = r#"# Chapter
+```admonish info title="My Title" id="my-section-id"
+A simple admonition.
+```
+Text
+"#;
+
+        let expected = r##"# Chapter
+
+<div id="my-section-id" class="admonition admonish-info">
+<div class="admonition-title">
+
+My Title
+
+<a class="admonition-anchor-link" href="#my-section-id"></a>
+</div>
+<div>
+
+A simple admonition.
+
+</div>
+</div>
+Text
+"##;
+
+        let preprocess_result = preprocess(
+            content,
+            OnFailure::Continue,
+            &AdmonitionDefaults {
+                title: Some("Info".to_owned()),
+                css_id_prefix: Some("ignored-prefix-".to_owned()),
+                collapsible: false,
+            },
+            RenderTextMode::Html,
+        )
+        .unwrap();
+        assert_eq!(expected, preprocess_result);
     }
 
     #[test]
