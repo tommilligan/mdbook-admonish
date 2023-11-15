@@ -3,7 +3,6 @@ use std::str::FromStr;
 
 /// Book wide defaults that may be provided by the user.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, Default)]
-#[serde(rename_all = "kebab-case")]
 pub(crate) struct AdmonitionDefaults {
     #[serde(default)]
     pub(crate) title: Option<String>,
@@ -65,7 +64,7 @@ pub(crate) enum CssIdType {
     ///
     /// used directly for the id field
     Verbatim(String),
-    /// the prefix from default.css-id-prefix
+    /// the prefix from default.css_id_prefix
     ///
     /// will generate the rest of the id based on the title
     Prefix(String),
