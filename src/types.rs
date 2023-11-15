@@ -65,7 +65,7 @@ pub(crate) enum CssId {
     ///
     /// used directly for the id field
     Verbatim(String),
-    /// the prefix from default.css_id_prefix
+    /// the prefix from default.css_id_prefix (or "admonish-" if not specified)
     ///
     /// will generate the rest of the id based on the title
     Prefix(String),
