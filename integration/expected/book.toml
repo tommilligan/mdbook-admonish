@@ -9,7 +9,7 @@ title = "mdbook-admonish-integration"
 
 [preprocessor.admonish]
 command = "mdbook-admonish"
-assets_version = "3.0.0" # do not edit: managed by `mdbook-admonish install`
+assets_version = "3.0.1" # do not edit: managed by `mdbook-admonish install`
 after = ["links"]
 
 [preprocessor.admonish.renderer.test]

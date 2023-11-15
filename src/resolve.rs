@@ -40,7 +40,7 @@ impl AdmonitionMeta {
 
         // Load the directive (and title, if one still not given)
         let (directive, title) = match (Directive::from_str(&raw_directive), title) {
-            (Ok(directive), None) => (directive, ucfirst(&raw_directive)),
+            (Ok(directive), None) => (directive, format_directive_title(&raw_directive)),
             (Err(_), None) => (Directive::Note, "Note".to_owned()),
             (Ok(directive), Some(title)) => (directive, title),
             (Err(_), Some(title)) => (Directive::Note, title),
@@ -65,10 +65,21 @@ impl AdmonitionMeta {
     }
 }
 
+/// Format the title of an admonition directive
+///
+/// We special case a few words to make them look nicer (e.g. "tldr" -> "TL;DR" and "faq" -> "FAQ").
+fn format_directive_title(input: &str) -> String {
+    match input {
+        "tldr" => "TL;DR".to_owned(),
+        "faq" => "FAQ".to_owned(),
+        _ => uppercase_first(input),
+    }
+}
+
 /// Make the first letter of `input` uppercase.
 ///
 /// source: https://stackoverflow.com/a/38406885
-fn ucfirst(input: &str) -> String {
+fn uppercase_first(input: &str) -> String {
     let mut chars = input.chars();
     match chars.next() {
         None => String::new(),
@@ -80,6 +91,18 @@ fn ucfirst(input: &str) -> String {
 mod test {
     use super::*;
     use pretty_assertions::assert_eq;
+
+    #[test]
+    fn test_format_directive_title() {
+        assert_eq!(format_directive_title(""), "");
+        assert_eq!(format_directive_title("a"), "A");
+        assert_eq!(format_directive_title("tldr"), "TL;DR");
+        assert_eq!(format_directive_title("faq"), "FAQ");
+        assert_eq!(format_directive_title("note"), "Note");
+        assert_eq!(format_directive_title("abstract"), "Abstract");
+        // Unicode
+        assert_eq!(format_directive_title("🦀"), "🦀");
+    }
 
     #[test]
     fn test_admonition_info_from_raw() {

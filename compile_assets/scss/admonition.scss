@@ -165,6 +165,9 @@ a.admonition-anchor-link {
   padding-inline: 4.4rem 1.2rem;
   font-weight: 700;
   background-color: color.adjust($clr-blue-a200, $alpha: -0.9);
+  // Always print title bar tint
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
   // Compatilility with rendering markdown inside the content
   display: flex;
 
@@ -186,6 +189,9 @@ a.admonition-anchor-link {
     width: 2rem;
     height: 2rem;
     background-color: $clr-blue-a200;
+    // Always print icon
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
     mask-image: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"></svg>');
     -webkit-mask-image: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"></svg>');
     mask-repeat: no-repeat;
