@@ -6,7 +6,7 @@ use crate::{
     book_config::OnFailure,
     render::Admonition,
     resolve::AdmonitionMeta,
-    types::{AdmonitionDefaults, Directive},
+    types::{AdmonitionDefaults, CssId, Directive},
 };
 
 /// Given the content in the span of the code block, and the info string,
@@ -46,7 +46,7 @@ pub(crate) fn parse_admonition<'a>(
                     Ok(Admonition {
                         directive: Directive::Bug,
                         title: "Error rendering admonishment".to_owned(),
-                        css_id: None,
+                        css_id: CssId::Prefix("admonition-".to_owned()),
                         additional_classnames: Vec::new(),
                         collapsible: false,
                         content: Cow::Owned(format!(

@@ -164,10 +164,10 @@ Will yield something like the following HTML, which you can then apply styles to
 #### Custom CSS ID
 
 If you want to customize the CSS `id` field, set `id="custom-id"`.
-This will ignore [`default.css-id-prefix`](reference.md#default).
+This will ignore [`default.css_id_prefix`](reference.md#default).
 
 The default id is a normalized version of the admonishment's title,
-prefixed with the `default.css-id-prefix`,
+prefixed with the `default.css_id_prefix`,
 with an appended number if multiple blocks would have the same id.
 
 Setting the `id` field will *ignore* all other ids and the duplicate counter.

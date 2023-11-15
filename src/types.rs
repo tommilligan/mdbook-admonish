@@ -60,12 +60,12 @@ pub(crate) enum RenderTextMode {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) enum CssIdType {
+pub(crate) enum CssId {
     /// id="my-id" in the admonishment
     ///
     /// used directly for the id field
     Verbatim(String),
-    /// the prefix from default.css-id-prefix
+    /// the prefix from default.css_id_prefix
     ///
     /// will generate the rest of the id based on the title
     Prefix(String),
