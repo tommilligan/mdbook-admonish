@@ -185,6 +185,7 @@
 <li><a href="overview.html#custom-title">Custom title</a></li>
 <li><a href="overview.html#nested-markdownhtml">Nested Markdown/HTML</a></li>
 <li><a href="overview.html#custom-styling">Custom styling</a></li>
+<li><a href="overview.html#custom-css-id">Custom CSS ID</a></li>
 <li><a href="overview.html#collapsible">Collapsible</a></li>
 </ul>
 </li>
@@ -353,6 +354,17 @@ Styled with my custom CSS class.
     ...
 &lt;/div&gt;
 </code></pre>
+<h4 id="custom-css-id"><a class="header" href="#custom-css-id">Custom CSS ID</a></h4>
+<p>If you want to customize the CSS <code>id</code> field, set <code>id=&quot;custom-id&quot;</code>.
+This will ignore <a href="reference.html#default"><code>default.css_id_prefix</code></a>.</p>
+<p>The default id is a normalized version of the admonishment's title,
+prefixed with the <code>default.css_id_prefix</code>,
+with an appended number if multiple blocks would have the same id.</p>
+<p>Setting the <code>id</code> field will <em>ignore</em> all other ids and the duplicate counter.</p>
+<pre><code>```admonish info title=&quot;My Info&quot; id=&quot;my-special-info&quot;
+Link to this block with `#my-special-info` instead of the default `#admonition-my-info`.
+```
+</code></pre>
 <h4 id="collapsible"><a class="header" href="#collapsible">Collapsible</a></h4>
 <p>For a block to be initially collapsible, and then be openable, set <code>collapsible=true</code>:</p>
 <pre><code>```admonish collapsible=true
@@ -408,6 +420,7 @@ render_mode = &quot;strip&quot;
 <ul>
 <li><code>default.title</code> (optional): Title to use for blocks. Defaults to the directive used in titlecase.</li>
 <li><code>default.collapsible</code> (optional, default: <code>false</code>): Make blocks collapsible by default when set to <code>true</code>.</li>
+<li><code>default.css_id_prefix</code> (optional, default: <code>&quot;admonition-&quot;</code>): The default css id prefix to add to the id of all blocks. Ignored on blocks with an <code>id</code> field.</li>
 </ul>
 <h3 id="renderer"><a class="header" href="#renderer"><code>renderer</code></a></h3>
 <div id="admonition-tip" class="admonition admonish-tip">
