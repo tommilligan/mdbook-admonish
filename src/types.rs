@@ -59,7 +59,7 @@ pub(crate) enum RenderTextMode {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) enum CssIdType {
+pub(crate) enum CssId {
     /// id="my-id" in the admonishment
     ///
     /// used directly for the id field

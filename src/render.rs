@@ -5,7 +5,7 @@ use std::collections::HashMap;
 pub use crate::preprocessor::Admonish;
 use crate::{
     resolve::AdmonitionMeta,
-    types::{CssIdType, Directive},
+    types::{CssId, Directive},
 };
 
 impl Directive {
@@ -32,7 +32,7 @@ pub(crate) struct Admonition<'a> {
     pub(crate) directive: Directive,
     pub(crate) title: String,
     pub(crate) content: Cow<'a, str>,
-    pub(crate) css_id: CssIdType,
+    pub(crate) css_id: CssId,
     pub(crate) additional_classnames: Vec<String>,
     pub(crate) collapsible: bool,
     pub(crate) indent: usize,
@@ -60,8 +60,8 @@ impl<'a> Admonition<'a> {
 
     pub(crate) fn html(&self, id_counter: &mut HashMap<String, usize>) -> String {
         let anchor_id = match &self.css_id {
-            CssIdType::Verbatim(id) => Cow::Borrowed(id),
-            CssIdType::Prefix(prefix) => {
+            CssId::Verbatim(id) => Cow::Borrowed(id),
+            CssId::Prefix(prefix) => {
                 let id = unique_id_from_content(
                     if !self.title.is_empty() {
                         &self.title

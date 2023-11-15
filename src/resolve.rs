@@ -1,5 +1,5 @@
 use crate::config::InstanceConfig;
-use crate::types::{AdmonitionDefaults, CssIdType, Directive};
+use crate::types::{AdmonitionDefaults, CssId, Directive};
 use std::str::FromStr;
 
 /// All information required to render an admonition.
@@ -9,7 +9,7 @@ use std::str::FromStr;
 pub(crate) struct AdmonitionMeta {
     pub directive: Directive,
     pub title: String,
-    pub css_id: CssIdType,
+    pub css_id: CssId,
     pub additional_classnames: Vec<String>,
     pub collapsible: bool,
 }
@@ -47,10 +47,10 @@ impl AdmonitionMeta {
         };
 
         let css_id = if let Some(verbatim) = id {
-            CssIdType::Verbatim(verbatim)
+            CssId::Verbatim(verbatim)
         } else {
             const DEFAULT_CSS_ID_PREFIX: &str = "admonition-";
-            CssIdType::Prefix(
+            CssId::Prefix(
                 defaults
                     .css_id_prefix
                     .clone()
@@ -123,7 +123,7 @@ mod test {
             AdmonitionMeta {
                 directive: Directive::Note,
                 title: "Note".to_owned(),
-                css_id: CssIdType::Prefix("admonition-".to_owned()),
+                css_id: CssId::Prefix("admonition-".to_owned()),
                 additional_classnames: Vec::new(),
                 collapsible: false,
             }
@@ -150,7 +150,7 @@ mod test {
             AdmonitionMeta {
                 directive: Directive::Note,
                 title: "Important!!!".to_owned(),
-                css_id: CssIdType::Prefix("custom-prefix-".to_owned()),
+                css_id: CssId::Prefix("custom-prefix-".to_owned()),
                 additional_classnames: Vec::new(),
                 collapsible: true,
             }
@@ -177,7 +177,7 @@ mod test {
             AdmonitionMeta {
                 directive: Directive::Note,
                 title: "Important!!!".to_owned(),
-                css_id: CssIdType::Verbatim("my-custom-id".to_owned()),
+                css_id: CssId::Verbatim("my-custom-id".to_owned()),
                 additional_classnames: Vec::new(),
                 collapsible: true,
             }
