@@ -2,8 +2,21 @@
 
 ## Unreleased
 
-- You can now set custom CSS ids for admonishment blocks with the `id` field.
-- You can now customize the default CSS id prefix (default is `"admonition-"`).
+## 1.14.0
+
+### Changed
+
+- Styles version updated to `3.0.1`. Run `mdbook-admonish install` to update.
+
+### Added
+
+- You can now set custom CSS ids for admonition blocks with the `id` field. Thanks to [@Sky9x](https://github.com/Sky9x) for contributing this feature! ([#144](https://github.com/tommilligan/mdbook-admonish/pull/144))
+  - You can also now customize the CSS id prefix with the config option `default.css_id_prefix`
+
+### Fixed
+
+- Improve rendering of blocks in print/PDF view. Thanks to [@csk111165](https://github.com/csk111165) for the report ([#152](https://github.com/tommilligan/mdbook-admonish/issues/152))
+- Fix the default titles for `tldr` and `faq` directives looking bad. They now render as `TL;DR` and `FAQ` by default. Thanks [@joshka](https://github.com/joshka) for fixing this! ([#154](https://github.com/tommilligan/mdbook-admonish/pull/154))
 
 ## 1.13.1
 
@@ -89,7 +102,7 @@ It unintentionally increased the MSRV from 1.66.0
 
 ### Changed
 
-- Styles updated to `^2.0.1`. Run `mdbook-admonish install` to update.
+- Styles version updated to `2.0.1`. Run `mdbook-admonish install` to update.
 - MSRV (minimum supported rust version) is now 1.64.0 for clap v4 ([#79](https://github.com/tommilligan/mdbook-admonish/pull/79))
 - More verbose error messages for invalid TOML configurations ([#79](https://github.com/tommilligan/mdbook-admonish/pull/79))
 
