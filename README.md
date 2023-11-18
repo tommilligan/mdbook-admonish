@@ -177,7 +177,7 @@ Project design
 
 To make a breaking change in CSS, you should:
 
-- Update the assets version in `./src/bin/assets/VERSION`
+- Update the assets version in `./src/assets/VERSION`
 - Update the required assets version specifier in `./src/REQUIRED_ASSETS_VERSION`
 
 You must make the next `mdbook-admonish` crate version at least a **minor** version bump.

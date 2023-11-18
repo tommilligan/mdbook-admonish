@@ -15,9 +15,9 @@ eprintln "Linting style sources"
 yarn run lint
 
 eprintln "Checking compiled styles up to date"
-COMITTED_ASSETS="$(cat ../src/bin/assets/mdbook-admonish.css)"
+COMITTED_ASSETS="$(cat ../src/assets/mdbook-admonish.css)"
 yarn run build
-RECOMPILED_ASSETS="$(cat ../src/bin/assets/mdbook-admonish.css)"
+RECOMPILED_ASSETS="$(cat ../src/assets/mdbook-admonish.css)"
 diff -u <(printf "%s" "$COMITTED_ASSETS") <(printf "%s" "$RECOMPILED_ASSETS")
 
 popd > /dev/null

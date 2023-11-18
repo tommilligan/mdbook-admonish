@@ -106,7 +106,7 @@ mod install {
 
     const ADMONISH_CSS_FILES: &[(&str, &[u8])] = &[(
         "mdbook-admonish.css",
-        include_bytes!("assets/mdbook-admonish.css"),
+        include_bytes!("../assets/mdbook-admonish.css"),
     )];
 
     trait ArrayExt {
@@ -132,7 +132,7 @@ mod install {
             .context("configuration is not valid TOML")?;
 
         if let Ok(preprocessor) = preprocessor(&mut doc) {
-            const ASSETS_VERSION: &str = std::include_str!("./assets/VERSION");
+            const ASSETS_VERSION: &str = std::include_str!("../assets/VERSION");
             let value = toml_edit::value(
                 toml_edit::Value::from(ASSETS_VERSION.trim())
                     .decorated(" ", " # do not edit: managed by `mdbook-admonish install`"),

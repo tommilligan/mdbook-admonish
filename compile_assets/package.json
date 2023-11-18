@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "build": "sass --no-source-map scss/mdbook-admonish.scss ../src/bin/assets/mdbook-admonish.css",
+    "build": "sass --no-source-map scss/mdbook-admonish.scss ../src/assets/mdbook-admonish.css",
     "lint": "prettier --check .",
     "fix": "prettier --write ."
   },
