@@ -11,6 +11,14 @@ title = "The mdbook-admonish book"
 command = "mdbook-admonish"
 assets_version = "3.0.1" # do not edit: managed by `mdbook-admonish install`
 
+[[preprocessor.admonish.custom]]
+id = "silly-frog" # what you put in the block and the css class name
+title = "Silly Frog"
+icon = "data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M14 17h3l2-4V7h-6v6h3M6 17h3l2-4V7H5v6h3l-2 4z'/></svg>"
+color = "9004CC"
+#color = [0x0, 0, 0]
+background-color = ""
+
 [preprocessor.toc]
 command = "mdbook-toc"
 renderer = ["html"]

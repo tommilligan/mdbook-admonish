@@ -2,6 +2,7 @@ use super::InstanceConfig;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::Deserialize;
+use crate::admonitions::is_valid_directive;
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 struct UserInput {
@@ -55,17 +56,14 @@ pub(crate) fn from_config_string(config_string: &str) -> Result<InstanceConfig, 
             let original_error = Err(format!("TOML parsing error: {error}"));
 
             // For ergonomic reasons, we allow users to specify the directive without
-            // a key. So if parsing fails initially, take the first line,
-            // use that as the directive, and reparse.
+            // a key (note instead of type="note"). So if parsing fails initially,
+            // take the first line, use that as the directive, and reparse.
             let (directive, config_toml) = match config_toml.split_once('\n') {
                 Some((directive, config_toml)) => (directive.trim(), config_toml),
                 None => (config_toml, ""),
             };
 
-            static RX_DIRECTIVE: Lazy<Regex> =
-                Lazy::new(|| Regex::new(r#"^[A-Za-z0-9_-]+$"#).expect("directive regex"));
-
-            if !RX_DIRECTIVE.is_match(directive) {
+            if !is_valid_directive(directive) {
                 return original_error;
             }
 

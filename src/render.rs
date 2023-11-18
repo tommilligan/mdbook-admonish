@@ -2,34 +2,11 @@ use mdbook::utils::unique_id_from_content;
 use std::borrow::Cow;
 use std::collections::HashMap;
 
-pub use crate::preprocessor::Admonish;
-use crate::{
-    resolve::AdmonitionMeta,
-    types::{CssId, Directive},
-};
-
-impl Directive {
-    fn classname(&self) -> &'static str {
-        match self {
-            Directive::Note => "admonish-note",
-            Directive::Abstract => "admonish-abstract",
-            Directive::Info => "admonish-info",
-            Directive::Tip => "admonish-tip",
-            Directive::Success => "admonish-success",
-            Directive::Question => "admonish-question",
-            Directive::Warning => "admonish-warning",
-            Directive::Failure => "admonish-failure",
-            Directive::Danger => "admonish-danger",
-            Directive::Bug => "admonish-bug",
-            Directive::Example => "admonish-example",
-            Directive::Quote => "admonish-quote",
-        }
-    }
-}
+use crate::{resolve::AdmonitionMeta, types::CssId};
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct Admonition<'a> {
-    pub(crate) directive: Directive,
+    pub(crate) directive: String,
     pub(crate) title: String,
     pub(crate) content: Cow<'a, str>,
     pub(crate) css_id: CssId,
@@ -75,7 +52,9 @@ impl<'a> Admonition<'a> {
             }
         };
 
-        let mut additional_class = Cow::Borrowed(self.directive.classname());
+        // css classname is admonish-{directive}
+        // TODO move this to its own fn cuz the css gen wants to call it too
+        let mut additional_class = format!("admonish-{}", &self.directive);
         let title = &self.title;
         let content = &self.content;
         let indent = " ".repeat(self.indent);
@@ -96,14 +75,9 @@ impl<'a> Admonition<'a> {
             Cow::Borrowed("")
         };
 
-        if !self.additional_classnames.is_empty() {
-            let mut buffer = additional_class.into_owned();
-            for additional_classname in &self.additional_classnames {
-                buffer.push(' ');
-                buffer.push_str(additional_classname);
-            }
-
-            additional_class = Cow::Owned(buffer);
+        for additional_classname in &self.additional_classnames {
+            additional_class.push(' ');
+            additional_class.push_str(additional_classname);
         }
 
         let admonition_block = if self.collapsible { "details" } else { "div" };

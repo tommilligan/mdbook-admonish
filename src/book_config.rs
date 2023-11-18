@@ -1,9 +1,9 @@
+use crate::admonitions::AdmonitionKinds;
+use crate::types::AdmonitionDefaults;
 use anyhow::{Context, Result};
 use mdbook::preprocess::PreprocessorContext;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-
-use crate::types::AdmonitionDefaults;
 
 /// Loads the plugin configuration from mdbook internals.
 ///
@@ -31,6 +31,9 @@ pub(crate) struct Config {
 
     #[serde(default)]
     pub assets_version: Option<String>,
+
+    #[serde(default)]
+    pub custom: AdmonitionKinds,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]

@@ -48,6 +48,7 @@ toml_edit = { version = "0.20.1", optional = true }
 
 [dev-dependencies]
 pretty_assertions = "1.4.0"
+serde_test = "1"
 
 [features]
 default = ["cli", "cli-install"]
