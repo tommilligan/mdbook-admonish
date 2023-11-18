@@ -34,7 +34,7 @@ impl Flavour {
             uppercase_first(&self.directive)
         }
     }
-    
+
     pub(crate) fn css(&self) -> String {
         format!(
             r#"
