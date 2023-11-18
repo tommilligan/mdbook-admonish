@@ -1,6 +1,4 @@
-use crate::flavours::Flavour;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 /// Book wide defaults that may be provided by the user.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, Default)]
@@ -33,6 +31,3 @@ pub(crate) enum CssId {
     /// will generate the rest of the id based on the title
     Prefix(String),
 }
-
-// TODO do we need this? makes some code look nicer but
-pub(crate) type FlavourMap = HashMap<String, Flavour>;

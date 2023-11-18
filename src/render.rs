@@ -2,6 +2,7 @@ use mdbook::utils::unique_id_from_content;
 use std::borrow::Cow;
 use std::collections::HashMap;
 
+use crate::flavours::FlavourMap;
 use crate::{resolve::AdmonitionMeta, types::CssId};
 
 #[derive(Debug, PartialEq)]
@@ -35,8 +36,13 @@ impl<'a> Admonition<'a> {
         }
     }
 
-    pub(crate) fn html(&self, id_counter: &mut HashMap<String, usize>) -> String {
+    pub(crate) fn html(
+        &self,
+        flavours: &FlavourMap,
+        id_counter: &mut HashMap<String, usize>,
+    ) -> String {
         let anchor_id = match &self.css_id {
+            // css classname is admonish-{directive}
             CssId::Verbatim(id) => Cow::Borrowed(id),
             CssId::Prefix(prefix) => {
                 let id = unique_id_from_content(
@@ -52,9 +58,12 @@ impl<'a> Admonition<'a> {
             }
         };
 
+        let flavour = flavours
+            .get(&self.directive)
+            .expect("valid directive in admonition");
+
         // css classname is admonish-{directive}
-        // TODO move this to its own fn cuz the css gen wants to call it too
-        let mut additional_class = format!("admonish-{}", &self.directive);
+        let mut additional_class = flavour.class_name();
         let title = &self.title;
         let content = &self.content;
         let indent = " ".repeat(self.indent);

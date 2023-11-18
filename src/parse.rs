@@ -3,9 +3,10 @@ use std::borrow::Cow;
 
 use crate::{
     book_config::OnFailure,
+    flavours::FlavourMap,
     render::Admonition,
     resolve::AdmonitionMeta,
-    types::{AdmonitionDefaults, CssId, FlavourMap},
+    types::{AdmonitionDefaults, CssId},
 };
 
 /// Given the content in the span of the code block, and the info string,

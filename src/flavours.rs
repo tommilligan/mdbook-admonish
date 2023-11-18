@@ -1,5 +1,4 @@
 use crate::color::Color;
-use crate::types::FlavourMap;
 use anyhow::anyhow;
 use mdbook::errors::Result as MdbookResult;
 use once_cell::sync::Lazy;
@@ -13,6 +12,15 @@ pub(crate) fn is_valid_directive(directive: &str) -> bool {
         Lazy::new(|| Regex::new(r#"^[A-Za-z0-9_-]+$"#).expect("directive regex"));
 
     REGEX.is_match(directive)
+}
+
+// TODO do we need this? makes some code look nicer but
+pub(crate) type FlavourMap = HashMap<String, Flavour>;
+
+// test helper
+#[cfg(test)]
+pub(crate) fn default_flavour_map() -> FlavourMap {
+    build_flavour_map(Vec::new()).unwrap()
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
@@ -35,17 +43,22 @@ impl Flavour {
         }
     }
 
+    pub(crate) fn class_name(&self) -> String {
+        format!("admonish-{}", self.directive)
+    }
+
+    #[allow(unused)] // TODO remove
     pub(crate) fn css(&self) -> String {
         format!(
             r#"
-:is(.admonition):is(.admonish-{directive}) {{
+:is(.admonition):is(.{class_name}) {{
     border-color: rgb({r}, {g}, {b});
 }}
 
-:is(.admonish-{directive}) > :is(.admonition-title, summary.admonition-title) {{
+:is(.{class_name}) > :is(.admonition-title, summary.admonition-title) {{
     background-color: rgba({r}, {g}, {b}, 0.1);
 }}
-:is(.admonish-{directive}) > :is(.admonition-title, summary.admonition-title)::before {{
+:is(.{class_name}) > :is(.admonition-title, summary.admonition-title)::before {{
     background-color: rgb({r}, {g}, {b});
     mask-image: url("{icon}");
     -webkit-mask-image: url("{icon}");
@@ -55,7 +68,7 @@ impl Flavour {
     -webkit-mask-repeat: no-repeat;
 }}
         "#,
-            directive = self.directive,
+            class_name = self.class_name(),
             r = self.color.red,
             g = self.color.green,
             b = self.color.blue,

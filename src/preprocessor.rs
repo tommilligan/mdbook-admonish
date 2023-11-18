@@ -5,7 +5,6 @@ use mdbook::{
     preprocess::{Preprocessor, PreprocessorContext},
 };
 
-use crate::flavours::build_flavour_map;
 use crate::{
     book_config::{admonish_config_from_context, Config, RenderMode},
     markdown::preprocess,
@@ -27,10 +26,8 @@ impl Preprocessor for Admonish {
         let custom_flavours = config.custom;
         let admonition_defaults = config.default;
 
-        let flavours = build_flavour_map(custom_flavours)?;
-
         // TODO remove
-        eprintln!("loaded custom flavours: {flavours:#?}");
+        eprintln!("loaded custom flavours: {custom_flavours:#?}");
 
         // Load what rendering we should do from config, falling back to a default
         let render_mode = config
@@ -63,7 +60,8 @@ impl Preprocessor for Admonish {
                     preprocess(
                         &chapter.content,
                         on_failure,
-                        &flavours,
+                        // TODO fix
+                        custom_flavours.clone(),
                         &admonition_defaults,
                         render_text_mode,
                     )

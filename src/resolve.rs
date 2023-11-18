@@ -1,5 +1,6 @@
 use crate::config::InstanceConfig;
-use crate::types::{AdmonitionDefaults, CssId, FlavourMap};
+use crate::flavours::FlavourMap;
+use crate::types::{AdmonitionDefaults, CssId};
 
 /// All information required to render an admonition.
 ///
@@ -39,7 +40,7 @@ impl AdmonitionMeta {
         } = raw;
 
         // default directive if not specified is note
-        let directive = if raw_directive.is_empty() {
+        let directive = if raw_directive.trim().is_empty() {
             "note".to_owned()
         } else {
             raw_directive
@@ -78,11 +79,10 @@ impl AdmonitionMeta {
     }
 }
 
-// TODO fix tests :|
-#[cfg(FALSE)]
-// #[cfg(test)]
+#[cfg(test)]
 mod test {
     use super::*;
+    use crate::flavours::default_flavour_map;
     use pretty_assertions::assert_eq;
 
     #[test]
@@ -96,15 +96,16 @@ mod test {
                     additional_classnames: Vec::new(),
                     collapsible: None,
                 },
-                &Default::default()
+                &Default::default(),
+                &default_flavour_map(),
             ),
-            AdmonitionMeta {
-                directive: Directive::Note,
+            Ok(AdmonitionMeta {
+                directive: "note".to_owned(),
                 title: "Note".to_owned(),
                 css_id: CssId::Prefix("admonition-".to_owned()),
                 additional_classnames: Vec::new(),
                 collapsible: false,
-            }
+            })
         );
     }
 
@@ -124,14 +125,15 @@ mod test {
                     css_id_prefix: Some("custom-prefix-".to_owned()),
                     collapsible: true,
                 },
+                &default_flavour_map(),
             ),
-            AdmonitionMeta {
-                directive: Directive::Note,
+            Ok(AdmonitionMeta {
+                directive: "note".to_owned(),
                 title: "Important!!!".to_owned(),
                 css_id: CssId::Prefix("custom-prefix-".to_owned()),
                 additional_classnames: Vec::new(),
                 collapsible: true,
-            }
+            })
         );
     }
 
@@ -151,14 +153,15 @@ mod test {
                     css_id_prefix: Some("ignored-custom-prefix-".to_owned()),
                     collapsible: true,
                 },
+                &default_flavour_map()
             ),
-            AdmonitionMeta {
-                directive: Directive::Note,
+            Ok(AdmonitionMeta {
+                directive: "note".to_owned(),
                 title: "Important!!!".to_owned(),
                 css_id: CssId::Verbatim("my-custom-id".to_owned()),
                 additional_classnames: Vec::new(),
                 collapsible: true,
-            }
+            })
         );
     }
 }
