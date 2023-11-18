@@ -1,7 +1,7 @@
-mod admonitions;
 mod book_config;
 mod color;
 mod config;
+mod flavours;
 mod markdown;
 mod parse;
 mod preprocessor;

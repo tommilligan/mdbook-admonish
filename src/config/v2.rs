@@ -1,8 +1,8 @@
 use super::InstanceConfig;
+use crate::flavours::is_valid_directive;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::Deserialize;
-use crate::admonitions::is_valid_directive;
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 struct UserInput {

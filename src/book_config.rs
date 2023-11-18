@@ -1,4 +1,4 @@
-use crate::admonitions::CustomFlavours;
+use crate::flavours::Flavour;
 use crate::types::AdmonitionDefaults;
 use anyhow::{Context, Result};
 use mdbook::preprocess::PreprocessorContext;
@@ -34,7 +34,7 @@ pub(crate) struct Config {
 
     // TODO is custom the right name?
     #[serde(default)]
-    pub custom: CustomFlavours,
+    pub custom: Vec<Flavour>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]

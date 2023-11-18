@@ -1,12 +1,11 @@
 use anyhow::{anyhow, Result};
 use std::borrow::Cow;
 
-use crate::admonitions::CustomFlavours;
 use crate::{
     book_config::OnFailure,
     render::Admonition,
     resolve::AdmonitionMeta,
-    types::{AdmonitionDefaults, CssId},
+    types::{AdmonitionDefaults, CssId, FlavourMap},
 };
 
 /// Given the content in the span of the code block, and the info string,
@@ -23,7 +22,7 @@ pub(crate) fn parse_admonition<'a>(
     admonition_defaults: &'a AdmonitionDefaults,
     content: &'a str,
     on_failure: OnFailure,
-    flavours: &CustomFlavours,
+    flavours: &FlavourMap,
     indent: usize,
 ) -> Option<Result<Admonition<'a>>> {
     // We need to know fence details anyway for error messages

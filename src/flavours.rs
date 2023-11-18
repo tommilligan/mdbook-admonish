@@ -1,8 +1,12 @@
 use crate::color::Color;
+use crate::types::FlavourMap;
+use anyhow::anyhow;
+use mdbook::errors::Result as MdbookResult;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
+use std::collections::HashMap;
 
 pub(crate) fn is_valid_directive(directive: &str) -> bool {
     static REGEX: Lazy<Regex> =
@@ -22,13 +26,18 @@ pub(crate) struct Flavour {
 }
 
 impl Flavour {
-    /// the flavour's specified title, or the default of title-casing the directive
+    /// the flavour's specified title, otherwise the default of title-casing the directive
     pub(crate) fn title(&self) -> String {
         if let Some(title) = &self.title {
-            title.clone().into_owned()
+            title.to_string()
         } else {
             uppercase_first(&self.directive)
         }
+    }
+
+    /// css class name (directive prefixed with "admonish-")
+    pub(crate) fn class_name(&self) -> String {
+        format!("admonish-{}", self.directive)
     }
 }
 
@@ -53,30 +62,38 @@ fn test_uppercase_first() {
     assert_eq!(uppercase_first("🦀"), "🦀");
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, Default)]
-#[serde(transparent)]
-pub(crate) struct CustomFlavours {
-    pub(crate) custom: Vec<Flavour>,
-}
+/// Makes sure there are no duplicates and all directives are valid,
+/// then inserts the builtin flavours if they aren't overridden
+pub(crate) fn build_flavour_map(custom_flavours: Vec<Flavour>) -> MdbookResult<FlavourMap> {
+    let mut map = HashMap::with_capacity(custom_flavours.len() + BUILTIN_FLAVOURS.len());
 
-impl CustomFlavours {
-    // TODO validate custom input
-    // - valid directives
-    // - no duplicate directives
-    #[allow(unused)]
-    pub(crate) fn validate(&self) {
-        todo!()
+    // validate and add all custom flavours
+    for custom in custom_flavours {
+        let directive = custom.directive.to_string();
+
+        if !is_valid_directive(&directive) {
+            // TODO fix this error message? (regex in errors is meh)
+            return Err(anyhow!(
+                "invalid directive (must match ^[A-Za-z0-9_-]+$): {directive}"
+            ));
+        }
+
+        if map.contains_key(&directive) {
+            return Err(anyhow!("duplicate custom directive: {directive}"));
+        }
+
+        map.insert(directive, custom);
     }
 
-    /// tries to finds an admonition kind with the specified directive
-    ///
-    /// will fall back on the builtin/default directives if a custom one isn't found
-    pub(crate) fn get_or_builtin(&self, directive: &str) -> Option<&Flavour> {
-        self.custom
-            .iter()
-            .chain(BUILTIN_FLAVOURS)
-            .find(|kind| kind.directive == directive)
+    // add all builtin flavours, skipping if already present
+    for builtin in BUILTIN_FLAVOURS {
+        if !map.contains_key(&*builtin.directive) {
+            // the clone here is a no-op cuz all the cows are borrowed
+            map.insert(builtin.directive.to_string(), builtin.clone());
+        }
     }
+
+    Ok(map)
 }
 
 macro_rules! flavours {

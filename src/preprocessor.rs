@@ -5,6 +5,7 @@ use mdbook::{
     preprocess::{Preprocessor, PreprocessorContext},
 };
 
+use crate::flavours::build_flavour_map;
 use crate::{
     book_config::{admonish_config_from_context, Config, RenderMode},
     markdown::preprocess,
@@ -23,11 +24,10 @@ impl Preprocessor for Admonish {
         ensure_compatible_assets_version(&config)?;
 
         let on_failure = config.on_failure;
-        let flavours = config.custom;
+        let custom_flavours = config.custom;
         let admonition_defaults = config.default;
 
-        // TODO validate custom flavours
-        // flavours.validate();
+        let flavours = build_flavour_map(custom_flavours)?;
 
         // TODO remove
         eprintln!("loaded custom flavours: {flavours:#?}");

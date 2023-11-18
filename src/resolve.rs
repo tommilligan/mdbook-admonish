@@ -1,6 +1,5 @@
-use crate::admonitions::CustomFlavours;
 use crate::config::InstanceConfig;
-use crate::types::{AdmonitionDefaults, CssId};
+use crate::types::{AdmonitionDefaults, CssId, FlavourMap};
 
 /// All information required to render an admonition.
 ///
@@ -18,7 +17,7 @@ impl AdmonitionMeta {
     pub fn from_info_string(
         info_string: &str,
         defaults: &AdmonitionDefaults,
-        flavours: &CustomFlavours,
+        flavours: &FlavourMap,
     ) -> Option<Result<Self, String>> {
         InstanceConfig::from_info_string(info_string)
             .map(|raw| raw.and_then(|raw| Self::resolve(raw, defaults, flavours)))
@@ -29,7 +28,7 @@ impl AdmonitionMeta {
     fn resolve(
         raw: InstanceConfig,
         defaults: &AdmonitionDefaults,
-        flavours: &CustomFlavours,
+        flavours: &FlavourMap,
     ) -> Result<Self, String> {
         let InstanceConfig {
             directive: raw_directive,
@@ -39,14 +38,14 @@ impl AdmonitionMeta {
             collapsible,
         } = raw;
 
-        // empty directives default to notes
+        // default directive if not specified is note
         let directive = if raw_directive.is_empty() {
             "note".to_owned()
         } else {
             raw_directive
         };
 
-        let Some(flavour) = flavours.get_or_builtin(&directive) else {
+        let Some(flavour) = flavours.get(&directive) else {
             return Err(format!("unknown directive: {directive}"));
         };
 

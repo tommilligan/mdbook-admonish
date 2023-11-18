@@ -1,17 +1,16 @@
 use mdbook::errors::Result as MdbookResult;
 use pulldown_cmark::{CodeBlockKind::*, Event, Options, Parser, Tag};
 
-use crate::admonitions::CustomFlavours;
 use crate::{
     book_config::OnFailure,
     parse::parse_admonition,
-    types::{AdmonitionDefaults, RenderTextMode},
+    types::{AdmonitionDefaults, FlavourMap, RenderTextMode},
 };
 
 pub(crate) fn preprocess(
     content: &str,
     on_failure: OnFailure,
-    flavours: &CustomFlavours,
+    flavours: &FlavourMap,
     admonition_defaults: &AdmonitionDefaults,
     render_text_mode: RenderTextMode,
 ) -> MdbookResult<String> {
