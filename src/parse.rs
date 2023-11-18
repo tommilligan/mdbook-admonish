@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 use std::borrow::Cow;
 
-use crate::admonitions::AdmonitionKinds;
+use crate::admonitions::CustomFlavours;
 use crate::{
     book_config::OnFailure,
     render::Admonition,
@@ -23,13 +23,13 @@ pub(crate) fn parse_admonition<'a>(
     admonition_defaults: &'a AdmonitionDefaults,
     content: &'a str,
     on_failure: OnFailure,
-    kinds: &AdmonitionKinds,
+    flavours: &CustomFlavours,
     indent: usize,
 ) -> Option<Result<Admonition<'a>>> {
     // We need to know fence details anyway for error messages
     let extracted = extract_admonish_body(content);
 
-    let info = AdmonitionMeta::from_info_string(info_string, admonition_defaults, kinds)?;
+    let info = AdmonitionMeta::from_info_string(info_string, admonition_defaults, flavours)?;
     let info = match info {
         Ok(info) => info,
         Err(message) => {

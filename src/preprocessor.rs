@@ -23,14 +23,14 @@ impl Preprocessor for Admonish {
         ensure_compatible_assets_version(&config)?;
 
         let on_failure = config.on_failure;
-        let custom = config.custom;
+        let flavours = config.custom;
         let admonition_defaults = config.default;
 
-        // TODO validate custom
-        // custom.validate();
+        // TODO validate custom flavours
+        // flavours.validate();
 
         // TODO remove
-        eprintln!("loaded customs: {custom:#?}");
+        eprintln!("loaded custom flavours: {flavours:#?}");
 
         // Load what rendering we should do from config, falling back to a default
         let render_mode = config
@@ -63,7 +63,7 @@ impl Preprocessor for Admonish {
                     preprocess(
                         &chapter.content,
                         on_failure,
-                        &custom,
+                        &flavours,
                         &admonition_defaults,
                         render_text_mode,
                     )

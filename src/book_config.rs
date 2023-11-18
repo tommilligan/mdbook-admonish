@@ -1,4 +1,4 @@
-use crate::admonitions::AdmonitionKinds;
+use crate::admonitions::CustomFlavours;
 use crate::types::AdmonitionDefaults;
 use anyhow::{Context, Result};
 use mdbook::preprocess::PreprocessorContext;
@@ -32,8 +32,9 @@ pub(crate) struct Config {
     #[serde(default)]
     pub assets_version: Option<String>,
 
+    // TODO is custom the right name?
     #[serde(default)]
-    pub custom: AdmonitionKinds,
+    pub custom: CustomFlavours,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]

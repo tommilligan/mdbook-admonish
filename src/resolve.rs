@@ -1,4 +1,4 @@
-use crate::admonitions::AdmonitionKinds;
+use crate::admonitions::CustomFlavours;
 use crate::config::InstanceConfig;
 use crate::types::{AdmonitionDefaults, CssId};
 
@@ -18,10 +18,10 @@ impl AdmonitionMeta {
     pub fn from_info_string(
         info_string: &str,
         defaults: &AdmonitionDefaults,
-        kinds: &AdmonitionKinds,
+        flavours: &CustomFlavours,
     ) -> Option<Result<Self, String>> {
         InstanceConfig::from_info_string(info_string)
-            .map(|raw| raw.and_then(|raw| Self::resolve(raw, defaults, kinds)))
+            .map(|raw| raw.and_then(|raw| Self::resolve(raw, defaults, flavours)))
     }
 
     /// Combine the per-admonition configuration with global defaults (and
@@ -29,7 +29,7 @@ impl AdmonitionMeta {
     fn resolve(
         raw: InstanceConfig,
         defaults: &AdmonitionDefaults,
-        kinds: &AdmonitionKinds,
+        flavours: &CustomFlavours,
     ) -> Result<Self, String> {
         let InstanceConfig {
             directive: raw_directive,
@@ -46,7 +46,7 @@ impl AdmonitionMeta {
             raw_directive
         };
 
-        let Some(kind) = kinds.get(&directive) else {
+        let Some(flavour) = flavours.get_or_builtin(&directive) else {
             return Err(format!("unknown directive: {directive}"));
         };
 
@@ -54,8 +54,8 @@ impl AdmonitionMeta {
         let title = title.or_else(|| defaults.title.clone());
         let collapsible = collapsible.unwrap_or(defaults.collapsible);
 
-        // if no provided or global default title, use the kind's title
-        let title = title.unwrap_or_else(|| kind.title());
+        // if no provided or global default title, use the flavour's title
+        let title = title.unwrap_or_else(|| flavour.title());
 
         let css_id = if let Some(verbatim) = id {
             CssId::Verbatim(verbatim)

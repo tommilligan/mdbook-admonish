@@ -13,21 +13,21 @@ pub(crate) fn is_valid_directive(directive: &str) -> bool {
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 #[serde(rename_all = "kebab-case")]
-pub(crate) struct AdmonitionKind {
-    // TODO should we name this directive instead?
-    pub(crate) id: Cow<'static, str>,
+pub(crate) struct Flavour {
+    pub(crate) directive: Cow<'static, str>,
     #[serde(default)]
     pub(crate) title: Option<Cow<'static, str>>,
     pub(crate) icon: Cow<'static, str>,
     pub(crate) color: Color,
 }
 
-impl AdmonitionKind {
+impl Flavour {
+    /// the flavour's specified title, or the default of title-casing the directive
     pub(crate) fn title(&self) -> String {
         if let Some(title) = &self.title {
             title.clone().into_owned()
         } else {
-            uppercase_first(&self.id)
+            uppercase_first(&self.directive)
         }
     }
 }
@@ -55,11 +55,11 @@ fn test_uppercase_first() {
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, Default)]
 #[serde(transparent)]
-pub(crate) struct AdmonitionKinds {
-    pub(crate) custom: Vec<AdmonitionKind>,
+pub(crate) struct CustomFlavours {
+    pub(crate) custom: Vec<Flavour>,
 }
 
-impl AdmonitionKinds {
+impl CustomFlavours {
     // TODO validate custom input
     // - valid directives
     // - no duplicate directives
@@ -68,32 +68,50 @@ impl AdmonitionKinds {
         todo!()
     }
 
-    /// finds an admonition kind with the specified directive
+    /// tries to finds an admonition kind with the specified directive
     ///
     /// will fall back on the builtin/default directives if a custom one isn't found
-    pub(crate) fn get(&self, directive: &str) -> Option<&AdmonitionKind> {
+    pub(crate) fn get_or_builtin(&self, directive: &str) -> Option<&Flavour> {
         self.custom
             .iter()
-            .chain(DEFAULT_ADMONITIONS)
-            .find(|kind| kind.id == directive)
+            .chain(BUILTIN_FLAVOURS)
+            .find(|kind| kind.directive == directive)
     }
 }
 
-// defaults are always included but any custom ones with the same id will override the built in one
+macro_rules! flavours {
+    ($([$($directive:literal $(: $title:literal)?),+] $icon_path:literal $color:literal),+ $(,)?) => {
+        &[$($(
+        Flavour {
+            directive: Cow::Borrowed($directive),
+            title: flavours!(@title $($title)?),
+            icon: Cow::Borrowed(concat!("data:image/svg+xml;charset=utf-8,", include_str!(concat!("assets/", $icon_path)))),
+            color: Color::hex($color),
+        },
+        )+)+]
+    };
 
-// TODO macro for this?
-pub(crate) const DEFAULT_ADMONITIONS: &[AdmonitionKind] = &[
-    AdmonitionKind {
-        id: Cow::Borrowed("note"),
-        title: None,
-        icon: Cow::Borrowed("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z'/></svg>"),
-        color: Color::hex(0x448aff),
-    },
-    AdmonitionKind {
-        id: Cow::Borrowed("tldr"),
-        title: Some(Cow::Borrowed("TL;DR")),
-        icon: Cow::Borrowed("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M17 9H7V7h10m0 6H7v-2h10m-3 6H7v-2h7M12 3a1 1 0 0 1 1 1 1 1 0 0 1-1 1 1 1 0 0 1-1-1 1 1 0 0 1 1-1m7 0h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z'/></svg>"),
-        color: Color::hex(0x00b0ff),
-    },
-    // TODO add the rest
-];
+    (@title) => {
+        None
+    };
+    (@title $title:literal) => {
+        Some(Cow::Borrowed($title))
+    };
+}
+
+// svg files live in src/assets
+// TODO each flavour on its own line or combine similar?
+pub(crate) const BUILTIN_FLAVOURS: &[Flavour] = flavours! {
+    ["note"]                                 "pencil.svg"               0x448aff, // blue-a200
+    ["abstract", "summary", "tldr": "TL;DR"] "clipboard-text.svg"       0x00b0ff, // light-blue-a400
+    ["info", "todo": "TODO"]                 "information.svg"          0x00b8d4, // cyan-a700
+    ["tip", "hint", "important"]             "fire.svg"                 0x00bfa5, // teal-a700
+    ["success", "check", "done"]             "check-bold.svg"           0x00c853, // green-a700
+    ["question", "help", "faq": "FAQ"]       "help-circle.svg"          0x64dd17, // light-green-a700
+    ["warning", "caution", "attention"]      "alert.svg"                0xff9100, // orange-a400
+    ["failure", "fail", "missing"]           "close-thick.svg"          0xff5252, // red-a200
+    ["danger", "error"]                      "lightning-bold.svg"       0xff1744, // red-a400
+    ["bug"]                                  "bug.svg"                  0xf50057, // pink-a400
+    ["example"]                              "format-list-numbered.svg" 0x7c4dff, // deep-purple-a200
+    ["quote", "cite"]                        "format-quote-close.svg"   0x9e9e9e, // grey-base
+};

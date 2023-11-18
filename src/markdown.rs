@@ -1,7 +1,7 @@
 use mdbook::errors::Result as MdbookResult;
 use pulldown_cmark::{CodeBlockKind::*, Event, Options, Parser, Tag};
 
-use crate::admonitions::AdmonitionKinds;
+use crate::admonitions::CustomFlavours;
 use crate::{
     book_config::OnFailure,
     parse::parse_admonition,
@@ -11,7 +11,7 @@ use crate::{
 pub(crate) fn preprocess(
     content: &str,
     on_failure: OnFailure,
-    kinds: &AdmonitionKinds,
+    flavours: &CustomFlavours,
     admonition_defaults: &AdmonitionDefaults,
     render_text_mode: RenderTextMode,
 ) -> MdbookResult<String> {
@@ -37,7 +37,7 @@ pub(crate) fn preprocess(
                 admonition_defaults,
                 span_content,
                 on_failure,
-                kinds,
+                flavours,
                 indent,
             ) {
                 Some(admonition) => admonition,
