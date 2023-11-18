@@ -34,10 +34,33 @@ impl Flavour {
             uppercase_first(&self.directive)
         }
     }
+    
+    pub(crate) fn css(&self) -> String {
+        format!(
+            r#"
+:is(.admonition):is(.admonish-{directive}) {{
+    border-color: rgb({r}, {g}, {b});
+}}
 
-    /// css class name (directive prefixed with "admonish-")
-    pub(crate) fn class_name(&self) -> String {
-        format!("admonish-{}", self.directive)
+:is(.admonish-{directive}) > :is(.admonition-title, summary.admonition-title) {{
+    background-color: rgba({r}, {g}, {b}, 0.1);
+}}
+:is(.admonish-{directive}) > :is(.admonition-title, summary.admonition-title)::before {{
+    background-color: rgb({r}, {g}, {b});
+    mask-image: url("{icon}");
+    -webkit-mask-image: url("{icon}");
+    mask-repeat: no-repeat;
+    -webkit-mask-repeat: no-repeat;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+}}
+        "#,
+            directive = self.directive,
+            r = self.color.red,
+            g = self.color.green,
+            b = self.color.blue,
+            icon = self.icon,
+        )
     }
 }
 
