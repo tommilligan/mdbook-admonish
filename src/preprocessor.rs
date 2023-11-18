@@ -198,7 +198,7 @@ x = 20;
 
         let ctx = mock_context(
             &json!({
-                "assets_version": "3.0.0"
+                "assets_version": "4.0.0"
             }),
             "html",
         );
@@ -220,7 +220,7 @@ x = 20;
 "#;
         let ctx = mock_context(
             &json!({
-                "assets_version": "3.0.0"
+                "assets_version": "4.0.0"
             }),
             "test",
         );
@@ -250,7 +250,7 @@ x = 20;
 "#;
         let ctx = mock_context(
             &json!({
-                "assets_version": "3.0.0",
+                "assets_version": "4.0.0",
                 "renderer": {
                     "test": {
                         "render_mode": "strip",

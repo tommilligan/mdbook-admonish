@@ -75,16 +75,6 @@ fn uppercase_first(input: &str) -> String {
     }
 }
 
-#[test]
-fn test_uppercase_first() {
-    assert_eq!(uppercase_first(""), "");
-    assert_eq!(uppercase_first("a"), "A");
-    assert_eq!(uppercase_first("note"), "Note");
-    assert_eq!(uppercase_first("abstract"), "Abstract");
-    // Unicode
-    assert_eq!(uppercase_first("🦀"), "🦀");
-}
-
 /// Makes sure there are no duplicates and all directives are valid,
 /// then inserts the builtin flavours if they aren't overridden
 pub(crate) fn build_flavour_map(custom_flavours: Vec<Flavour>) -> MdbookResult<FlavourMap> {
@@ -155,3 +145,81 @@ pub(crate) const BUILTIN_FLAVOURS: &[Flavour] = flavours! {
     ["example"]                              "format-list-numbered.svg" 0x7c4dff, // deep-purple-a200
     ["quote", "cite"]                        "format-quote-close.svg"   0x9e9e9e, // grey-base
 };
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_uppercase_first() {
+        assert_eq!(uppercase_first(""), "");
+        assert_eq!(uppercase_first("a"), "A");
+        assert_eq!(uppercase_first("note"), "Note");
+        assert_eq!(uppercase_first("abstract"), "Abstract");
+        // Unicode
+        assert_eq!(uppercase_first("🦀"), "🦀");
+    }
+
+    #[test]
+    fn valid_directives() {
+        assert!(is_valid_directive("abcdefghijklmnopqrstuvwxyz"));
+        assert!(is_valid_directive("ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
+        assert!(is_valid_directive("0123456789"));
+        assert!(is_valid_directive("-_"));
+        assert!(is_valid_directive("a"));
+        assert!(is_valid_directive("note"));
+        assert!(is_valid_directive("bug"));
+        assert!(is_valid_directive("Frogs_001"));
+        assert!(is_valid_directive("green-CATS_9"));
+    }
+
+    #[test]
+    fn validate_builtin_directives() {
+        for builtin in BUILTIN_FLAVOURS {
+            let directive = &builtin.directive;
+
+            assert!(
+                is_valid_directive(directive),
+                "invalid builtin directive: {directive}",
+            );
+        }
+    }
+
+    #[test]
+    fn invalid_directives() {
+        assert!(!is_valid_directive(""));
+        assert!(!is_valid_directive(" "));
+        assert!(!is_valid_directive("abc 123"));
+        assert!(!is_valid_directive("meow 🐱")); // unicode
+        assert!(!is_valid_directive("!"));
+        assert!(!is_valid_directive("@"));
+        assert!(!is_valid_directive("#"));
+        assert!(!is_valid_directive("$"));
+        assert!(!is_valid_directive("%"));
+        assert!(!is_valid_directive("^"));
+        assert!(!is_valid_directive("&"));
+        assert!(!is_valid_directive("*"));
+        assert!(!is_valid_directive("("));
+        assert!(!is_valid_directive(")"));
+        assert!(!is_valid_directive("+"));
+        assert!(!is_valid_directive("="));
+        assert!(!is_valid_directive("`"));
+        assert!(!is_valid_directive("~"));
+        assert!(!is_valid_directive("["));
+        assert!(!is_valid_directive("{"));
+        assert!(!is_valid_directive("]"));
+        assert!(!is_valid_directive("}"));
+        assert!(!is_valid_directive("\\"));
+        assert!(!is_valid_directive("|"));
+        assert!(!is_valid_directive(";"));
+        assert!(!is_valid_directive(":"));
+        assert!(!is_valid_directive("\'"));
+        assert!(!is_valid_directive("\""));
+        assert!(!is_valid_directive(","));
+        assert!(!is_valid_directive("."));
+        assert!(!is_valid_directive("<"));
+        assert!(!is_valid_directive(">"));
+        assert!(!is_valid_directive("/"));
+        assert!(!is_valid_directive("?"));
+    }
+}

@@ -21,11 +21,6 @@ impl Color {
 
         Color { red, green, blue }
     }
-
-    #[allow(unused)]
-    pub(crate) const fn rgb(red: u8, green: u8, blue: u8) -> Self {
-        Color { red, green, blue }
-    }
 }
 
 impl Display for Color {
@@ -52,15 +47,16 @@ impl<'de> Visitor<'de> for ColorVisitor {
     }
 
     fn visit_str<E: de::Error>(self, s: &str) -> Result<Self::Value, E> {
+        let error = || E::invalid_value(Unexpected::Str(s), &self);
+
         // remove leading '#', if present
         let s = s.strip_prefix('#').unwrap_or(s);
 
         if s.len() != 6 {
-            return Err(E::invalid_value(Unexpected::Str(s), &self));
+            return Err(error());
         }
 
-        let parse_hex =
-            |s| u8::from_str_radix(s, 16).map_err(|_| E::invalid_value(Unexpected::Str(s), &self));
+        let parse_hex = |s| u8::from_str_radix(s, 16).map_err(|_| error());
 
         let red = parse_hex(&s[0..2])?;
         let green = parse_hex(&s[2..4])?;
@@ -79,27 +75,102 @@ impl<'de> Deserialize<'de> for Color {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use serde_test::assert_tokens;
     use serde_test::Token::Str;
+    use serde_test::{assert_de_tokens, assert_de_tokens_error, assert_tokens};
 
-    const RED: Color = Color::rgb(255, 0, 0);
-    const WHITE: Color = Color::rgb(255, 255, 255);
-    const BLACK: Color = Color::rgb(0, 0, 0);
-    // TODO more colors to test with
+    const RED: Color = Color::hex(0xFF0000);
+    const WHITE: Color = Color::hex(0xFFFFFF);
+    const BLACK: Color = Color::hex(0x000000);
 
-    #[test]
-    fn hex_constructor() {
-        assert_eq!(Color::hex(0xFF0000), RED);
-        assert_eq!(Color::hex(0xFFFFFF), WHITE);
-        assert_eq!(Color::hex(0x000000), BLACK);
-    }
+    const NUMBERS1: Color = Color::hex(0x012345);
+    const NUMBERS2: Color = Color::hex(0x067890);
+    const ABCDEF: Color = Color::hex(0xABCDEF);
 
     #[test]
-    fn ser_de_with_hash() {
+    fn ser_de_with_hash_upper() {
         assert_tokens(&RED, &[Str("#FF0000")]);
         assert_tokens(&WHITE, &[Str("#FFFFFF")]);
         assert_tokens(&BLACK, &[Str("#000000")]);
+        assert_tokens(&NUMBERS1, &[Str("#012345")]);
+        assert_tokens(&NUMBERS2, &[Str("#067890")]);
+        assert_tokens(&ABCDEF, &[Str("#ABCDEF")]);
     }
 
-    // TODO more tests
+    #[test]
+    fn de_with_hash_lower() {
+        assert_de_tokens(&RED, &[Str("#ff0000")]);
+        assert_de_tokens(&WHITE, &[Str("#ffffff")]);
+        assert_de_tokens(&BLACK, &[Str("#000000")]);
+        assert_de_tokens(&NUMBERS1, &[Str("#012345")]);
+        assert_de_tokens(&NUMBERS2, &[Str("#067890")]);
+        assert_de_tokens(&ABCDEF, &[Str("#abcdef")]);
+    }
+
+    #[test]
+    fn de_no_hash_upper() {
+        assert_de_tokens(&RED, &[Str("FF0000")]);
+        assert_de_tokens(&WHITE, &[Str("FFFFFF")]);
+        assert_de_tokens(&BLACK, &[Str("000000")]);
+        assert_de_tokens(&NUMBERS1, &[Str("012345")]);
+        assert_de_tokens(&NUMBERS2, &[Str("067890")]);
+        assert_de_tokens(&ABCDEF, &[Str("ABCDEF")]);
+    }
+
+    #[test]
+    fn de_no_hash_lower() {
+        assert_de_tokens(&RED, &[Str("ff0000")]);
+        assert_de_tokens(&WHITE, &[Str("ffffff")]);
+        assert_de_tokens(&BLACK, &[Str("000000")]);
+        assert_de_tokens(&NUMBERS1, &[Str("012345")]);
+        assert_de_tokens(&NUMBERS2, &[Str("067890")]);
+        assert_de_tokens(&ABCDEF, &[Str("abcdef")]);
+    }
+
+    #[test]
+    fn de_errors() {
+        assert_de_tokens_error::<Color>(
+            &[Str("")],
+            "invalid value: string \"\", expected an rgb hex color string",
+        );
+        assert_de_tokens_error::<Color>(
+            &[Str(" ")],
+            "invalid value: string \" \", expected an rgb hex color string",
+        );
+        assert_de_tokens_error::<Color>(
+            &[Str("#")],
+            "invalid value: string \"#\", expected an rgb hex color string",
+        );
+        assert_de_tokens_error::<Color>(
+            &[Str("1")],
+            "invalid value: string \"1\", expected an rgb hex color string",
+        );
+        assert_de_tokens_error::<Color>(
+            &[Str("#1")],
+            "invalid value: string \"#1\", expected an rgb hex color string",
+        );
+        assert_de_tokens_error::<Color>(
+            &[Str("123")],
+            "invalid value: string \"123\", expected an rgb hex color string",
+        );
+        assert_de_tokens_error::<Color>(
+            &[Str("#123")],
+            "invalid value: string \"#123\", expected an rgb hex color string",
+        );
+        assert_de_tokens_error::<Color>(
+            &[Str("#abcde")],
+            "invalid value: string \"#abcde\", expected an rgb hex color string",
+        );
+        assert_de_tokens_error::<Color>(
+            &[Str("#0000000")], // seven 0s
+            "invalid value: string \"#0000000\", expected an rgb hex color string",
+        );
+        assert_de_tokens_error::<Color>(
+            &[Str("#00000")], // five 0s
+            "invalid value: string \"#00000\", expected an rgb hex color string",
+        );
+        assert_de_tokens_error::<Color>(
+            &[Str("#abcdeg")],
+            "invalid value: string \"#abcdeg\", expected an rgb hex color string",
+        );
+    }
 }
