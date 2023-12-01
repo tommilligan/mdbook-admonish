@@ -36,7 +36,7 @@ jobs:
       - name: Build book
         run: ./scripts/build-book
       - name: Push docs
-        uses: JamesIves/github-pages-deploy-action@v4.4.3
+        uses: JamesIves/github-pages-deploy-action@v4.5.0
         with:
           branch: gh-pages
           folder: book/book
