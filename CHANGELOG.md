@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Changed
+
+- `additional-css` _UNIX_ style path normalization ([#161](https://github.com/tommilligan/mdbook-admonish/issues/161))
+
+### Fixed
+
+- Typo from _prereprocessor_ to _preprocessor_
+
 ## 1.14.0
 
 ### Changed

@@ -97,6 +97,9 @@ fn handle_supports(renderer: String) -> ! {
 #[cfg(feature = "cli-install")]
 mod install {
     use anyhow::{Context, Result};
+    use path_slash::PathExt;
+    use std::borrow::Cow;
+    use std::path::Path;
     use std::{
         fs::{self, File},
         io::Write,
@@ -122,6 +125,16 @@ mod install {
         }
     }
 
+    // Normalize path to UNIX style.
+    // This avoids conflicts/rewriting files when projects are used under different
+    // operating systems (e.g. on Windows, after being used on Linux)
+    //
+    // https://github.com/tommilligan/mdbook-admonish/issues/161
+    fn normalize_config_file_path(path: &Path) -> Result<Cow<'_, str>> {
+        path.to_slash()
+            .context("UNIX style path normalization error")
+    }
+
     pub fn handle_install(proj_dir: PathBuf, css_dir: PathBuf) -> Result<()> {
         let config = proj_dir.join("book.toml");
         log::info!("Reading configuration file '{}'", config.display());
@@ -139,7 +152,7 @@ mod install {
             );
             preprocessor["assets_version"] = value;
         } else {
-            log::info!("Unexpected configuration, not updating prereprocessor configuration");
+            log::info!("Unexpected configuration, not updating preprocessor configuration");
         };
 
         let mut additional_css = additional_css(&mut doc);
@@ -148,12 +161,13 @@ mod install {
             // Normalize path to remove no-op components
             // https://github.com/tommilligan/mdbook-admonish/issues/47
             let filepath: PathBuf = filepath.components().collect();
-            let filepath_str = filepath.to_str().context("non-utf8 filepath")?;
 
             if let Ok(ref mut additional_css) = additional_css {
-                if !additional_css.contains_str(filepath_str) {
+                let filepath_str = normalize_config_file_path(&filepath)?;
+
+                if !additional_css.contains_str(&filepath_str) {
                     log::info!("Adding '{filepath_str}' to 'additional-css'");
-                    additional_css.push(filepath_str);
+                    additional_css.push(filepath_str.as_ref());
                 }
             } else {
                 log::warn!("Unexpected configuration, not updating 'additional-css'");
@@ -226,5 +240,25 @@ A beautifully styled message.
             .or_insert(empty_table);
         item["command"] = toml_edit::value("mdbook-admonish");
         Ok(item)
+    }
+
+    #[cfg(test)]
+    mod test {
+        use super::*;
+
+        /// This test seems redundant, but would fail on Windows.
+        ///
+        /// We want to always convert to a fixed output string style, independant
+        /// of runtime platform, and forward slashes in relative paths are fine on
+        /// Windows.
+        #[test]
+        fn test_normalize_config_file_path() {
+            let input = PathBuf::from(".")
+                .join("css-dir")
+                .join("mdbook-admonish.css");
+            let expected = "./css-dir/mdbook-admonish.css";
+            let actual = normalize_config_file_path(&input).unwrap();
+            assert_eq!(actual.as_ref(), expected);
+        }
     }
 }
