@@ -72,20 +72,24 @@ jobs:
       matrix:
         os:
           - ubuntu-20.04
-          # - windows-2019
         rust:
           - stable
           - beta
           - 1.66.0
         experimental:
           - false
-        # Run a canary test on nightly that's allowed to fail
         include:
+          # Run a canary test on nightly that's allowed to fail
           - os: ubuntu-20.04
             rust: nightly
             experimental: true
-        # Don't bother retesting stable linux, we did it in the comprehensive test
+          # Test only stable on Windows, presume we'd get same result on other
+          # versions as Linux
+          - os: windows-2022
+            rust: stable
+            experimental: false
         exclude:
+          # Don't bother retesting stable linux, we did it in the comprehensive test
           - os: ubuntu-20.04
             rust: stable
             experimental: false
