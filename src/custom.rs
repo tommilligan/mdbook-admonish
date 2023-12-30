@@ -67,6 +67,7 @@ fn directive_css(name: &str, svg_data: &str, tint: HexColor) -> String {
     )
 }
 
+#[doc(hidden)]
 pub fn css_from_config(book_dir: &Path, config: &str) -> Result<String> {
     let config = crate::book_config::admonish_config_from_str(config)?;
     let custom_directives = config.custom;
