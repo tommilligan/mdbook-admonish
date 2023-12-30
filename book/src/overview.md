@@ -170,7 +170,7 @@ The default id is a normalized version of the admonishment's title,
 prefixed with the `default.css_id_prefix`,
 with an appended number if multiple blocks would have the same id.
 
-Setting the `id` field will *ignore* all other ids and the duplicate counter.
+Setting the `id` field will _ignore_ all other ids and the duplicate counter.
 
 ````
 ```admonish info title="My Info" id="my-special-info"
@@ -194,3 +194,46 @@ Will yield something like the following HTML, which you can then apply styles to
 Content will be hidden initially.
 ```
 
+### Custom blocks
+
+You can add new block types via the `book.toml` config:
+
+```toml
+# book.toml
+
+[[preprocessor.admonish.custom]]
+directive = "expensive"
+icon = "./money-bag.svg"
+color = "#24ab38"
+aliases = ["money", "cash", "budget"]
+```
+
+You must then generate the relevant CSS file, and reference it in the `output.html` section.
+`mdbook-admonish` has a helper to quickly do this for you:
+
+```bash
+# Generates a file at ./mdbook-admonish-custom.css with your styles in
+$ mdbook-admonish generate-custom ./mdbook-admonish-custom.css
+```
+
+```toml
+# book.toml
+
+[output.html]
+# Reference the new file, so it's bundled in with book styles
+additional-css = ["./mdbook-admonish.css", "./mdbook-admonish-custom.css"]
+```
+
+You can then reference the new directive (or alias) like usual in your blocks.
+
+````
+```admonish expensive
+Remember, this operation costs money!
+```
+````
+
+```admonish expensive
+Remember, this operation costs money!
+```
+
+You can also set a default `title`. See the [Reference](./reference.md) page for more details.

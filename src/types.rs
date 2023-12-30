@@ -1,4 +1,6 @@
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::fmt;
 use std::str::FromStr;
 
 /// Book wide defaults that may be provided by the user.
@@ -15,8 +17,13 @@ pub(crate) struct AdmonitionDefaults {
     pub(crate) css_id_prefix: Option<String>,
 }
 
+/// First class supported directives by the crate.
+///
+/// These are guaranteed to have valid CSS/icons available.
+///
+/// Custom directives can also be added via the book.toml config.
 #[derive(Debug, PartialEq)]
-pub(crate) enum Directive {
+pub(crate) enum BuiltinDirective {
     Note,
     Abstract,
     Info,
@@ -31,7 +38,7 @@ pub(crate) enum Directive {
     Quote,
 }
 
-impl FromStr for Directive {
+impl FromStr for BuiltinDirective {
     type Err = ();
 
     fn from_str(string: &str) -> Result<Self, ()> {
@@ -50,6 +57,87 @@ impl FromStr for Directive {
             "quote" | "cite" => Ok(Self::Quote),
             _ => Err(()),
         }
+    }
+}
+
+impl fmt::Display for BuiltinDirective {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let value = match self {
+            Self::Note => "note",
+            Self::Abstract => "abstract",
+            Self::Info => "info",
+            Self::Tip => "tip",
+            Self::Success => "success",
+            Self::Question => "question",
+            Self::Warning => "warning",
+            Self::Failure => "failure",
+            Self::Danger => "danger",
+            Self::Bug => "bug",
+            Self::Example => "example",
+            Self::Quote => "quote",
+        };
+        f.write_str(value)
+    }
+}
+
+/// The subset of information we care about during plugin runtime for custom directives.
+///
+/// This drops information only needed during CSS generation.
+#[derive(Clone)]
+pub(crate) struct CustomDirective {
+    pub directive: String,
+    pub aliases: Vec<String>,
+    pub title: Option<String>,
+}
+
+impl From<crate::book_config::CustomDirective> for CustomDirective {
+    fn from(other: crate::book_config::CustomDirective) -> Self {
+        let crate::book_config::CustomDirective {
+            directive,
+            aliases,
+            title,
+            ..
+        } = other;
+        Self {
+            directive,
+            aliases,
+            title,
+        }
+    }
+}
+
+/// A map from the user given directive to underlying config.
+///
+/// The terminology is a bit mixed here - this map allows any input-directive,
+/// and returns the output-directive config.
+///
+/// i.e. this is the step alias mapping happens at
+#[derive(Default)]
+pub(crate) struct CustomDirectiveMap {
+    inner: HashMap<String, CustomDirective>,
+}
+
+impl CustomDirectiveMap {
+    pub fn get(&self, key: &str) -> Option<&CustomDirective> {
+        self.inner.get(key)
+    }
+
+    pub fn from_configs<T>(configs: T) -> Self
+    where
+        T: IntoIterator<Item = CustomDirective>,
+    {
+        let mut inner = HashMap::default();
+        for directive in configs.into_iter() {
+            inner
+                .entry(directive.directive.clone())
+                .or_insert(directive.clone());
+
+            for alias in directive.aliases.iter() {
+                inner.entry(alias.clone()).or_insert(directive.clone());
+            }
+        }
+
+        Self { inner }
     }
 }
 

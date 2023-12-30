@@ -75,6 +75,31 @@ Subfields:
     - For the `html` renderer, the default value is `html`.
     - For all other renderers, the default value is `preserve`.
 
+### `custom`
+
+Optional.
+
+Additional type of block to support.
+You must run `mdbook-admonish generate-custom` after updating these values, to generate the correct styles.
+
+Add blocks using TOML's [Array of Tables](https://toml.io/en/v1.0.0#array-of-tables) notation:
+
+```toml
+[[preprocessor.admonish.custom]]
+directive = "expensive"
+icon = "./money-bag.svg"
+color = "#24ab38"
+aliases = ["money", "cash", "budget"]
+```
+
+Subfields:
+
+- `directive`: The keyword to use this type of block.
+- `icon`: A filepath relative to the book root to load an SVG icon from.
+- `color`: An RGB hex encoded color to use for the icon.
+- `aliases` (optional): One or more alternative directives to use this block.
+- `title` (optional): The default title for this type of block. If not specified, defaults to the directive in title case. To give each alias a custom title, add multiple custom blocks.
+
 ### `command`
 
 Required.
@@ -92,6 +117,8 @@ This is automatically updated by `mdbook-admonish install` and should not be edi
 ## Directives
 
 All supported directives are listed below.
+
+Custom directives can be added via the `custom` config option above.
 
 `note`
 

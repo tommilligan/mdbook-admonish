@@ -10,6 +10,10 @@ It verifies that `mdbook` post-processes our generated HTML in the way we expect
 Simples
 ```
 
+```admonish frog
+Custom frog directive
+```
+
 ```admonish warning ""
 No title, only body
 ```

@@ -11,6 +11,11 @@ title = "The mdbook-admonish book"
 command = "mdbook-admonish"
 assets_version = "3.0.1" # do not edit: managed by `mdbook-admonish install`
 
+[[preprocessor.admonish.custom]]
+directive = "expensive"
+icon = "./money-bag.svg"
+color = "#24ab38"
+
 [preprocessor.toc]
 command = "mdbook-toc"
 renderer = ["html"]
@@ -18,4 +23,4 @@ renderer = ["html"]
 [output]
 
 [output.html]
-additional-css = ["./mdbook-admonish.css"]
+additional-css = ["./mdbook-admonish.css", "./mdbook-admonish-custom.css"]

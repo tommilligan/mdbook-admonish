@@ -1,5 +1,6 @@
 mod book_config;
 mod config;
+pub mod custom;
 mod markdown;
 mod parse;
 mod preprocessor;

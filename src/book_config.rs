@@ -2,6 +2,7 @@ use anyhow::{Context, Result};
 use mdbook::preprocess::PreprocessorContext;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::path::PathBuf;
 
 use crate::types::AdmonitionDefaults;
 
@@ -15,7 +16,11 @@ pub(crate) fn admonish_config_from_context(ctx: &PreprocessorContext) -> Result<
             .get_preprocessor("admonish")
             .context("No configuration for mdbook-admonish in book.toml")?,
     )?;
-    toml::from_str(&table).context("Invalid mdbook-admonish configuration in book.toml")
+    admonish_config_from_str(&table)
+}
+
+pub(crate) fn admonish_config_from_str(data: &str) -> Result<Config> {
+    toml::from_str(data).context("Invalid mdbook-admonish configuration in book.toml")
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
@@ -31,6 +36,29 @@ pub(crate) struct Config {
 
     #[serde(default)]
     pub assets_version: Option<String>,
+
+    #[serde(default)]
+    pub custom: Vec<CustomDirective>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
+pub(crate) struct CustomDirective {
+    /// The primary directive. Used for CSS classnames
+    pub directive: String,
+
+    /// Path to an SVG file, relative to the book root.
+    pub icon: PathBuf,
+
+    /// Primary color for this directive.
+    pub color: hex_color::HexColor,
+
+    /// Alternative directives the user can specify
+    #[serde(default)]
+    pub aliases: Vec<String>,
+
+    /// Title to use, human readable.
+    #[serde(default)]
+    pub title: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]

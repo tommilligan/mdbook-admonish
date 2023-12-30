@@ -22,6 +22,7 @@
 
 @use "sass:color";
 @use "sass:list";
+@use "./lib";
 
 // ----------------------------------------------------------------------------
 // Variables
@@ -68,17 +69,9 @@ $admonitions: (
 ) !default;
 
 // ----------------------------------------------------------------------------
-// Rules: layout
+
 // ----------------------------------------------------------------------------
-
-// Admonition variables
-:root {
-  @each $names, $props in $admonitions {
-    --md-admonition-icon--#{nth($names, 1)}: url("data:image/svg+xml;charset=utf-8,#{nth($props, 2)}");
-  }
-  --md-details-icon: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M8.59 16.58 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42Z'/></svg>");
-}
-
+// Static content - base for all admonitions
 // ----------------------------------------------------------------------------
 
 // Admonition
@@ -231,48 +224,20 @@ summary.admonition-title {
   }
 }
 
-// ----------------------------------------------------------------------------
-// Rules: flavours
-// ----------------------------------------------------------------------------
-
-@each $names, $props in $admonitions {
-  $name: list.nth($names, 1);
-  $tint: list.nth($props, 1);
-
-  // Admonition flavour selectors
-  $flavours: ();
-
-  @each $name in $names {
-    $flavours: list.join($flavours, ".#{$name}", $separator: comma);
-  }
-
-  // Admonition flavour
-  :is(.admonition):is(#{$flavours}) {
-    border-color: $tint;
-  }
-
-  // Admonition flavour title
-  :is(#{$flavours}) > :is(.admonition-title, summary.admonition-title) {
-    background-color: color.adjust($tint, $alpha: -0.9);
-
-    // Admonition icon
-    &::before {
-      background-color: $tint;
-      mask-image: var(--md-admonition-icon--#{$name});
-      -webkit-mask-image: var(--md-admonition-icon--#{$name});
-      mask-repeat: no-repeat;
-      -webkit-mask-repeat: no-repeat;
-      mask-size: contain;
-      -webkit-mask-repeat: no-repeat;
-    }
-  }
+:root {
+  --md-details-icon: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M8.59 16.58 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42Z'/></svg>");
 }
+
+// Generate rules for each specified admonition variant
+@include lib.from-admonitions($admonitions);
 
 // ----------------------------------------------------------------------------
 // Rules: themes
 // ----------------------------------------------------------------------------
 //
 // One rule per builtin theme in mdbook, overriding the default fg/bg if matched
+//
+// This must be after the variant CSS, so it can override they styles set there
 
 .navy {
   & :is(.admonition) {

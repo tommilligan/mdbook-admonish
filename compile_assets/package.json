@@ -4,7 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "build": "sass --no-source-map scss/mdbook-admonish.scss ../src/bin/assets/mdbook-admonish.css",
+    "build": "yarn run build-prod && yarn run build-custom-expected",
+    "build-prod": "sass --no-source-map scss/mdbook-admonish.scss ../src/bin/assets/mdbook-admonish.css",
+    "build-custom-expected": "sass --no-source-map scss/mdbook-admonish-custom-expected.scss ../src/test_data/mdbook-admonish-custom-expected.css",
     "lint": "prettier --check .",
     "fix": "prettier --write ."
   },
