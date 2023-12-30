@@ -2,13 +2,15 @@
 
 ## Unreleased
 
-### Changed
+## 1.15.0
 
-- `additional-css` _UNIX_ style path normalization ([#161](https://github.com/tommilligan/mdbook-admonish/issues/161))
+### Added
+
+- Support [custom directives](https://tommilligan.github.io/mdbook-admonish/overview.html#custom-blocks) with the new `mdbook-admonish generate-custom` helper. See the [mdbook-admonish book](https://tommilligan.github.io/mdbook-admonish/overview.html#custom-blocks) for guidance. Thanks to [@Sky9x](https://github.com/Sky9x) for helping design this feature! ([#165](https://github.com/tommilligan/mdbook-admonish/pull/165))
 
 ### Fixed
 
-- Typo from _prereprocessor_ to _preprocessor_
+- `additional-css` unix style path normalization. Thanks to [@carlocorradini](https://github.com/carlocorradini) for reporting and fixing! ([#163](https://github.com/tommilligan/mdbook-admonish/pull/163))
 
 ## 1.14.0
 
