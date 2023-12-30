@@ -30,6 +30,7 @@
 
         <!-- Custom theme stylesheets -->
         <link rel="stylesheet" href="./mdbook-admonish.css">
+        <link rel="stylesheet" href="./mdbook-admonish-custom.css">
 
     </head>
     <body class="sidebar-visible no-js">
@@ -188,6 +189,7 @@
 <li><a href="#collapsible">Collapsible</a></li>
 </ul>
 </li>
+<li><a href="#custom-blocks">Custom blocks</a></li>
 </ul>
 </li>
 </ul>
@@ -380,6 +382,42 @@ Content will be hidden initially.
 <p>Content will be hidden initially.</p>
 </div>
 </details>
+<h3 id="custom-blocks"><a class="header" href="#custom-blocks">Custom blocks</a></h3>
+<p>You can add new block types via the <code>book.toml</code> config:</p>
+<pre><code class="language-toml"># book.toml
+
+[[preprocessor.admonish.custom]]
+directive = &quot;expensive&quot;
+icon = &quot;./money-bag.svg&quot;
+color = &quot;#24ab38&quot;
+aliases = [&quot;money&quot;, &quot;cash&quot;, &quot;budget&quot;]
+</code></pre>
+<p>You must then generate the relevant CSS file, and reference it in the <code>output.html</code> section.
+<code>mdbook-admonish</code> has a helper to quickly do this for you:</p>
+<pre><code class="language-bash"># Generates a file at ./mdbook-admonish-custom.css with your styles in
+$ mdbook-admonish generate-custom ./mdbook-admonish-custom.css
+</code></pre>
+<pre><code class="language-toml"># book.toml
+
+[output.html]
+# Reference the new file, so it's bundled in with book styles
+additional-css = [&quot;./mdbook-admonish.css&quot;, &quot;./mdbook-admonish-custom.css&quot;]
+</code></pre>
+<p>You can then reference the new directive (or alias) like usual in your blocks.</p>
+<pre><code>```admonish expensive
+Remember, this operation costs money!
+```
+</code></pre>
+<div id="admonition-expensive" class="admonition admonish-expensive">
+<div class="admonition-title">
+<p>Expensive</p>
+<p><a class="admonition-anchor-link" href="#admonition-expensive"></a></p>
+</div>
+<div>
+<p>Remember, this operation costs money!</p>
+</div>
+</div>
+<p>You can also set a default <code>title</code>. See the <a href="./reference.html">Reference</a> page for more details.</p>
 
                     </main>
 

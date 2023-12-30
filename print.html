@@ -31,6 +31,7 @@
 
         <!-- Custom theme stylesheets -->
         <link rel="stylesheet" href="./mdbook-admonish.css">
+        <link rel="stylesheet" href="./mdbook-admonish-custom.css">
 
     </head>
     <body class="sidebar-visible no-js">
@@ -189,6 +190,7 @@
 <li><a href="overview.html#collapsible">Collapsible</a></li>
 </ul>
 </li>
+<li><a href="overview.html#custom-blocks">Custom blocks</a></li>
 </ul>
 </li>
 </ul>
@@ -381,6 +383,42 @@ Content will be hidden initially.
 <p>Content will be hidden initially.</p>
 </div>
 </details>
+<h3 id="custom-blocks"><a class="header" href="#custom-blocks">Custom blocks</a></h3>
+<p>You can add new block types via the <code>book.toml</code> config:</p>
+<pre><code class="language-toml"># book.toml
+
+[[preprocessor.admonish.custom]]
+directive = &quot;expensive&quot;
+icon = &quot;./money-bag.svg&quot;
+color = &quot;#24ab38&quot;
+aliases = [&quot;money&quot;, &quot;cash&quot;, &quot;budget&quot;]
+</code></pre>
+<p>You must then generate the relevant CSS file, and reference it in the <code>output.html</code> section.
+<code>mdbook-admonish</code> has a helper to quickly do this for you:</p>
+<pre><code class="language-bash"># Generates a file at ./mdbook-admonish-custom.css with your styles in
+$ mdbook-admonish generate-custom ./mdbook-admonish-custom.css
+</code></pre>
+<pre><code class="language-toml"># book.toml
+
+[output.html]
+# Reference the new file, so it's bundled in with book styles
+additional-css = [&quot;./mdbook-admonish.css&quot;, &quot;./mdbook-admonish-custom.css&quot;]
+</code></pre>
+<p>You can then reference the new directive (or alias) like usual in your blocks.</p>
+<pre><code>```admonish expensive
+Remember, this operation costs money!
+```
+</code></pre>
+<div id="admonition-expensive" class="admonition admonish-expensive">
+<div class="admonition-title">
+<p>Expensive</p>
+<p><a class="admonition-anchor-link" href="overview.html#admonition-expensive"></a></p>
+</div>
+<div>
+<p>Remember, this operation costs money!</p>
+</div>
+</div>
+<p>You can also set a default <code>title</code>. See the <a href="./reference.html">Reference</a> page for more details.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="reference"><a class="header" href="#reference">Reference</a></h1>
 <ul>
 <li><a href="reference.html#booktoml-configuration"><code>book.toml</code> configuration</a>
@@ -388,6 +426,7 @@ Content will be hidden initially.
 <li><a href="reference.html#on_failure"><code>on_failure</code></a></li>
 <li><a href="reference.html#default"><code>default</code></a></li>
 <li><a href="reference.html#renderer"><code>renderer</code></a></li>
+<li><a href="reference.html#custom"><code>custom</code></a></li>
 <li><a href="reference.html#command"><code>command</code></a></li>
 <li><a href="reference.html#assets_version"><code>assets_version</code></a></li>
 </ul>
@@ -464,6 +503,25 @@ render_mode = &quot;strip&quot;
 </ul>
 </li>
 </ul>
+<h3 id="custom"><a class="header" href="#custom"><code>custom</code></a></h3>
+<p>Optional.</p>
+<p>Additional type of block to support.
+You must run <code>mdbook-admonish generate-custom</code> after updating these values, to generate the correct styles.</p>
+<p>Add blocks using TOML's <a href="https://toml.io/en/v1.0.0#array-of-tables">Array of Tables</a> notation:</p>
+<pre><code class="language-toml">[[preprocessor.admonish.custom]]
+directive = &quot;expensive&quot;
+icon = &quot;./money-bag.svg&quot;
+color = &quot;#24ab38&quot;
+aliases = [&quot;money&quot;, &quot;cash&quot;, &quot;budget&quot;]
+</code></pre>
+<p>Subfields:</p>
+<ul>
+<li><code>directive</code>: The keyword to use this type of block.</li>
+<li><code>icon</code>: A filepath relative to the book root to load an SVG icon from.</li>
+<li><code>color</code>: An RGB hex encoded color to use for the icon.</li>
+<li><code>aliases</code> (optional): One or more alternative directives to use this block.</li>
+<li><code>title</code> (optional): The default title for this type of block. If not specified, defaults to the directive in title case. To give each alias a custom title, add multiple custom blocks.</li>
+</ul>
 <h3 id="command"><a class="header" href="#command"><code>command</code></a></h3>
 <p>Required.</p>
 <p>Used by <code>mdbook</code> to know how to call the <code>mdbook-admonish</code> plugin.</p>
@@ -473,6 +531,7 @@ render_mode = &quot;strip&quot;
 <p>This is automatically updated by <code>mdbook-admonish install</code> and should not be edited.</p>
 <h2 id="directives"><a class="header" href="#directives">Directives</a></h2>
 <p>All supported directives are listed below.</p>
+<p>Custom directives can be added via the <code>custom</code> config option above.</p>
 <p><code>note</code></p>
 <div id="admonition-note" class="admonition admonish-note">
 <div class="admonition-title">

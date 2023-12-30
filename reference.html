@@ -30,6 +30,7 @@
 
         <!-- Custom theme stylesheets -->
         <link rel="stylesheet" href="./mdbook-admonish.css">
+        <link rel="stylesheet" href="./mdbook-admonish-custom.css">
 
     </head>
     <body class="sidebar-visible no-js">
@@ -179,6 +180,7 @@
 <li><a href="#on_failure"><code>on_failure</code></a></li>
 <li><a href="#default"><code>default</code></a></li>
 <li><a href="#renderer"><code>renderer</code></a></li>
+<li><a href="#custom"><code>custom</code></a></li>
 <li><a href="#command"><code>command</code></a></li>
 <li><a href="#assets_version"><code>assets_version</code></a></li>
 </ul>
@@ -255,6 +257,25 @@ render_mode = &quot;strip&quot;
 </ul>
 </li>
 </ul>
+<h3 id="custom"><a class="header" href="#custom"><code>custom</code></a></h3>
+<p>Optional.</p>
+<p>Additional type of block to support.
+You must run <code>mdbook-admonish generate-custom</code> after updating these values, to generate the correct styles.</p>
+<p>Add blocks using TOML's <a href="https://toml.io/en/v1.0.0#array-of-tables">Array of Tables</a> notation:</p>
+<pre><code class="language-toml">[[preprocessor.admonish.custom]]
+directive = &quot;expensive&quot;
+icon = &quot;./money-bag.svg&quot;
+color = &quot;#24ab38&quot;
+aliases = [&quot;money&quot;, &quot;cash&quot;, &quot;budget&quot;]
+</code></pre>
+<p>Subfields:</p>
+<ul>
+<li><code>directive</code>: The keyword to use this type of block.</li>
+<li><code>icon</code>: A filepath relative to the book root to load an SVG icon from.</li>
+<li><code>color</code>: An RGB hex encoded color to use for the icon.</li>
+<li><code>aliases</code> (optional): One or more alternative directives to use this block.</li>
+<li><code>title</code> (optional): The default title for this type of block. If not specified, defaults to the directive in title case. To give each alias a custom title, add multiple custom blocks.</li>
+</ul>
 <h3 id="command"><a class="header" href="#command"><code>command</code></a></h3>
 <p>Required.</p>
 <p>Used by <code>mdbook</code> to know how to call the <code>mdbook-admonish</code> plugin.</p>
@@ -264,6 +285,7 @@ render_mode = &quot;strip&quot;
 <p>This is automatically updated by <code>mdbook-admonish install</code> and should not be edited.</p>
 <h2 id="directives"><a class="header" href="#directives">Directives</a></h2>
 <p>All supported directives are listed below.</p>
+<p>Custom directives can be added via the <code>custom</code> config option above.</p>
 <p><code>note</code></p>
 <div id="admonition-note" class="admonition admonish-note">
 <div class="admonition-title">
