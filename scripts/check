@@ -18,7 +18,20 @@ eprintln "Checking compiled styles up to date"
 COMITTED_ASSETS="$(cat ../src/bin/assets/mdbook-admonish.css)"
 yarn run build
 RECOMPILED_ASSETS="$(cat ../src/bin/assets/mdbook-admonish.css)"
+set +e
 diff -u <(printf "%s" "$COMITTED_ASSETS") <(printf "%s" "$RECOMPILED_ASSETS")
+DIFF_RESULT=$?
+set -e
+
+if [ "$DIFF_RESULT" != 0 ]; then
+  eprintln ""
+  eprintln "error: committed assets are not up to date"
+  eprintln ""
+  eprintln "error: To update committed assets, please run"
+  eprintln "cd compile_assets && yarn run build"
+  eprintln "and commit the result"
+  exit 1
+fi
 
 popd > /dev/null
 

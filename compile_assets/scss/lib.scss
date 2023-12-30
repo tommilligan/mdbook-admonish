@@ -1,0 +1,52 @@
+@use "sass:color";
+@use "sass:list";
+
+@mixin from-admonitions($admonitions) {
+  // ----------------------------------------------------------------------------
+  // Rules: layout
+  // ----------------------------------------------------------------------------
+
+  // Admonition variables
+  :root {
+    @each $names, $props in $admonitions {
+      --md-admonition-icon--#{nth($names, 1)}: url("data:image/svg+xml;charset=utf-8,#{nth($props, 2)}");
+    }
+  }
+
+  // ----------------------------------------------------------------------------
+  // Rules: flavours
+  // ----------------------------------------------------------------------------
+
+  @each $names, $props in $admonitions {
+    $name: list.nth($names, 1);
+    $tint: list.nth($props, 1);
+
+    // Admonition flavour selectors
+    $flavours: ();
+
+    @each $name in $names {
+      $flavours: list.join($flavours, ".#{$name}", $separator: comma);
+    }
+
+    // Admonition flavour
+    :is(.admonition):is(#{$flavours}) {
+      border-color: $tint;
+    }
+
+    // Admonition flavour title
+    :is(#{$flavours}) > :is(.admonition-title, summary.admonition-title) {
+      background-color: color.adjust($tint, $alpha: -0.9);
+
+      // Admonition icon
+      &::before {
+        background-color: $tint;
+        mask-image: var(--md-admonition-icon--#{$name});
+        -webkit-mask-image: var(--md-admonition-icon--#{$name});
+        mask-repeat: no-repeat;
+        -webkit-mask-repeat: no-repeat;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+      }
+    }
+  }
+}

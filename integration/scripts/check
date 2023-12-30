@@ -34,6 +34,27 @@ if [ "$DIFF_RESULT" != 0 ]; then
   exit 1
 fi
 
+eprintln "Generating custom CSS (book)"
+mdbook-admonish generate-custom mdbook-admonish-custom.css
+
+eprintln "Verifying generated book custom css"
+set +e
+diff -u \
+  "expected/mdbook-admonish-custom.css" \
+  "./mdbook-admonish-custom.css"
+DIFF_RESULT=$?
+set -e
+
+if [ "$DIFF_RESULT" != 0 ]; then
+  eprintln ""
+  eprintln "error: generated custom css was different than expected"
+  eprintln ""
+  eprintln "error: If you expected the output to change, run:"
+  eprintln "cp ./integration/mdbook-admonish-custom.css ./integration/expected/mdbook-admonish-custom.css"
+  eprintln "and commit the result"
+  exit 1
+fi
+
 eprintln "Building mdbook"
 mdbook build
 

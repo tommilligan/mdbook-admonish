@@ -1,17 +1,17 @@
 use mdbook::errors::Result as MdbookResult;
 use pulldown_cmark::{CodeBlockKind::*, Event, Options, Parser, Tag};
 
-pub use crate::preprocessor::Admonish;
 use crate::{
     book_config::OnFailure,
     parse::parse_admonition,
-    types::{AdmonitionDefaults, RenderTextMode},
+    types::{AdmonitionDefaults, CustomDirectiveMap, RenderTextMode},
 };
 
 pub(crate) fn preprocess(
     content: &str,
     on_failure: OnFailure,
     admonition_defaults: &AdmonitionDefaults,
+    custom_directives: &CustomDirectiveMap,
     render_text_mode: RenderTextMode,
 ) -> MdbookResult<String> {
     let mut id_counter = Default::default();
@@ -34,6 +34,7 @@ pub(crate) fn preprocess(
             let admonition = match parse_admonition(
                 info_string.as_ref(),
                 admonition_defaults,
+                custom_directives,
                 span_content,
                 on_failure,
                 indent,
@@ -137,6 +138,7 @@ mod test {
             content,
             OnFailure::Continue,
             &AdmonitionDefaults::default(),
+            &CustomDirectiveMap::default(),
             RenderTextMode::Html,
         )
         .unwrap()
@@ -630,6 +632,7 @@ Bonus content!
                 content,
                 OnFailure::Bail,
                 &AdmonitionDefaults::default(),
+                &CustomDirectiveMap::default(),
                 RenderTextMode::Html
             )
             .unwrap_err()
@@ -657,6 +660,7 @@ x = 20;
                 content,
                 OnFailure::Bail,
                 &AdmonitionDefaults::default(),
+                &CustomDirectiveMap::default(),
                 RenderTextMode::Strip
             )
             .unwrap(),
@@ -735,6 +739,7 @@ Text
                 css_id_prefix: None,
                 collapsible: false,
             },
+            &CustomDirectiveMap::default(),
             RenderTextMode::Html,
         )
         .unwrap();
@@ -770,6 +775,7 @@ Text
                 css_id_prefix: None,
                 collapsible: false,
             },
+            &CustomDirectiveMap::default(),
             RenderTextMode::Html,
         )
         .unwrap();
@@ -925,6 +931,7 @@ Text
                 css_id_prefix: Some("".to_owned()),
                 collapsible: false,
             },
+            &CustomDirectiveMap::default(),
             RenderTextMode::Html,
         )
         .unwrap();
@@ -966,6 +973,7 @@ Text
                 css_id_prefix: Some("prefix-".to_owned()),
                 collapsible: false,
             },
+            &CustomDirectiveMap::default(),
             RenderTextMode::Html,
         )
         .unwrap();
@@ -1007,6 +1015,7 @@ Text
                 css_id_prefix: Some("ignored-prefix-".to_owned()),
                 collapsible: false,
             },
+            &CustomDirectiveMap::default(),
             RenderTextMode::Html,
         )
         .unwrap();

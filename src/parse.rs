@@ -1,12 +1,11 @@
 use anyhow::{anyhow, Result};
 use std::borrow::Cow;
 
-pub use crate::preprocessor::Admonish;
 use crate::{
     book_config::OnFailure,
     render::Admonition,
     resolve::AdmonitionMeta,
-    types::{AdmonitionDefaults, CssId, Directive},
+    types::{AdmonitionDefaults, BuiltinDirective, CssId, CustomDirectiveMap},
 };
 
 /// Given the content in the span of the code block, and the info string,
@@ -21,6 +20,7 @@ use crate::{
 pub(crate) fn parse_admonition<'a>(
     info_string: &'a str,
     admonition_defaults: &'a AdmonitionDefaults,
+    custom_directives: &'a CustomDirectiveMap,
     content: &'a str,
     on_failure: OnFailure,
     indent: usize,
@@ -28,7 +28,8 @@ pub(crate) fn parse_admonition<'a>(
     // We need to know fence details anyway for error messages
     let extracted = extract_admonish_body(content);
 
-    let info = AdmonitionMeta::from_info_string(info_string, admonition_defaults)?;
+    let info =
+        AdmonitionMeta::from_info_string(info_string, admonition_defaults, custom_directives)?;
     let info = match info {
         Ok(info) => info,
         Err(message) => {
@@ -44,7 +45,7 @@ pub(crate) fn parse_admonition<'a>(
                         r#"Error processing admonition. To fail the build instead of continuing, set 'on_failure = "bail"'"#
                     );
                     Ok(Admonition {
-                        directive: Directive::Bug,
+                        directive: BuiltinDirective::Bug.to_string(),
                         title: "Error rendering admonishment".to_owned(),
                         css_id: CssId::Prefix("admonition-".to_owned()),
                         additional_classnames: Vec::new(),

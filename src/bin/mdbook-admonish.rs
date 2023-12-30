@@ -1,13 +1,12 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
-use mdbook::{
-    errors::Error,
-    preprocess::{CmdPreprocessor, Preprocessor},
-};
+use mdbook::preprocess::{CmdPreprocessor, Preprocessor};
 use mdbook_admonish::Admonish;
-#[cfg(feature = "cli-install")]
+use serde::Deserialize;
+use std::fs;
+use std::io;
 use std::path::PathBuf;
-use std::{io, process};
+use std::process;
 
 /// mdbook preprocessor to add support for admonitions
 #[derive(Parser)]
@@ -36,6 +35,18 @@ enum Commands {
         #[arg(long)]
         css_dir: Option<PathBuf>,
     },
+
+    /// Generate CSS file for custom directives.
+    GenerateCustom {
+        /// Root directory for the book, should contain the configuration file (`book.toml`)
+        ///
+        /// If not set, defaults to the current directory.
+        #[arg(long)]
+        dir: Option<PathBuf>,
+
+        /// File to write generated css to.
+        output: PathBuf,
+    },
 }
 
 fn main() {
@@ -62,10 +73,13 @@ fn run(cli: Cli) -> Result<()> {
             dir.unwrap_or_else(|| PathBuf::from(".")),
             css_dir.unwrap_or_else(|| PathBuf::from(".")),
         ),
+        Some(Commands::GenerateCustom { dir, output }) => {
+            handle_generate_custom(dir.unwrap_or_else(|| PathBuf::from(".")), output)
+        }
     }
 }
 
-fn handle_preprocessing() -> Result<(), Error> {
+fn handle_preprocessing() -> std::result::Result<(), mdbook::errors::Error> {
     let (ctx, book) = CmdPreprocessor::parse_input(io::stdin())?;
 
     if ctx.mdbook_version != mdbook::MDBOOK_VERSION {
@@ -92,6 +106,47 @@ fn handle_supports(renderer: String) -> ! {
     } else {
         process::exit(1);
     }
+}
+
+#[derive(Deserialize)]
+struct Config {
+    #[serde(default)]
+    preprocessor: Preprocessors,
+}
+
+#[derive(Default, Deserialize)]
+struct Preprocessors {
+    #[serde(default)]
+    admonish: Option<toml::Table>,
+
+    #[serde(flatten)]
+    _other: toml::Table,
+}
+
+/// Load the plugin specific config as a toml string, for private deserialization.
+fn admonish_config_string(config: &Config) -> Result<String> {
+    Ok(toml_mdbook::to_string(
+        &config
+            .preprocessor
+            .admonish
+            .as_ref()
+            .context("No configuration for mdbook-admonish in book.toml")?,
+    )?)
+}
+
+fn handle_generate_custom(proj_dir: PathBuf, output: PathBuf) -> Result<()> {
+    let config = proj_dir.join("book.toml");
+    log::info!("Reading configuration file '{}'", config.display());
+    let data = fs::read_to_string(&config)
+        .with_context(|| format!("can't read configuration file '{}'", config.display()))?;
+    let config: Config = toml::from_str(&data).context("Invalid configuration file")?;
+
+    let css =
+        mdbook_admonish::custom::css_from_config(&proj_dir, &admonish_config_string(&config)?)?;
+
+    log::info!("Writing custom CSS file '{}'", output.display());
+    fs::write(output, css)?;
+    Ok(())
 }
 
 #[cfg(feature = "cli-install")]
