@@ -96,6 +96,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.experimental }}
     steps:
+      # This is required, otherwise we get files with CRLF on Windows
+      # Which causes tests relying on data loaded from files to fail
+      - name: Set git to use LF everywhere
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
       - name: Checkout sources
         uses: actions/checkout@v4
       - name: Cache build files
