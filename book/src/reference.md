@@ -75,28 +75,50 @@ Subfields:
     - For the `html` renderer, the default value is `html`.
     - For all other renderers, the default value is `preserve`.
 
-### `custom`
+### `directive`
 
 Optional.
 
-Additional type of block to support.
-You must run `mdbook-admonish generate-custom` after updating these values, to generate the correct styles.
+Settings relating to each type of block.
 
-Add blocks using TOML's [Array of Tables](https://toml.io/en/v1.0.0#array-of-tables) notation:
+#### `builtin`
+
+Optional.
+
+Override the settings of a builtin directive.
+
+The subkey of `builtin` is the directive to override. This must be the first directive listed in the [Directives](#directives) section below, e.g. `warning` (not `caution` or other aliases).
 
 ```toml
-[[preprocessor.admonish.custom]]
-directive = "expensive"
+[preprocessor.admonish.directive.builtin.warning]
+collapsible = true
+```
+
+Subfields:
+
+- `collapsible` (optional): The default boolean value of the collapsible property for this type of block.
+
+#### `custom`
+
+Optional.
+
+Additional types of block to support. The subkey of `custom` is the new directive to support.
+
+You must run `mdbook-admonish generate-custom` after updating these values, to generate the correct styles.
+
+```toml
+[preprocessor.admonish.directive.custom.expensive]
 icon = "./money-bag.svg"
 color = "#24ab38"
+collapsible = true
 aliases = ["money", "cash", "budget"]
 ```
 
 Subfields:
 
-- `directive`: The keyword to use this type of block.
 - `icon`: A filepath relative to the book root to load an SVG icon from.
 - `color`: An RGB hex encoded color to use for the icon.
+- `collapsible` (optional): The default boolean value of the collapsible property for this type of block.
 - `aliases` (optional): One or more alternative directives to use this block.
 - `title` (optional): The default title for this type of block. If not specified, defaults to the directive in title case. To give each alias a custom title, add multiple custom blocks.
 

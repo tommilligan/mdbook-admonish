@@ -70,7 +70,7 @@ fn directive_css(name: &str, svg_data: &str, tint: HexColor) -> String {
 #[doc(hidden)]
 pub fn css_from_config(book_dir: &Path, config: &str) -> Result<String> {
     let config = crate::book_config::admonish_config_from_str(config)?;
-    let custom_directives = config.custom;
+    let custom_directives = config.directive.custom;
 
     if custom_directives.is_empty() {
         return Err(anyhow!("No custom directives provided"));
@@ -78,10 +78,10 @@ pub fn css_from_config(book_dir: &Path, config: &str) -> Result<String> {
 
     log::info!("Loaded {} custom directives", custom_directives.len());
     let mut css = String::new();
-    for directive in custom_directives.iter() {
+    for (directive_name, directive) in custom_directives.iter() {
         let svg = fs::read_to_string(book_dir.join(&directive.icon))
             .with_context(|| format!("can't read icon file '{}'", directive.icon.display()))?;
-        css.push_str(&directive_css(&directive.directive, &svg, directive.color));
+        css.push_str(&directive_css(directive_name, &svg, directive.color));
     }
     Ok(css)
 }

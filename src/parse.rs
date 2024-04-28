@@ -5,7 +5,7 @@ use crate::{
     book_config::OnFailure,
     render::Admonition,
     resolve::AdmonitionMeta,
-    types::{AdmonitionDefaults, BuiltinDirective, CssId, CustomDirectiveMap},
+    types::{BuiltinDirective, CssId, Overrides},
 };
 
 /// Given the content in the span of the code block, and the info string,
@@ -19,8 +19,7 @@ use crate::{
 /// If the code block is not an admonition, return `None`.
 pub(crate) fn parse_admonition<'a>(
     info_string: &'a str,
-    admonition_defaults: &'a AdmonitionDefaults,
-    custom_directives: &'a CustomDirectiveMap,
+    overrides: &'a Overrides,
     content: &'a str,
     on_failure: OnFailure,
     indent: usize,
@@ -28,8 +27,7 @@ pub(crate) fn parse_admonition<'a>(
     // We need to know fence details anyway for error messages
     let extracted = extract_admonish_body(content);
 
-    let info =
-        AdmonitionMeta::from_info_string(info_string, admonition_defaults, custom_directives)?;
+    let info = AdmonitionMeta::from_info_string(info_string, overrides)?;
     let info = match info {
         Ok(info) => info,
         Err(message) => {

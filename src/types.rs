@@ -24,7 +24,8 @@ pub(crate) struct AdmonitionDefaults {
 /// These are guaranteed to have valid CSS/icons available.
 ///
 /// Custom directives can also be added via the book.toml config.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy, Eq, Deserialize, Serialize, Hash)]
+#[serde(rename_all = "lowercase")]
 pub(crate) enum BuiltinDirective {
     Note,
     Abstract,
@@ -85,25 +86,27 @@ impl fmt::Display for BuiltinDirective {
 /// The subset of information we care about during plugin runtime for custom directives.
 ///
 /// This drops information only needed during CSS generation.
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub(crate) struct CustomDirective {
     pub directive: String,
     pub aliases: Vec<String>,
     pub title: Option<String>,
+    pub collapsible: Option<bool>,
 }
 
-impl From<crate::book_config::CustomDirective> for CustomDirective {
-    fn from(other: crate::book_config::CustomDirective) -> Self {
+impl From<(String, crate::book_config::CustomDirective)> for CustomDirective {
+    fn from((directive, config): (String, crate::book_config::CustomDirective)) -> Self {
         let crate::book_config::CustomDirective {
-            directive,
             aliases,
             title,
+            collapsible,
             ..
-        } = other;
+        } = config;
         Self {
             directive,
             aliases,
             title,
+            collapsible,
         }
     }
 }
@@ -114,7 +117,7 @@ impl From<crate::book_config::CustomDirective> for CustomDirective {
 /// and returns the output-directive config.
 ///
 /// i.e. this is the step alias mapping happens at
-#[derive(Default)]
+#[derive(Debug, Clone, Default)]
 pub(crate) struct CustomDirectiveMap {
     inner: HashMap<String, CustomDirective>,
 }
@@ -123,24 +126,30 @@ impl CustomDirectiveMap {
     pub fn get(&self, key: &str) -> Option<&CustomDirective> {
         self.inner.get(key)
     }
+}
 
-    pub fn from_configs<T>(configs: T) -> Self
-    where
-        T: IntoIterator<Item = CustomDirective>,
-    {
+impl FromIterator<CustomDirective> for CustomDirectiveMap {
+    fn from_iter<I: IntoIterator<Item = CustomDirective>>(iter: I) -> Self {
         let mut inner = HashMap::default();
-        for directive in configs.into_iter() {
+        for config in iter.into_iter() {
             inner
-                .entry(directive.directive.clone())
-                .or_insert(directive.clone());
+                .entry(config.directive.clone())
+                .or_insert(config.clone());
 
-            for alias in directive.aliases.iter() {
-                inner.entry(alias.clone()).or_insert(directive.clone());
+            for alias in config.aliases.iter() {
+                inner.entry(alias.clone()).or_insert(config.clone());
             }
         }
 
         Self { inner }
     }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
+pub(crate) struct BuiltinDirectiveConfig {
+    /// Default collapsible value.
+    #[serde(default)]
+    pub collapsible: Option<bool>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -159,4 +168,11 @@ pub(crate) enum CssId {
     ///
     /// will generate the rest of the id based on the title
     Prefix(String),
+}
+
+#[derive(Debug, Clone, Default)]
+pub(crate) struct Overrides {
+    pub book: AdmonitionDefaults,
+    pub builtin: HashMap<BuiltinDirective, BuiltinDirectiveConfig>,
+    pub custom: CustomDirectiveMap,
 }

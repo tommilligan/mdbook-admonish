@@ -4,14 +4,13 @@ use pulldown_cmark::{CodeBlockKind::*, Event, Options, Parser, Tag};
 use crate::{
     book_config::OnFailure,
     parse::parse_admonition,
-    types::{AdmonitionDefaults, CustomDirectiveMap, RenderTextMode},
+    types::{Overrides, RenderTextMode},
 };
 
 pub(crate) fn preprocess(
     content: &str,
     on_failure: OnFailure,
-    admonition_defaults: &AdmonitionDefaults,
-    custom_directives: &CustomDirectiveMap,
+    overrides: &Overrides,
     render_text_mode: RenderTextMode,
 ) -> MdbookResult<String> {
     let mut id_counter = Default::default();
@@ -33,8 +32,7 @@ pub(crate) fn preprocess(
 
             let admonition = match parse_admonition(
                 info_string.as_ref(),
-                admonition_defaults,
-                custom_directives,
+                overrides,
                 span_content,
                 on_failure,
                 indent,
@@ -92,8 +90,11 @@ fn indent_of(content: &str, position: usize, max: usize) -> usize {
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use pretty_assertions::assert_eq;
+
+    use crate::types::AdmonitionDefaults;
+
+    use super::*;
 
     #[test]
     fn indent_of_samples() {
@@ -137,8 +138,7 @@ mod test {
         preprocess(
             content,
             OnFailure::Continue,
-            &AdmonitionDefaults::default(),
-            &CustomDirectiveMap::default(),
+            &Overrides::default(),
             RenderTextMode::Html,
         )
         .unwrap()
@@ -631,8 +631,7 @@ Bonus content!
             preprocess(
                 content,
                 OnFailure::Bail,
-                &AdmonitionDefaults::default(),
-                &CustomDirectiveMap::default(),
+                &Overrides::default(),
                 RenderTextMode::Html
             )
             .unwrap_err()
@@ -659,8 +658,7 @@ x = 20;
             preprocess(
                 content,
                 OnFailure::Bail,
-                &AdmonitionDefaults::default(),
-                &CustomDirectiveMap::default(),
+                &Overrides::default(),
                 RenderTextMode::Strip
             )
             .unwrap(),
@@ -734,12 +732,14 @@ Text
         let preprocess_result = preprocess(
             content,
             OnFailure::Continue,
-            &AdmonitionDefaults {
-                title: Some("Admonish".to_owned()),
-                css_id_prefix: None,
-                collapsible: false,
+            &Overrides {
+                book: AdmonitionDefaults {
+                    title: Some("Admonish".to_owned()),
+                    css_id_prefix: None,
+                    collapsible: false,
+                },
+                ..Default::default()
             },
-            &CustomDirectiveMap::default(),
             RenderTextMode::Html,
         )
         .unwrap();
@@ -770,12 +770,14 @@ Text
         let preprocess_result = preprocess(
             content,
             OnFailure::Continue,
-            &AdmonitionDefaults {
-                title: Some("Admonish".to_owned()),
-                css_id_prefix: None,
-                collapsible: false,
+            &Overrides {
+                book: AdmonitionDefaults {
+                    title: Some("Admonish".to_owned()),
+                    css_id_prefix: None,
+                    collapsible: false,
+                },
+                ..Default::default()
             },
-            &CustomDirectiveMap::default(),
             RenderTextMode::Html,
         )
         .unwrap();
@@ -926,12 +928,14 @@ Text
         let preprocess_result = preprocess(
             content,
             OnFailure::Continue,
-            &AdmonitionDefaults {
-                title: Some("Info".to_owned()),
-                css_id_prefix: Some("".to_owned()),
-                collapsible: false,
+            &Overrides {
+                book: AdmonitionDefaults {
+                    title: Some("Info".to_owned()),
+                    css_id_prefix: Some("".to_owned()),
+                    collapsible: false,
+                },
+                ..Default::default()
             },
-            &CustomDirectiveMap::default(),
             RenderTextMode::Html,
         )
         .unwrap();
@@ -968,12 +972,14 @@ Text
         let preprocess_result = preprocess(
             content,
             OnFailure::Continue,
-            &AdmonitionDefaults {
-                title: Some("Info".to_owned()),
-                css_id_prefix: Some("prefix-".to_owned()),
-                collapsible: false,
+            &Overrides {
+                book: AdmonitionDefaults {
+                    title: Some("Info".to_owned()),
+                    css_id_prefix: Some("prefix-".to_owned()),
+                    collapsible: false,
+                },
+                ..Default::default()
             },
-            &CustomDirectiveMap::default(),
             RenderTextMode::Html,
         )
         .unwrap();
@@ -1010,12 +1016,14 @@ Text
         let preprocess_result = preprocess(
             content,
             OnFailure::Continue,
-            &AdmonitionDefaults {
-                title: Some("Info".to_owned()),
-                css_id_prefix: Some("ignored-prefix-".to_owned()),
-                collapsible: false,
+            &Overrides {
+                book: AdmonitionDefaults {
+                    title: Some("Info".to_owned()),
+                    css_id_prefix: Some("ignored-prefix-".to_owned()),
+                    collapsible: false,
+                },
+                ..Default::default()
             },
-            &CustomDirectiveMap::default(),
             RenderTextMode::Html,
         )
         .unwrap();

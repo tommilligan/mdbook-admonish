@@ -8,7 +8,7 @@ use mdbook::{
 use crate::{
     book_config::{admonish_config_from_context, Config, RenderMode},
     markdown::preprocess,
-    types::{CustomDirectiveMap, RenderTextMode},
+    types::{Overrides, RenderTextMode},
 };
 
 pub struct Admonish;
@@ -22,10 +22,20 @@ impl Preprocessor for Admonish {
         let config = admonish_config_from_context(ctx)?;
         ensure_compatible_assets_version(&config)?;
 
-        let custom_directives =
-            CustomDirectiveMap::from_configs(config.custom.into_iter().map(Into::into));
+        let custom_directives = config
+            .directive
+            .custom
+            .into_iter()
+            .map(Into::into)
+            .collect();
         let on_failure = config.on_failure;
         let admonition_defaults = config.default;
+
+        let overrides = Overrides {
+            book: admonition_defaults,
+            custom: custom_directives,
+            builtin: config.directive.builtin,
+        };
 
         // Load what rendering we should do from config, falling back to a default
         let render_mode = config
@@ -55,16 +65,11 @@ impl Preprocessor for Admonish {
 
             if let BookItem::Chapter(ref mut chapter) = *item {
                 res = Some(
-                    preprocess(
-                        &chapter.content,
-                        on_failure,
-                        &admonition_defaults,
-                        &custom_directives,
-                        render_text_mode,
-                    )
-                    .map(|md| {
-                        chapter.content = md;
-                    }),
+                    preprocess(&chapter.content, on_failure, &overrides, render_text_mode).map(
+                        |md| {
+                            chapter.content = md;
+                        },
+                    ),
                 );
             }
         });
