@@ -13,6 +13,9 @@ pub(crate) struct AdmonitionDefaults {
     pub(crate) collapsible: bool,
 
     #[serde(default)]
+    // For backwards compatibility, we support this field with kebab-case style
+    // naming, even though this was introduced in error.
+    #[serde(alias = "css-id-prefix")]
     pub(crate) css_id_prefix: Option<String>,
 }
 
