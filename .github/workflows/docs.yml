@@ -12,6 +12,8 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-20.04
+    env:
+      CARGO_TARGET_DIR: "/tmp/cargo-install-target-dir"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v3
@@ -21,7 +23,7 @@ jobs:
             ~/.cargo/git
             target
             ~/.cargo/bin
-            cargo_target
+            /tmp/cargo-install-target-dir
           # We reuse the cache from our detailed test environment, if available
           key: detailed-test-${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
       - name: Install toolchain
