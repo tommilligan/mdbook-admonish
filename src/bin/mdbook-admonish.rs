@@ -160,7 +160,7 @@ mod install {
         io::Write,
         path::PathBuf,
     };
-    use toml_edit::{self, Array, Document, Item, Table, Value};
+    use toml_edit::{self, Array, DocumentMut, Item, Table, Value};
 
     const ADMONISH_CSS_FILES: &[(&str, &[u8])] = &[(
         "mdbook-admonish.css",
@@ -196,7 +196,7 @@ mod install {
         let toml = fs::read_to_string(&config)
             .with_context(|| format!("can't read configuration file '{}'", config.display()))?;
         let mut doc = toml
-            .parse::<Document>()
+            .parse::<DocumentMut>()
             .context("configuration is not valid TOML")?;
 
         if let Ok(preprocessor) = preprocessor(&mut doc) {
@@ -259,7 +259,7 @@ A beautifully styled message.
     /// Return the `additional-css` field, initializing if required.
     ///
     /// Return `Err` if the existing configuration is unknown.
-    fn additional_css(doc: &mut Document) -> Result<&mut Array, ()> {
+    fn additional_css(doc: &mut DocumentMut) -> Result<&mut Array, ()> {
         let doc = doc.as_table_mut();
 
         let empty_table = Item::Table(Table::default());
@@ -283,7 +283,7 @@ A beautifully styled message.
     /// Return the preprocessor table for admonish, initializing if required.
     ///
     /// Return `Err` if the existing configuration is unknown.
-    fn preprocessor(doc: &mut Document) -> Result<&mut Item, ()> {
+    fn preprocessor(doc: &mut DocumentMut) -> Result<&mut Item, ()> {
         let doc = doc.as_table_mut();
 
         let empty_table = Item::Table(Table::default());

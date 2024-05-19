@@ -12,8 +12,8 @@ use std::path::Path;
 static RX_COLLAPSE_NEWLINES: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"[\r\n]+\s*").expect("invalid whitespace regex"));
 
-/// Do some simple things to make the svg input probably a valid data url
-/// Based on this gist: https://gist.github.com/jennyknuth/222825e315d45a738ed9d6e04c7a88d0
+// Do some simple things to make the svg input probably a valid data url
+// Based on this gist: https://gist.github.com/jennyknuth/222825e315d45a738ed9d6e04c7a88d0
 fn svg_to_data_url(svg: &str) -> String {
     const XMLNS: &str = r#"http://www.w3.org/2000/svg"#;
     //

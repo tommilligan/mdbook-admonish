@@ -31,21 +31,22 @@ anyhow = "1.0.75"
 # To use MSRV supported dependencies, install using the lockfile with
 # `cargo install mdbook-admonish --locked`
 clap = { version = "4.3", default-features = false, features = ["std", "derive"], optional = true }
-env_logger = { version = "0.10", default-features = false, optional = true }
+env_logger = { version = "0.11", default-features = false, optional = true }
 log = "0.4.20"
 mdbook = "0.4.35"
 once_cell = "1.18.0"
 path-slash = "0.2.1"
-pulldown-cmark = "0.9.3"
+pulldown-cmark = "0.11"
 regex = "1.9.6"
 semver = "1.0.19"
 serde = { version = "1.0.188", features = ["derive"] }
 serde_json = "1.0.107"
+# Peer dependency of mdbook
 # The version of toml that mdbook uses internally (and uses in it's public api)
 # Only used for compatilibilty with the mdbook public api
 toml_mdbook = { package = "toml", version = "0.5.11" }
 toml = "0.8.1"
-toml_edit = { version = "0.20.1", optional = true }
+toml_edit = { version = "0.22.13", optional = true }
 hex_color = { version = "3.0.0", features = ["serde"] }
 
 [dev-dependencies]
