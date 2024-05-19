@@ -5,7 +5,6 @@ use std::str::FromStr;
 
 /// Book wide defaults that may be provided by the user.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, Default)]
-#[serde(rename_all = "kebab-case")]
 pub(crate) struct AdmonitionDefaults {
     #[serde(default)]
     pub(crate) title: Option<String>,
@@ -14,6 +13,9 @@ pub(crate) struct AdmonitionDefaults {
     pub(crate) collapsible: bool,
 
     #[serde(default)]
+    // For backwards compatibility, we support this field with kebab-case style
+    // naming, even though this was introduced in error.
+    #[serde(alias = "css-id-prefix")]
     pub(crate) css_id_prefix: Option<String>,
 }
 
