@@ -10,12 +10,10 @@ git-repository-url = "https://github.com/tommilligan/mdbook-admonish"
 
 [preprocessor.admonish]
 command = "mdbook-admonish"
-assets_version = "3.0.1" # do not edit: managed by `mdbook-admonish install`
+assets_version = "3.0.2" # do not edit: managed by `mdbook-admonish install`
 
-[[preprocessor.admonish.custom]]
-directive = "expensive"
-icon = "./money-bag.svg"
-color = "#24ab38"
+[preprocessor.admonish.directive.custom]
+expensive = { icon = "./money-bag.svg", color = "#24ab38" }
 
 [preprocessor.toc]
 command = "mdbook-toc"
