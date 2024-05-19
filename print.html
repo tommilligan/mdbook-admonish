@@ -426,7 +426,12 @@ Remember, this operation costs money!
 <li><a href="reference.html#on_failure"><code>on_failure</code></a></li>
 <li><a href="reference.html#default"><code>default</code></a></li>
 <li><a href="reference.html#renderer"><code>renderer</code></a></li>
+<li><a href="reference.html#directive"><code>directive</code></a>
+<ul>
+<li><a href="reference.html#builtin"><code>builtin</code></a></li>
 <li><a href="reference.html#custom"><code>custom</code></a></li>
+</ul>
+</li>
 <li><a href="reference.html#command"><code>command</code></a></li>
 <li><a href="reference.html#assets_version"><code>assets_version</code></a></li>
 </ul>
@@ -503,22 +508,35 @@ render_mode = &quot;strip&quot;
 </ul>
 </li>
 </ul>
-<h3 id="custom"><a class="header" href="#custom"><code>custom</code></a></h3>
+<h3 id="directive"><a class="header" href="#directive"><code>directive</code></a></h3>
 <p>Optional.</p>
-<p>Additional type of block to support.
-You must run <code>mdbook-admonish generate-custom</code> after updating these values, to generate the correct styles.</p>
-<p>Add blocks using TOML's <a href="https://toml.io/en/v1.0.0#array-of-tables">Array of Tables</a> notation:</p>
-<pre><code class="language-toml">[[preprocessor.admonish.custom]]
-directive = &quot;expensive&quot;
+<p>Settings relating to each type of block.</p>
+<h4 id="builtin"><a class="header" href="#builtin"><code>builtin</code></a></h4>
+<p>Optional.</p>
+<p>Override the settings of a builtin directive.</p>
+<p>The subkey of <code>builtin</code> is the directive to override. This must be the first directive listed in the <a href="reference.html#directives">Directives</a> section below, e.g. <code>warning</code> (not <code>caution</code> or other aliases).</p>
+<pre><code class="language-toml">[preprocessor.admonish.directive.builtin.warning]
+collapsible = true
+</code></pre>
+<p>Subfields:</p>
+<ul>
+<li><code>collapsible</code> (optional): The default boolean value of the collapsible property for this type of block.</li>
+</ul>
+<h4 id="custom"><a class="header" href="#custom"><code>custom</code></a></h4>
+<p>Optional.</p>
+<p>Additional types of block to support. The subkey of <code>custom</code> is the new directive to support.</p>
+<p>You must run <code>mdbook-admonish generate-custom</code> after updating these values, to generate the correct styles.</p>
+<pre><code class="language-toml">[preprocessor.admonish.directive.custom.expensive]
 icon = &quot;./money-bag.svg&quot;
 color = &quot;#24ab38&quot;
+collapsible = true
 aliases = [&quot;money&quot;, &quot;cash&quot;, &quot;budget&quot;]
 </code></pre>
 <p>Subfields:</p>
 <ul>
-<li><code>directive</code>: The keyword to use this type of block.</li>
 <li><code>icon</code>: A filepath relative to the book root to load an SVG icon from.</li>
 <li><code>color</code>: An RGB hex encoded color to use for the icon.</li>
+<li><code>collapsible</code> (optional): The default boolean value of the collapsible property for this type of block.</li>
 <li><code>aliases</code> (optional): One or more alternative directives to use this block.</li>
 <li><code>title</code> (optional): The default title for this type of block. If not specified, defaults to the directive in title case. To give each alias a custom title, add multiple custom blocks.</li>
 </ul>
