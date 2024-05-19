@@ -1,8 +1,8 @@
 [package]
 name = "mdbook-admonish"
-version = "1.15.0"
+version = "1.16.0"
 edition = "2021"
-rust-version = "1.66.0"
+rust-version = "1.74.0"
 
 authors = ["Tom Milligan <code@tommilligan.net>"]
 description = "A preprocessor for mdbook to add Material Design admonishments."

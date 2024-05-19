@@ -5,6 +5,15 @@
 ### Changed
 
 - MSRV (minimum supported rust version) is now 1.74.0 ([#175](https://github.com/tommilligan/mdbook-admonish/pull/175))
+- `custom` directives should now be configured under the `directive.custom` option. Existing `custom` configurations are supported for back compatibility ([#179](https://github.com/tommilligan/mdbook-admonish/pull/174))
+
+### Added
+
+- Make blocks `collapsible` on a per-directive basis. Thanks to [@yannickseurin](https://github.com/yannickseurin) for contributing this feature! ([#174](https://github.com/tommilligan/mdbook-admonish/pull/174))
+
+### Fixed
+
+- The `css_id_prefix` option now uses snake case for consistency (kebab case remains supported for back compatibility). Thanks to [@yannickseurin](https://github.com/yannickseurin) for fixing this! ([#173](https://github.com/tommilligan/mdbook-admonish/pull/173))
 
 ## 1.15.0
 
