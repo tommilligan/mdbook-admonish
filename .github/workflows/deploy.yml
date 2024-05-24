@@ -57,7 +57,10 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
-          target: ${{ matrix.target }}
+          targets: ${{ matrix.target }}
+
+      - name: Create target directory
+        run: mkdir target
 
       - name: Setup | cross
         if: endsWith(matrix.target, '-unknown-linux-musl')
