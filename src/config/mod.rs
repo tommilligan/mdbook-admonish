@@ -1,11 +1,13 @@
+mod toml_wrangling;
 mod v1;
 mod v2;
+mod v3;
 
 /// Configuration as described by the instance of an admonition in markdown.
 ///
 /// This structure represents the configuration the user must provide in each
 /// instance.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Default)]
 pub(crate) struct InstanceConfig {
     pub(crate) directive: String,
     pub(crate) title: Option<String>,
@@ -35,20 +37,29 @@ impl InstanceConfig {
     /// - `Some(InstanceConfig)` if this is an `admonish` block
     pub fn from_info_string(info_string: &str) -> Option<Result<Self, String>> {
         let config_string = admonition_config_string(info_string)?;
+        Some(Self::from_admonish_config_string(config_string))
+    }
 
-        // If we succeed at parsing v2, return that. Otherwise hold onto the error
-        let config_v2_error = match v2::from_config_string(config_string) {
-            Ok(config) => return Some(Ok(config)),
-            Err(config) => config,
+    /// Parse an info string that is known to be for `admonish`.
+    fn from_admonish_config_string(config_string: &str) -> Result<Self, String> {
+        // If we succeed at parsing v3, return that. Otherwise hold onto the error
+        let config_v3_error = match v3::from_config_string(config_string) {
+            Ok(config) => return Ok(config),
+            Err(error) => error,
         };
 
-        Some(if let Ok(config) = v1::from_config_string(config_string) {
-            // If we succeed at parsing v1, return that.
-            Ok(config)
-        } else {
-            // Otherwise return our v2 error.
-            Err(config_v2_error)
-        })
+        // If we succeed at parsing v2, return that
+        if let Ok(config) = v2::from_config_string(config_string) {
+            return Ok(config);
+        };
+
+        // If we succeed at parsing v1, return that.
+        if let Ok(config) = v1::from_config_string(config_string) {
+            return Ok(config);
+        }
+
+        // Otherwise return our v3 error.
+        Err(config_v3_error)
     }
 }
 
@@ -79,6 +90,21 @@ mod test {
         assert_eq!(
             InstanceConfig::from_info_string(
                 r#"admonish title="Custom Title" type="question" id="my-id""#
+            )
+            .unwrap()
+            .unwrap(),
+            InstanceConfig {
+                directive: "question".to_owned(),
+                title: Some("Custom Title".to_owned()),
+                id: Some("my-id".to_owned()),
+                additional_classnames: Vec::new(),
+                collapsible: None,
+            }
+        );
+        // v3 syntax is supported
+        assert_eq!(
+            InstanceConfig::from_info_string(
+                r#"admonish title="Custom Title", type="question", id="my-id""#
             )
             .unwrap()
             .unwrap(),

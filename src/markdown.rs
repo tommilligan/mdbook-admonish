@@ -598,10 +598,10 @@ Failed with:
 ```log
 'title="' is not a valid directive or TOML key-value pair.
 
-TOML parsing error: TOML parse error at line 1, column 8
+TOML parsing error: TOML parse error at line 1, column 21
   |
-1 | title="
-  |        ^
+1 | config = { title=" }
+  |                     ^
 invalid basic string
 
 ```
@@ -891,6 +891,39 @@ Check Mark
 <div>
 
 A simple admonition.
+
+</div>
+</div>
+Text
+"##;
+
+        assert_eq!(expected, prep(content));
+    }
+
+    #[test]
+    fn title_and_content_with_html() {
+        // Note that we use toml literal (single quoted) strings here
+        // and the fact we have an equals sign in the value does not cause
+        // us to break (because we're using v3 syntax, not v2)
+        let content = r#"# Chapter
+```admonish success title='Check <span class="emphasis">Mark</span>'
+A <span class="emphasis">simple</span> admonition.
+```
+Text
+"#;
+
+        let expected = r##"# Chapter
+
+<div id="admonition-check-mark" class="admonition admonish-success">
+<div class="admonition-title">
+
+Check <span class="emphasis">Mark</span>
+
+<a class="admonition-anchor-link" href="#admonition-check-mark"></a>
+</div>
+<div>
+
+A <span class="emphasis">simple</span> admonition.
 
 </div>
 </div>

@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Blocks should have key-value options separated by commas. Existing syntax remains is supported for back-compatibility. See [the documentation on Additional Options](https://tommilligan.github.io/mdbook-admonish/#additional-options) for more details ([#181](https://github.com/tommilligan/mdbook-admonish/pull/181))
+
+### Fixed
+
+- Titles contining `=` will now render correctly. Thanks to [@s00500](https://github.com/s00500) for the bug report! ([#181](https://github.com/tommilligan/mdbook-admonish/pull/181))
+
 ## v1.16.0
 
 ### Changed
