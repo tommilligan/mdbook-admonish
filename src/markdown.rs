@@ -596,6 +596,8 @@ Error rendering admonishment
 Failed with:
 
 ```log
+'title="' is not a valid directive or TOML key-value pair.
+
 TOML parsing error: TOML parse error at line 1, column 8
   |
 1 | title="
