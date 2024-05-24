@@ -7,8 +7,6 @@ jobs:
   fast-test:
     name: Fast test
     runs-on: ubuntu-20.04
-    env:
-      CARGO_TARGET_DIR: "/tmp/cargo-install-target-dir"
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
@@ -19,7 +17,6 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             target
-            /tmp/cargo-install-target-dir
           key: fast-test-${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@master
@@ -35,8 +32,6 @@ jobs:
     needs: fast-test
     name: Test main target
     runs-on: ubuntu-20.04
-    env:
-      CARGO_TARGET_DIR: "/tmp/cargo-install-target-dir"
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
@@ -63,7 +58,7 @@ jobs:
           cache-dependency-path: compile_assets/yarn.lock
       - name: Install additional test dependencies
         env:
-          CARGO_TARGET_DIR: cargo_target
+          CARGO_TARGET_DIR: "/tmp/cargo-install-target-dir"
         run: ./scripts/install
       - name: Run check script
         run: ./scripts/check
@@ -99,8 +94,6 @@ jobs:
             experimental: false
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.experimental }}
-    env:
-      CARGO_TARGET_DIR: "/tmp/cargo-install-target-dir"
     steps:
       # This is required, otherwise we get files with CRLF on Windows
       # Which causes tests relying on data loaded from files to fail
@@ -117,7 +110,6 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             target
-            /tmp/cargo-install-target-dir
           key: test-${{ matrix.os }}-${{ matrix.rust }}-cargo-${{ hashFiles('**/Cargo.toml') }}
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@master
