@@ -75,7 +75,7 @@ jobs:
 
       - name: Post Setup | Extract tag name
         shell: bash
-        run: echo "##[set-output name=tag;]$(echo ${GITHUB_REF#refs/tags/})"
+        run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
         id: extract_tag
 
       - name: Post Setup | Prepare artifacts [Windows]
@@ -114,7 +114,7 @@ jobs:
 
       - name: Setup | Extract version
         shell: bash
-        run: echo "##[set-output name=version;]$(echo ${GITHUB_REF#refs/tags/v})"
+        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
         id: extract_version
 
       - name: Setup | Release notes
