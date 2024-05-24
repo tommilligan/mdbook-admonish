@@ -16,7 +16,7 @@ jobs:
       CARGO_TARGET_DIR: "/tmp/cargo-install-target-dir"
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
@@ -27,10 +27,9 @@ jobs:
           # We reuse the cache from our detailed test environment, if available
           key: detailed-test-${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
       - name: Install toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
-          override: true
       - name: Install mdbook
         run: ./scripts/install-mdbook
       - name: Install mdbook extras
