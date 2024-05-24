@@ -78,14 +78,19 @@ You can also configure the build to fail loudly, by setting `on_failure = "bail"
 
 ### Additional Options
 
-You can pass additional options to each block. The options are structured as TOML key-value pairs.
+You can pass additional options to each block. Options are given like a [TOML Inline Table](https://toml.io/en/v1.0.0#inline-table), as key-value pairs separated by commas.
+
+`mdbook-admonish` parses options by wrapping your options in an inline table before parsing them, so please consult [The TOML Reference](https://toml.io) if you run into any syntax errors. Be aware that:
+
+- Key-value pairs must be separated with a comma `,`
+- TOML escapes must be escaped again - for instance, write `\"` as `\\"`.
+- For complex strings such as HTML, you may want to use a [literal string](https://toml.io/en/v1.0.0#string) to avoid complex escape sequences
 
 Note that some options can be passed globally, through the `default` section in `book.toml`. See the [configuration reference](./reference.md#booktoml-configuration) for more details.
 
 #### Custom title
 
-A custom title can be provided, contained in a double quoted TOML string.
-Note that TOML escapes must be escaped again - for instance, write `\"` as `\\"`.
+A custom title can be provided:
 
 ````
 ```admonish warning title="Data loss"
@@ -114,13 +119,13 @@ This will take a while, go and grab a drink of water.
 Markdown and HTML can be used in the inner content, as you'd expect:
 
 ````
-```admonish tip title="_Referencing_ and <i>dereferencing</i>"
+```admonish tip title='_Referencing_ and <i>dereferencing</i>'
 The opposite of *referencing* by using `&` is *dereferencing*, which is
 accomplished with the <span style="color: hotpink">dereference operator</span>, `*`.
 ```
 ````
 
-```admonish tip title="_Referencing_ and <i>dereferencing</i>"
+```admonish tip title='_Referencing_ and <i>dereferencing</i>'
 The opposite of *referencing* by using `&` is *dereferencing*, which is
 accomplished with the <span style="color: hotpink">dereference operator</span>, `*`.
 ```
@@ -148,7 +153,7 @@ print "Hello, world!"
 If you want to provide custom styling to a specific admonition, you can attach one or more custom classnames:
 
 ````
-```admonish note class="custom-0 custom-1"
+```admonish note title="Stylish", class="custom-0 custom-1"
 Styled with my custom CSS class.
 ```
 ````
@@ -173,7 +178,7 @@ with an appended number if multiple blocks would have the same id.
 Setting the `id` field will _ignore_ all other ids and the duplicate counter.
 
 ````
-```admonish info title="My Info" id="my-special-info"
+```admonish info title="My Info", id="my-special-info"
 Link to this block with `#my-special-info` instead of the default `#admonition-my-info`.
 ```
 ````
@@ -183,14 +188,14 @@ Link to this block with `#my-special-info` instead of the default `#admonition-m
 For a block to be initially collapsible, and then be openable, set `collapsible=true`:
 
 ````
-```admonish collapsible=true
+```admonish title="Sneaky", collapsible=true
 Content will be hidden initially.
 ```
 ````
 
 Will yield something like the following HTML, which you can then apply styles to:
 
-```admonish collapsible=true
+```admonish title="Sneaky", collapsible=true
 Content will be hidden initially.
 ```
 
