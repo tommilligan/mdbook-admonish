@@ -13,7 +13,7 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4
       - name: Cache build files
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
@@ -22,10 +22,9 @@ jobs:
             /tmp/cargo-install-target-dir
           key: fast-test-${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
       - name: Install toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
-          override: true
       - name: Install more toolchain
         run: rustup component add rustfmt clippy
       - name: Run tests
@@ -42,7 +41,7 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4
       - name: Cache build files
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
@@ -52,10 +51,10 @@ jobs:
             /tmp/cargo-install-target-dir
           key: detailed-test-${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
       - name: Install toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
-          override: true
+          components: rustfmt, clippy
       - name: Install node toolchain
         uses: actions/setup-node@v3
         with:
@@ -112,7 +111,7 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4
       - name: Cache build files
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
@@ -121,9 +120,8 @@ jobs:
             /tmp/cargo-install-target-dir
           key: test-${{ matrix.os }}-${{ matrix.rust }}-cargo-${{ hashFiles('**/Cargo.toml') }}
       - name: Install toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust }}
-          override: true
       - name: Run tests
         run: cargo test
