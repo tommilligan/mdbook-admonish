@@ -132,7 +132,6 @@ jobs:
     name: Publish to crates.io
     needs: github_release
     runs-on: ubuntu-20.04
-    env:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
