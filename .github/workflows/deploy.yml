@@ -37,8 +37,6 @@ jobs:
             os: windows-latest
             name: x86_64-pc-windows-msvc.zip
     runs-on: ${{ matrix.os }}
-    env:
-      CARGO_TARGET_DIR: "/tmp/cargo-install-target-dir"
     steps:
       - name: Setup | Checkout
         uses: actions/checkout@v4
@@ -47,20 +45,18 @@ jobs:
       - name: Setup | Cache Cargo
         uses: actions/cache@v4
         with:
+          # Note that we don't cache the `target` directory here
+          # so we do a completely clean rebuild for artefacts
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            /tmp/cargo-install-target-dir
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Setup | Rust
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
-          targets: ${{ matrix.target }}
-
-      - name: Create target directory
-        run: mkdir target
+          target: ${{ matrix.target }}
 
       - name: Setup | cross
         if: endsWith(matrix.target, '-unknown-linux-musl')
@@ -137,7 +133,6 @@ jobs:
     needs: github_release
     runs-on: ubuntu-20.04
     env:
-      CARGO_TARGET_DIR: "/tmp/cargo-install-target-dir"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -147,7 +142,6 @@ jobs:
             ~/.cargo/git
             target
             ~/.cargo/bin
-            /tmp/cargo-install-target-dir
           # We reuse the cache from our detailed test environment, if available
           key: detailed-test-${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
       - name: Install toolchain

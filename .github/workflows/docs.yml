@@ -12,8 +12,6 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-20.04
-    env:
-      CARGO_TARGET_DIR: "/tmp/cargo-install-target-dir"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -31,8 +29,12 @@ jobs:
         with:
           toolchain: stable
       - name: Install mdbook
+        env:
+          CARGO_TARGET_DIR: "/tmp/cargo-install-target-dir"
         run: ./scripts/install-mdbook
       - name: Install mdbook extras
+        env:
+          CARGO_TARGET_DIR: "/tmp/cargo-install-target-dir"
         run: ./book/scripts/install-mdbook-extras
       - name: Build book
         run: ./scripts/build-book
