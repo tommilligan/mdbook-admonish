@@ -3,8 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Page not found - The mdbook-admonish book</title>
-        <base href="/">
+        <title>Examples - The mdbook-admonish book</title>
 
 
         <!-- Custom HTML head -->
@@ -91,7 +90,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="reference.html"><strong aria-hidden="true">2.</strong> Reference</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="reference.html"><strong aria-hidden="true">2.</strong> Reference</a></li><li class="chapter-item expanded "><a href="examples.html" class="active"><strong aria-hidden="true">3.</strong> Examples</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -174,13 +173,30 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="document-not-found-404"><a class="header" href="#document-not-found-404">Document not found (404)</a></h1>
-<p>This URL is invalid, sorry. Please use the navigation bar or search to continue.</p>
+                        <h1 id="examples"><a class="header" href="#examples">Examples</a></h1>
+<h2 id="combining-multiple-custom-properties"><a class="header" href="#combining-multiple-custom-properties">Combining multiple custom properties</a></h2>
+<p>Note that the comma <code>,</code> is used to seperate custom options.</p>
+<pre><code>```admonish quote collapsible=true, title='A title that really &lt;span style=&quot;color: #e70073&quot;&gt;pops&lt;/span&gt;'
+To really &lt;b&gt;&lt;span style=&quot;color: #e70073&quot;&gt;grab&lt;/span&gt;&lt;/b&gt; your reader's attention.
+```
+</code></pre>
+<details id="admonition-a-title-that-really-pops" class="admonition admonish-quote">
+<summary class="admonition-title">
+<p>A title that really <span style="color: #e70073">pops</span></p>
+<p><a class="admonition-anchor-link" href="#admonition-a-title-that-really-pops"></a></p>
+</summary>
+<div>
+<p>To really <b><span style="color: #e70073">grab</span></b> your reader's attention.</p>
+</div>
+</details>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="reference.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
 
 
                         <div style="clear: both"></div>
@@ -189,6 +205,9 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="reference.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
 
             </nav>
 

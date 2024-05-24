@@ -91,7 +91,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="reference.html"><strong aria-hidden="true">2.</strong> Reference</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="reference.html"><strong aria-hidden="true">2.</strong> Reference</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -266,10 +266,10 @@ This block will error
 <p>Failed with:</p>
 <pre><code class="language-log">'title=&quot;\j&quot;' is not a valid directive or TOML key-value pair.
 
-TOML parsing error: TOML parse error at line 1, column 10
+TOML parsing error: TOML parse error at line 1, column 21
   |
-1 | title=&quot;\j&quot;
-  |          ^
+1 | config = { title=&quot;\j&quot; }
+  |                     ^
 invalid escape sequence
 expected `b`, `f`, `n`, `r`, `t`, `u`, `U`, `\`, `&quot;`
 
@@ -283,11 +283,16 @@ This block will error
 </div>
 <p>You can also configure the build to fail loudly, by setting <code>on_failure = &quot;bail&quot;</code> in <code>book.toml</code>. See the <a href="./reference.html#booktoml-configuration">configuration reference</a> for more details.</p>
 <h3 id="additional-options"><a class="header" href="#additional-options">Additional Options</a></h3>
-<p>You can pass additional options to each block. The options are structured as TOML key-value pairs.</p>
+<p>You can pass additional options to each block. Options are given like a <a href="https://toml.io/en/v1.0.0#inline-table">TOML Inline Table</a>, as key-value pairs separated by commas.</p>
+<p><code>mdbook-admonish</code> parses options by wrapping your options in an inline table before parsing them, so please consult <a href="https://toml.io">The TOML Reference</a> if you run into any syntax errors. Be aware that:</p>
+<ul>
+<li>Key-value pairs must be separated with a comma <code>,</code></li>
+<li>TOML escapes must be escaped again - for instance, write <code>\&quot;</code> as <code>\\&quot;</code>.</li>
+<li>For complex strings such as HTML, you may want to use a <a href="https://toml.io/en/v1.0.0#string">literal string</a> to avoid complex escape sequences</li>
+</ul>
 <p>Note that some options can be passed globally, through the <code>default</code> section in <code>book.toml</code>. See the <a href="./reference.html#booktoml-configuration">configuration reference</a> for more details.</p>
 <h4 id="custom-title"><a class="header" href="#custom-title">Custom title</a></h4>
-<p>A custom title can be provided, contained in a double quoted TOML string.
-Note that TOML escapes must be escaped again - for instance, write <code>\&quot;</code> as <code>\\&quot;</code>.</p>
+<p>A custom title can be provided:</p>
 <pre><code>```admonish warning title=&quot;Data loss&quot;
 The following steps can lead to irrecoverable data corruption.
 ```
@@ -313,7 +318,7 @@ This will take a while, go and grab a drink of water.
 </div>
 <h4 id="nested-markdownhtml"><a class="header" href="#nested-markdownhtml">Nested Markdown/HTML</a></h4>
 <p>Markdown and HTML can be used in the inner content, as you'd expect:</p>
-<pre><code>```admonish tip title=&quot;_Referencing_ and &lt;i&gt;dereferencing&lt;/i&gt;&quot;
+<pre><code>```admonish tip title='_Referencing_ and &lt;i&gt;dereferencing&lt;/i&gt;'
 The opposite of *referencing* by using `&amp;` is *dereferencing*, which is
 accomplished with the &lt;span style=&quot;color: hotpink&quot;&gt;dereference operator&lt;/span&gt;, `*`.
 ```
@@ -349,7 +354,7 @@ print &quot;Hello, world!&quot;
 </div>
 <h4 id="custom-styling"><a class="header" href="#custom-styling">Custom styling</a></h4>
 <p>If you want to provide custom styling to a specific admonition, you can attach one or more custom classnames:</p>
-<pre><code>```admonish note class=&quot;custom-0 custom-1&quot;
+<pre><code>```admonish note title=&quot;Stylish&quot;, class=&quot;custom-0 custom-1&quot;
 Styled with my custom CSS class.
 ```
 </code></pre>
@@ -365,21 +370,21 @@ This will ignore <a href="reference.html#default"><code>default.css_id_prefix</c
 prefixed with the <code>default.css_id_prefix</code>,
 with an appended number if multiple blocks would have the same id.</p>
 <p>Setting the <code>id</code> field will <em>ignore</em> all other ids and the duplicate counter.</p>
-<pre><code>```admonish info title=&quot;My Info&quot; id=&quot;my-special-info&quot;
+<pre><code>```admonish info title=&quot;My Info&quot;, id=&quot;my-special-info&quot;
 Link to this block with `#my-special-info` instead of the default `#admonition-my-info`.
 ```
 </code></pre>
 <h4 id="collapsible"><a class="header" href="#collapsible">Collapsible</a></h4>
 <p>For a block to be initially collapsible, and then be openable, set <code>collapsible=true</code>:</p>
-<pre><code>```admonish collapsible=true
+<pre><code>```admonish title=&quot;Sneaky&quot;, collapsible=true
 Content will be hidden initially.
 ```
 </code></pre>
 <p>Will yield something like the following HTML, which you can then apply styles to:</p>
-<details id="admonition-note-1" class="admonition admonish-note">
+<details id="admonition-sneaky" class="admonition admonish-note">
 <summary class="admonition-title">
-<p>Note</p>
-<p><a class="admonition-anchor-link" href="overview.html#admonition-note-1"></a></p>
+<p>Sneaky</p>
+<p><a class="admonition-anchor-link" href="overview.html#admonition-sneaky"></a></p>
 </summary>
 <div>
 <p>Content will be hidden initially.</p>
@@ -672,6 +677,22 @@ aliases = [&quot;money&quot;, &quot;cash&quot;, &quot;budget&quot;]
 <p>Rust is a multi-paradigm, general-purpose programming language designed for performance and safety, especially safe concurrency.</p>
 </div>
 </div>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="examples"><a class="header" href="#examples">Examples</a></h1>
+<h2 id="combining-multiple-custom-properties"><a class="header" href="#combining-multiple-custom-properties">Combining multiple custom properties</a></h2>
+<p>Note that the comma <code>,</code> is used to seperate custom options.</p>
+<pre><code>```admonish quote collapsible=true, title='A title that really &lt;span style=&quot;color: #e70073&quot;&gt;pops&lt;/span&gt;'
+To really &lt;b&gt;&lt;span style=&quot;color: #e70073&quot;&gt;grab&lt;/span&gt;&lt;/b&gt; your reader's attention.
+```
+</code></pre>
+<details id="admonition-a-title-that-really-pops" class="admonition admonish-quote">
+<summary class="admonition-title">
+<p>A title that really <span style="color: #e70073">pops</span></p>
+<p><a class="admonition-anchor-link" href="examples.html#admonition-a-title-that-really-pops"></a></p>
+</summary>
+<div>
+<p>To really <b><span style="color: #e70073">grab</span></b> your reader's attention.</p>
+</div>
+</details>
 
                     </main>
 
