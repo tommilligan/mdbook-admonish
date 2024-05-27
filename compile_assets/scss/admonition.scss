@@ -198,6 +198,10 @@ a.admonition-anchor-link {
   &:hover a.admonition-anchor-link {
     display: initial;
   }
+
+  &::-webkit-details-marker {
+    display: none;
+  }
 }
 
 summary.admonition-title {
