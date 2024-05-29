@@ -60,7 +60,7 @@ pub(crate) fn from_config_string(config_string: &str) -> Result<InstanceConfig, 
                 return Err(format_invalid_directive(directive, original_error));
             }
 
-            let mut config = user_input_from_config_toml(dbg!(config_toml))?;
+            let mut config = user_input_from_config_toml(config_toml)?;
             config.r#type = Some(directive.to_owned());
             config
         }
