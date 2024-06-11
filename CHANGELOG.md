@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.17.1
+
+### Fixed
+
+- Removed a stray debug statement ([#186](https://github.com/tommilligan/mdbook-admonish/pull/186))
+
 ## v1.17.0
 
 ### Changed
