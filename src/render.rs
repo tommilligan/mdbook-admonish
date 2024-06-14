@@ -62,7 +62,9 @@ impl<'a> Admonition<'a> {
             Cow::Owned(format!(
                 r##"{indent}<{title_block} class="admonition-title">
 {indent}
+{indent}<div id="at_{anchor_id}">
 {indent}{title}
+{indent}</div>
 {indent}
 {indent}<a class="admonition-anchor-link" href="#{anchor_id}"></a>
 {indent}</{title_block}>
@@ -87,7 +89,7 @@ impl<'a> Admonition<'a> {
         //   rendered as markdown paragraphs.
         format!(
             r#"
-{indent}<{admonition_block} role="note" id="{anchor_id}" class="admonition {additional_class}">
+{indent}<{admonition_block} role="note" id="{anchor_id}" class="admonition {additional_class}" aria-labelledby="at_{anchor_id}">
 {title_html}{indent}<div>
 {indent}
 {indent}{content}
