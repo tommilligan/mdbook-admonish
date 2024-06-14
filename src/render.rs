@@ -87,7 +87,7 @@ impl<'a> Admonition<'a> {
         //   rendered as markdown paragraphs.
         format!(
             r#"
-{indent}<{admonition_block} id="{anchor_id}" class="admonition {additional_class}">
+{indent}<{admonition_block} role="note" id="{anchor_id}" class="admonition {additional_class}">
 {title_html}{indent}<div>
 {indent}
 {indent}{content}
