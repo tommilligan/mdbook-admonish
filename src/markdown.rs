@@ -155,11 +155,13 @@ Text
 
         let expected = r##"# Chapter
 
-<div id="admonition-note" class="admonition admonish-note">
+<div id="admonition-note" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-title">
 <div class="admonition-title">
+<div id="admonition-note-title">
 
 Note
 
+</div>
 <a class="admonition-anchor-link" href="#admonition-note"></a>
 </div>
 <div>
@@ -187,11 +189,13 @@ Text
 
         let expected = r##"# Chapter
 
-<div id="admonition-note" class="admonition admonish-note">
+<div id="admonition-note" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-title">
 <div class="admonition-title">
+<div id="admonition-note-title">
 
 Note
 
+</div>
 <a class="admonition-anchor-link" href="#admonition-note"></a>
 </div>
 <div>
@@ -219,11 +223,13 @@ Text
 
         let expected = r##"# Chapter
 
-<div id="admonition-warning" class="admonition admonish-warning">
+<div id="admonition-warning" class="admonition admonish-warning" role="note" aria-labelledby="admonition-warning-title">
 <div class="admonition-title">
+<div id="admonition-warning-title">
 
 Warning
 
+</div>
 <a class="admonition-anchor-link" href="#admonition-warning"></a>
 </div>
 <div>
@@ -249,11 +255,13 @@ Text
 
         let expected = r##"# Chapter
 
-<div id="admonition-caution" class="admonition admonish-warning">
+<div id="admonition-caution" class="admonition admonish-warning" role="note" aria-labelledby="admonition-caution-title">
 <div class="admonition-title">
+<div id="admonition-caution-title">
 
 Caution
 
+</div>
 <a class="admonition-anchor-link" href="#admonition-caution"></a>
 </div>
 <div>
@@ -279,11 +287,13 @@ Text
 
         let expected = r##"# Chapter
 
-<div id="admonition-read-this" class="admonition admonish-warning">
+<div id="admonition-read-this" class="admonition admonish-warning" role="note" aria-labelledby="admonition-read-this-title">
 <div class="admonition-title">
+<div id="admonition-read-this-title">
 
 Read **this**!
 
+</div>
 <a class="admonition-anchor-link" href="#admonition-read-this"></a>
 </div>
 <div>
@@ -373,11 +383,13 @@ hello
 
         let expected = r##"
 
-<div id="admonition-and-in-the-title" class="admonition admonish-note">
+<div id="admonition-and-in-the-title" class="admonition admonish-note" role="note" aria-labelledby="admonition-and-in-the-title-title">
 <div class="admonition-title">
+<div id="admonition-and-in-the-title-title">
 
 And "<i>in</i>" the title
 
+</div>
 <a class="admonition-anchor-link" href="#admonition-and-in-the-title"></a>
 </div>
 <div>
@@ -403,11 +415,13 @@ hello
 
         let expected = r##"
 
-<div id="admonition-trademark" class="admonition admonish-warning">
+<div id="admonition-trademark" class="admonition admonish-warning" role="note" aria-labelledby="admonition-trademark-title">
 <div class="admonition-title">
+<div id="admonition-trademark-title">
 
 Trademark™
 
+</div>
 <a class="admonition-anchor-link" href="#admonition-trademark"></a>
 </div>
 <div>
@@ -432,11 +446,13 @@ Will have bonus classnames
 
         let expected = r##"
 
-<div id="admonition-tip" class="admonition admonish-tip my-style other-style">
+<div id="admonition-tip" class="admonition admonish-tip my-style other-style" role="note" aria-labelledby="admonition-tip-title">
 <div class="admonition-title">
+<div id="admonition-tip-title">
 
 Tip
 
+</div>
 <a class="admonition-anchor-link" href="#admonition-tip"></a>
 </div>
 <div>
@@ -460,11 +476,13 @@ Will have bonus classnames
 
         let expected = r##"
 
-<div id="admonition-developers-dont-want-you-to-know-this-one-weird-tip" class="admonition admonish-tip my-style other-style">
+<div id="admonition-developers-dont-want-you-to-know-this-one-weird-tip" class="admonition admonish-tip my-style other-style" role="note" aria-labelledby="admonition-developers-dont-want-you-to-know-this-one-weird-tip-title">
 <div class="admonition-title">
+<div id="admonition-developers-dont-want-you-to-know-this-one-weird-tip-title">
 
 Developers don't want you to know this one weird tip!
 
+</div>
 <a class="admonition-anchor-link" href="#admonition-developers-dont-want-you-to-know-this-one-weird-tip"></a>
 </div>
 <div>
@@ -487,7 +505,7 @@ Will have bonus classnames
 
         let expected = r#"
 
-<div id="admonition-default" class="admonition admonish-note">
+<div id="admonition-default" class="admonition admonish-note" role="note">
 <div>
 
 
@@ -513,11 +531,13 @@ Content one.
 
         let expected = r##"
 
-<div id="admonition-my-note" class="admonition admonish-note">
+<div id="admonition-my-note" class="admonition admonish-note" role="note" aria-labelledby="admonition-my-note-title">
 <div class="admonition-title">
+<div id="admonition-my-note-title">
 
 My Note
 
+</div>
 <a class="admonition-anchor-link" href="#admonition-my-note"></a>
 </div>
 <div>
@@ -528,11 +548,13 @@ Content zero.
 </div>
 
 
-<div id="admonition-my-note-1" class="admonition admonish-note">
+<div id="admonition-my-note-1" class="admonition admonish-note" role="note" aria-labelledby="admonition-my-note-1-title">
 <div class="admonition-title">
+<div id="admonition-my-note-1-title">
 
 My Note
 
+</div>
 <a class="admonition-anchor-link" href="#admonition-my-note-1"></a>
 </div>
 <div>
@@ -556,11 +578,13 @@ Bonus content!
 
         let expected = r##"
 
-<div id="admonition-article-heading" class="admonition admonish-tip my other-style">
+<div id="admonition-article-heading" class="admonition admonish-tip my other-style" role="note" aria-labelledby="admonition-article-heading-title">
 <div class="admonition-title">
+<div id="admonition-article-heading-title">
 
 Article Heading
 
+</div>
 <a class="admonition-anchor-link" href="#admonition-article-heading"></a>
 </div>
 <div>
@@ -584,11 +608,13 @@ Bonus content!
 
         let expected = r##"
 
-<div id="admonition-error-rendering-admonishment" class="admonition admonish-bug">
+<div id="admonition-error-rendering-admonishment" class="admonition admonish-bug" role="note" aria-labelledby="admonition-error-rendering-admonishment-title">
 <div class="admonition-title">
+<div id="admonition-error-rendering-admonishment-title">
 
 Error rendering admonishment
 
+</div>
 <a class="admonition-anchor-link" href="#admonition-error-rendering-admonishment"></a>
 </div>
 <div>
@@ -686,11 +712,13 @@ Hidden
 
         let expected = r##"
 
-<details id="admonition-note" class="admonition admonish-note">
+<details id="admonition-note" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-title">
 <summary class="admonition-title">
+<div id="admonition-note-title">
 
 Note
 
+</div>
 <a class="admonition-anchor-link" href="#admonition-note"></a>
 </summary>
 <div>
@@ -715,11 +743,13 @@ Text
 
         let expected = r##"# Chapter
 
-<div id="admonition-admonish" class="admonition admonish-note">
+<div id="admonition-admonish" class="admonition admonish-note" role="note" aria-labelledby="admonition-admonish-title">
 <div class="admonition-title">
+<div id="admonition-admonish-title">
 
 Admonish
 
+</div>
 <a class="admonition-anchor-link" href="#admonition-admonish"></a>
 </div>
 <div>
@@ -759,7 +789,7 @@ Text
 
         let expected = r#"# Chapter
 
-<div id="admonition-default" class="admonition admonish-note">
+<div id="admonition-default" class="admonition admonish-note" role="note">
 <div>
 
 A simple admonition.
@@ -797,7 +827,7 @@ Text
 
         let expected = r#"# Chapter
 
-<div id="admonition-default" class="admonition admonish-note">
+<div id="admonition-default" class="admonition admonish-note" role="note">
 <div>
 
 A simple admonition.
@@ -821,11 +851,13 @@ Text
 
         let expected = r##"# Chapter
 
-<div id="yay-custom-id" class="admonition admonish-success">
+<div id="yay-custom-id" class="admonition admonish-success" role="note" aria-labelledby="yay-custom-id-title">
 <div class="admonition-title">
+<div id="yay-custom-id-title">
 
 Check
 
+</div>
 <a class="admonition-anchor-link" href="#yay-custom-id"></a>
 </div>
 <div>
@@ -851,11 +883,13 @@ Text
 
         let expected = r##"# Chapter
 
-<div id="admonition-check" class="admonition admonish-success">
+<div id="admonition-check" class="admonition admonish-success" role="note" aria-labelledby="admonition-check-title">
 <div class="admonition-title">
+<div id="admonition-check-title">
 
 Check
 
+</div>
 <a class="admonition-anchor-link" href="#admonition-check"></a>
 </div>
 <div>
@@ -881,11 +915,13 @@ Text
 
         let expected = r##"# Chapter
 
-<div id="admonition-check-mark" class="admonition admonish-success">
+<div id="admonition-check-mark" class="admonition admonish-success" role="note" aria-labelledby="admonition-check-mark-title">
 <div class="admonition-title">
+<div id="admonition-check-mark-title">
 
 Check Mark
 
+</div>
 <a class="admonition-anchor-link" href="#admonition-check-mark"></a>
 </div>
 <div>
@@ -914,11 +950,13 @@ Text
 
         let expected = r##"# Chapter
 
-<div id="admonition-check-mark" class="admonition admonish-success">
+<div id="admonition-check-mark" class="admonition admonish-success" role="note" aria-labelledby="admonition-check-mark-title">
 <div class="admonition-title">
+<div id="admonition-check-mark-title">
 
 Check <span class="emphasis">Mark</span>
 
+</div>
 <a class="admonition-anchor-link" href="#admonition-check-mark"></a>
 </div>
 <div>
@@ -944,11 +982,13 @@ Text
 
         let expected = r##"# Chapter
 
-<div id="info" class="admonition admonish-info">
+<div id="info" class="admonition admonish-info" role="note" aria-labelledby="info-title">
 <div class="admonition-title">
+<div id="info-title">
 
 Info
 
+</div>
 <a class="admonition-anchor-link" href="#info"></a>
 </div>
 <div>
@@ -988,11 +1028,13 @@ Text
 
         let expected = r##"# Chapter
 
-<div id="prefix-my-title" class="admonition admonish-info">
+<div id="prefix-my-title" class="admonition admonish-info" role="note" aria-labelledby="prefix-my-title-title">
 <div class="admonition-title">
+<div id="prefix-my-title-title">
 
 My Title
 
+</div>
 <a class="admonition-anchor-link" href="#prefix-my-title"></a>
 </div>
 <div>
@@ -1032,11 +1074,13 @@ Text
 
         let expected = r##"# Chapter
 
-<div id="my-section-id" class="admonition admonish-info">
+<div id="my-section-id" class="admonition admonish-info" role="note" aria-labelledby="my-section-id-title">
 <div class="admonition-title">
+<div id="my-section-id-title">
 
 My Title
 
+</div>
 <a class="admonition-anchor-link" href="#my-section-id"></a>
 </div>
 <div>
@@ -1099,11 +1143,13 @@ Text
 1. Thing two
 
    
-   <div id="admonition-note" class="admonition admonish-note">
+   <div id="admonition-note" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-title">
    <div class="admonition-title">
+   <div id="admonition-note-title">
    
    Note
    
+   </div>
    <a class="admonition-anchor-link" href="#admonition-note"></a>
    </div>
    <div>
