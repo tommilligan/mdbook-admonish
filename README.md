@@ -21,9 +21,11 @@ into this:
 
 Read the documentation [here](https://tommilligan.github.io/mdbook-admonish/), to see the actual examples in action. You can see the source in the [`./book`](./book) subdirectory.
 
-Other projects using mdbook-admonish:
+Projects using mdbook-admonish include:
 
-- [The Rhai Book](https://rhai.rs/book/)
+- [The Rhai Book](https://rhai.rs/book/) ([source](https://github.com/rhaiscript/book))
+- [The Trunk Guide](https://trunkrs.dev/guide/) ([source](https://github.com/trunk-rs/trunk))
+- [PRQL language book](https://prql-lang.org/book/) ([source](https://github.com/PRQL/prql))
 
 ## Usage
 
