@@ -56,14 +56,16 @@ impl<'a> Admonition<'a> {
         let content = &self.content;
         let indent = " ".repeat(self.indent);
 
-        let (titlebar_html, _title_id) = if !title.is_empty() {
+        let (titlebar_html, title_id) = if !title.is_empty() {
             let titlebar_element = if self.collapsible { "summary" } else { "div" };
             let title_id = format!("{anchor_id}-title");
             let titlebar_html = Cow::Owned(format!(
                 r##"{indent}<{titlebar_element} class="admonition-title">
+{indent}<div id="{title_id}">
 {indent}
 {indent}{title}
 {indent}
+{indent}</div>
 {indent}<a class="admonition-anchor-link" href="#{anchor_id}"></a>
 {indent}</{titlebar_element}>
 "##
@@ -80,7 +82,14 @@ impl<'a> Admonition<'a> {
         classes.extend(self.additional_classnames);
         let classes = classes.join(" ");
 
-        let mut attributes = vec![("id", anchor_id), ("class", Cow::Owned(classes))];
+        let mut attributes = vec![
+            ("id", anchor_id),
+            ("class", Cow::Owned(classes)),
+            ("role", Cow::Borrowed("note")),
+        ];
+        if let Some(title_id) = title_id {
+            attributes.push(("aria-labelledby", Cow::Owned(title_id)));
+        }
         let attributes = join_attributes(&attributes);
 
         let admonition_element = if self.collapsible { "details" } else { "div" };

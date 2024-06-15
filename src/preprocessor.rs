@@ -178,11 +178,13 @@ x = 20;
 "#;
         let expected_content = r##"
 
-<div id="admonition-title" class="admonition admonish-note">
+<div id="admonition-title" class="admonition admonish-note" role="note" aria-labelledby="admonition-title-title">
 <div class="admonition-title">
+<div id="admonition-title-title">
 
 Title
 
+</div>
 <a class="admonition-anchor-link" href="#admonition-title"></a>
 </div>
 <div>
