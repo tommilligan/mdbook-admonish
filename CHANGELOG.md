@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.18.0
+
+### Changed
+
+- Add ARIA attributes to generated blocks. Thanks to [@toastal](https://github.com/toastal) for suggesting this feature! ([#195](https://github.com/tommilligan/mdbook-admonish/pull/195))
+  - Note: This subtly alters the emitted HTML, and could cause additional styles applied to blocks to break. Native `mdbook-admonish` styles are not affected.
+
+### Fixed
+
+- Fixed some valid configurations producing TOML serialization errors. Thanks to [@DianaNites](https://github.com/DianaNites) for reporting this! ([#197](https://github.com/tommilligan/mdbook-admonish/pull/197))
+
 ## v1.17.1
 
 ### Fixed
