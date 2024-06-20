@@ -41,10 +41,6 @@ regex = "1.9.6"
 semver = "1.0.19"
 serde = { version = "1.0.188", features = ["derive"] }
 serde_json = "1.0.107"
-# Peer dependency of mdbook
-# The version of toml that mdbook uses internally (and uses in it's public api)
-# Only used for compatilibilty with the mdbook public api
-toml_mdbook = { package = "toml", version = "0.5.11" }
 toml = "0.8.1"
 toml_edit = { version = "0.22.13", optional = true }
 hex_color = { version = "3.0.0", features = ["serde"] }

@@ -125,7 +125,7 @@ struct Preprocessors {
 
 /// Load the plugin specific config as a toml string, for private deserialization.
 fn admonish_config_string(config: &Config) -> Result<String> {
-    Ok(toml_mdbook::to_string(
+    Ok(toml::to_string(
         &config
             .preprocessor
             .admonish
