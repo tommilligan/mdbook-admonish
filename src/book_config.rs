@@ -11,11 +11,12 @@ use crate::types::{AdmonitionDefaults, BuiltinDirective, BuiltinDirectiveConfig}
 /// Roundtrips config to string, to avoid linking the plugin's internal version of toml
 /// to the one publically exposed by the mdbook library.
 pub(crate) fn admonish_config_from_context(ctx: &PreprocessorContext) -> Result<Config> {
-    let table: String = toml_mdbook::to_string(
+    let table: String = toml::to_string(
         ctx.config
             .get_preprocessor("admonish")
             .context("No configuration for mdbook-admonish in book.toml")?,
-    )?;
+    )
+    .context("Could not serialize mdbook-admonish config. This is a bug in the toml library.")?;
     admonish_config_from_str(&table)
 }
 
