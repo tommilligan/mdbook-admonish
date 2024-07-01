@@ -32,7 +32,7 @@ anyhow = "1.0.86"
 # `cargo install mdbook-admonish --locked`
 clap = { version = "4.5", default-features = false, features = ["std", "derive"], optional = true }
 env_logger = { version = "0.11", default-features = false, optional = true }
-log = "0.4.21"
+log = "0.4.22"
 mdbook = "0.4.40"
 once_cell = "1.19.0"
 path-slash = "0.2.1"
