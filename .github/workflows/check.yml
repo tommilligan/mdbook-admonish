@@ -51,7 +51,7 @@ jobs:
           toolchain: stable
           components: rustfmt, clippy
       - name: Install node toolchain
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "yarn"
@@ -74,7 +74,7 @@ jobs:
         rust:
           - stable
           - beta
-          - 1.74.0
+          - 1.76.0
         experimental:
           - false
         include:

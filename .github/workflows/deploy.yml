@@ -92,10 +92,12 @@ jobs:
           tar czvf ../../stage/${{ env.CRATE_NAME }}-${{ steps.extract_tag.outputs.tag }}-${{ matrix.name }} ${{ env.CRATE_NAME }}
           cd -
       - name: Post Setup | Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.CRATE_NAME }}-${{ steps.extract_tag.outputs.tag }}-${{ matrix.name }}
           path: target/stage/*
+          # Idempotency: overwrite artefact by name if we're rerunning the deployment
+          overwrite: true
 
   # Create GitHub release with Rust build targets and release notes
   github_release:
@@ -109,7 +111,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup | Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
 
       - name: Setup | Extract version
         shell: bash
@@ -120,7 +122,7 @@ jobs:
         run: |
           cat CHANGELOG.md | sed -n '/^## ${{ steps.extract_version.outputs.version }}$/,/^## /p' | sed '$d' > RELEASE.md
       - name: Build | Publish
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: ${{ env.CRATE_NAME }}-*/${{ env.CRATE_NAME }}-*
           body_path: RELEASE.md
