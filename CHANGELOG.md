@@ -4,7 +4,7 @@
 
 ### Changed
 
-- MSRV (minimum supported rust version) is now 1.76.0 ([#175](https://github.com/tommilligan/mdbook-admonish/pull/175))
+- MSRV (minimum supported rust version) is now 1.76.0 ([#208](https://github.com/tommilligan/mdbook-admonish/pull/208))
 
 ## v1.18.0
 
