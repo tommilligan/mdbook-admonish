@@ -222,6 +222,12 @@ summary.admonition-title {
   details[open].admonition > &::after {
     transform: rotate(90deg);
   }
+
+  // Hide details marker for Safari that loves to show it anyway
+  // ref: https://github.com/tommilligan/mdbook-admonish/pull/185
+  &::-webkit-details-marker {
+    display: none;
+  }
 }
 
 :root {
