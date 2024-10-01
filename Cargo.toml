@@ -46,7 +46,7 @@ toml_edit = { version = "0.22.14", optional = true }
 hex_color = { version = "3.0.0", features = ["serde"] }
 
 [dev-dependencies]
-pretty_assertions = "1.4.0"
+pretty_assertions = "1.4.1"
 
 [features]
 default = ["cli", "cli-install"]
