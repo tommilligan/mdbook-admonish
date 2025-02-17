@@ -1,10 +1,14 @@
 # Changelog
 
-## Unreleased
+## v1.19.0
 
 ### Changed
 
 - MSRV (minimum supported rust version) is now 1.76.0 ([#208](https://github.com/tommilligan/mdbook-admonish/pull/208))
+
+### Fixed
+
+- Fixed blocks not rendering correctly in indented list items. Thanks to [@JorelAli](https://github.com/JorelAli) for the bug report! ([#224](https://github.com/tommilligan/mdbook-admonish/pull/224))
 
 ## v1.18.0
 
