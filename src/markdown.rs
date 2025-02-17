@@ -1153,9 +1153,9 @@ Text
    <a class="admonition-anchor-link" href="#admonition-note"></a>
    </div>
    <div>
-   
-      Thing two
-   
+
+   Thing two
+
    </div>
    </div>
 
@@ -1164,6 +1164,99 @@ Text
    ```sh
    Thing three
    ```
+"##;
+
+        assert_eq!(expected, prep(content));
+    }
+
+    // Regression test for https://github.com/tommilligan/mdbook-admonish/issues/223
+    #[test]
+    fn nested_list_should_not_render_indented_code_block() {
+        let content = r#"# Chapter
+
+- Level one
+
+  ```admonish
+  Thing one
+  line two
+  ```
+
+  - Level two
+
+    ```admonish
+    Thing two
+    line two
+    ```
+
+    - Level three
+
+      ```admonish
+      Thing three
+      line two
+      ```
+"#;
+
+        let expected = r##"# Chapter
+
+- Level one
+
+  
+  <div id="admonition-note" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-title">
+  <div class="admonition-title">
+  <div id="admonition-note-title">
+  
+  Note
+  
+  </div>
+  <a class="admonition-anchor-link" href="#admonition-note"></a>
+  </div>
+  <div>
+
+  Thing one
+  line two
+
+  </div>
+  </div>
+
+  - Level two
+
+    
+    <div id="admonition-note-1" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-1-title">
+    <div class="admonition-title">
+    <div id="admonition-note-1-title">
+    
+    Note
+    
+    </div>
+    <a class="admonition-anchor-link" href="#admonition-note-1"></a>
+    </div>
+    <div>
+
+    Thing two
+    line two
+
+    </div>
+    </div>
+
+    - Level three
+
+      
+      <div id="admonition-note-2" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-2-title">
+      <div class="admonition-title">
+      <div id="admonition-note-2-title">
+      
+      Note
+      
+      </div>
+      <a class="admonition-anchor-link" href="#admonition-note-2"></a>
+      </div>
+      <div>
+
+      Thing three
+      line two
+
+      </div>
+      </div>
 "##;
 
         assert_eq!(expected, prep(content));

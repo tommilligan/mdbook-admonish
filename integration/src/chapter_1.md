@@ -60,6 +60,13 @@ In a list:
    Thing two
    ```
 
+   1. Thing two nested
+   
+      ```admonish
+      Thing two nested (should not be a code block)
+      Regression tests for https://github.com/tommilligan/mdbook-admonish/issues/223
+      ```
+
 1. Thing three
 
    ```sh

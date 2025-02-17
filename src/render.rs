@@ -97,13 +97,15 @@ impl<'a> Admonition<'a> {
         // - the additional whitespace around the content are deliberate
         //   In line with the commonmark spec, this allows the inner content to be
         //   rendered as markdown paragraphs.
+        // - We should not indent the inner content, as it retains the indent
+        //   it is written with.
         format!(
             r#"
 {indent}<{admonition_element} {attributes}>
 {titlebar_html}{indent}<div>
-{indent}
-{indent}{content}
-{indent}
+
+{content}
+
 {indent}</div>
 {indent}</{admonition_element}>"#,
         )
