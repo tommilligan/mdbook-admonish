@@ -86,6 +86,11 @@ html :is(.admonition-title, summary.admonition-title):last-child {
   display: initial;
 }
 
+@media print {
+  details.admonition::details-content {
+    display: contents;
+  }
+}
 details.admonition > summary.admonition-title::after {
   position: absolute;
   top: 0.625em;
