@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en" class="light" dir="ltr">
+<html lang="en" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
@@ -7,7 +7,7 @@
 
 
         <!-- Custom HTML head -->
-        
+
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
@@ -24,28 +24,42 @@
         <link rel="stylesheet" href="fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="highlight.css">
-        <link rel="stylesheet" href="tomorrow-night.css">
-        <link rel="stylesheet" href="ayu-highlight.css">
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
         <link rel="stylesheet" href="./mdbook-admonish.css">
         <link rel="stylesheet" href="./mdbook-admonish-custom.css">
 
-    </head>
-    <body class="sidebar-visible no-js">
-    <div id="body-container">
-        <!-- Provide site root to javascript -->
-        <script>
-            var path_to_root = "";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
-        </script>
 
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script>
             try {
-                var theme = localStorage.getItem('mdbook-theme');
-                var sidebar = localStorage.getItem('mdbook-sidebar');
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
 
                 if (theme.startsWith('"') && theme.endsWith('"')) {
                     localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
@@ -59,24 +73,22 @@
 
         <!-- Set the theme before any content is loaded, prevents flash -->
         <script>
-            var theme;
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
-            var html = document.querySelector('html');
+            const html = document.documentElement;
             html.classList.remove('light')
             html.classList.add(theme);
-            var body = document.querySelector('body');
-            body.classList.remove('no-js')
-            body.classList.add('js');
+            html.classList.add("js");
         </script>
 
         <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var body = document.querySelector('body');
-            var sidebar = null;
-            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
@@ -84,43 +96,25 @@
                 sidebar = 'hidden';
             }
             sidebar_toggle.checked = sidebar === 'visible';
-            body.classList.remove('sidebar-visible');
-            body.classList.add("sidebar-" + sidebar);
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html" class="active"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="reference.html"><strong aria-hidden="true">2.</strong> Reference</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li></ol>
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
             </div>
-            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
-
-        <!-- Track and set sidebar scroll position -->
-        <script>
-            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
-            sidebarScrollbox.addEventListener('click', function(e) {
-                if (e.target.tagName === 'A') {
-                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
-                }
-            }, { passive: true });
-            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
-            sessionStorage.removeItem('sidebar-scroll');
-            if (sidebarScrollTop) {
-                // preserve sidebar scroll position when navigating via links within sidebar
-                sidebarScrollbox.scrollTop = sidebarScrollTop;
-            } else {
-                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
-                var activeSection = document.querySelector('#sidebar .active');
-                if (activeSection) {
-                    activeSection.scrollIntoView({ block: 'center' });
-                }
-            }
-        </script>
 
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
-                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar-hover-placeholder"></div>
                 <div id="menu-bar" class="menu-bar sticky">
                     <div class="left-buttons">
                         <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
@@ -130,13 +124,14 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
                         </ul>
-                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
                             <i class="fa fa-search"></i>
                         </button>
                     </div>
@@ -258,7 +253,7 @@ A plain note.
 </div>
 <h3 id="invalid-blocks"><a class="header" href="#invalid-blocks">Invalid blocks</a></h3>
 <p>By default, if an <code>admonish</code> block cannot be parsed, an error will be rendered in the output:</p>
-<pre><code>```admonish title=&quot;\j&quot;
+<pre><code>```admonish title="\j"
 This block will error
 ```
 </code></pre>
@@ -271,36 +266,36 @@ This block will error
 </div>
 <div>
 <p>Failed with:</p>
-<pre><code class="language-log">'title=&quot;\j&quot;' is not a valid directive or TOML key-value pair.
+<pre><code class="language-log">'title="\j"' is not a valid directive or TOML key-value pair.
 
 TOML parsing error: TOML parse error at line 1, column 21
   |
-1 | config = { title=&quot;\j&quot; }
+1 | config = { title="\j" }
   |                     ^
 invalid escape sequence
-expected `b`, `f`, `n`, `r`, `t`, `u`, `U`, `\`, `&quot;`
+expected `b`, `f`, `n`, `r`, `t`, `u`, `U`, `\`, `"`
 
 </code></pre>
 <p>Original markdown input:</p>
-<pre><code class="language-markdown">```admonish title=&quot;\j&quot;
+<pre><code class="language-markdown">```admonish title="\j"
 This block will error
 ```
 </code></pre>
 </div>
 </div>
-<p>You can also configure the build to fail loudly, by setting <code>on_failure = &quot;bail&quot;</code> in <code>book.toml</code>. See the <a href="./reference.html#booktoml-configuration">configuration reference</a> for more details.</p>
+<p>You can also configure the build to fail loudly, by setting <code>on_failure = "bail"</code> in <code>book.toml</code>. See the <a href="./reference.html#booktoml-configuration">configuration reference</a> for more details.</p>
 <h3 id="additional-options"><a class="header" href="#additional-options">Additional Options</a></h3>
 <p>You can pass additional options to each block. Options are given like a <a href="https://toml.io/en/v1.0.0#inline-table">TOML Inline Table</a>, as key-value pairs separated by commas.</p>
 <p><code>mdbook-admonish</code> parses options by wrapping your options in an inline table before parsing them, so please consult <a href="https://toml.io">The TOML Reference</a> if you run into any syntax errors. Be aware that:</p>
 <ul>
 <li>Key-value pairs must be separated with a comma <code>,</code></li>
-<li>TOML escapes must be escaped again - for instance, write <code>\&quot;</code> as <code>\\&quot;</code>.</li>
+<li>TOML escapes must be escaped again - for instance, write <code>\"</code> as <code>\\"</code>.</li>
 <li>For complex strings such as HTML, you may want to use a <a href="https://toml.io/en/v1.0.0#string">literal string</a> to avoid complex escape sequences</li>
 </ul>
 <p>Note that some options can be passed globally, through the <code>default</code> section in <code>book.toml</code>. See the <a href="./reference.html#booktoml-configuration">configuration reference</a> for more details.</p>
 <h4 id="custom-title"><a class="header" href="#custom-title">Custom title</a></h4>
 <p>A custom title can be provided:</p>
-<pre><code>```admonish warning title=&quot;Data loss&quot;
+<pre><code>```admonish warning title="Data loss"
 The following steps can lead to irrecoverable data corruption.
 ```
 </code></pre>
@@ -316,7 +311,7 @@ The following steps can lead to irrecoverable data corruption.
 </div>
 </div>
 <p>You can also remove the title bar entirely, by specifying the empty string:</p>
-<pre><code>```admonish success title=&quot;&quot;
+<pre><code>```admonish success title=""
 This will take a while, go and grab a drink of water.
 ```
 </code></pre>
@@ -329,7 +324,7 @@ This will take a while, go and grab a drink of water.
 <p>Markdown and HTML can be used in the inner content, as you'd expect:</p>
 <pre><code>```admonish tip title='_Referencing_ and &lt;i&gt;dereferencing&lt;/i&gt;'
 The opposite of *referencing* by using `&amp;` is *dereferencing*, which is
-accomplished with the &lt;span style=&quot;color: hotpink&quot;&gt;dereference operator&lt;/span&gt;, `*`.
+accomplished with the &lt;span style="color: hotpink"&gt;dereference operator&lt;/span&gt;, `*`.
 ```
 </code></pre>
 <div id="admonition-_referencing_-and-dereferencing" class="admonition admonish-tip" role="note" aria-labelledby="admonition-_referencing_-and-dereferencing-title">
@@ -348,7 +343,7 @@ accomplished with the <span style="color: hotpink">dereference operator</span>, 
 <pre><code>~~~admonish bug
 This syntax won't work in Python 3:
 ```python
-print &quot;Hello, world!&quot;
+print "Hello, world!"
 ```
 ~~~
 </code></pre>
@@ -361,35 +356,35 @@ print &quot;Hello, world!&quot;
 </div>
 <div>
 <p>This syntax won't work in Python 3:</p>
-<pre><code class="language-python">print &quot;Hello, world!&quot;
+<pre><code class="language-python">print "Hello, world!"
 </code></pre>
 </div>
 </div>
 <h4 id="custom-styling"><a class="header" href="#custom-styling">Custom styling</a></h4>
 <p>If you want to provide custom styling to a specific admonition, you can attach one or more custom classnames:</p>
-<pre><code>```admonish note title=&quot;Stylish&quot;, class=&quot;custom-0 custom-1&quot;
+<pre><code>```admonish note title="Stylish", class="custom-0 custom-1"
 Styled with my custom CSS class.
 ```
 </code></pre>
 <p>Will yield something like the following HTML, which you can then apply styles to:</p>
-<pre><code class="language-html">&lt;div class=&quot;admonition note custom-0 custom-1&quot;
+<pre><code class="language-html">&lt;div class="admonition note custom-0 custom-1"
     ...
 &lt;/div&gt;
 </code></pre>
 <h4 id="custom-css-id"><a class="header" href="#custom-css-id">Custom CSS ID</a></h4>
-<p>If you want to customize the CSS <code>id</code> field, set <code>id=&quot;custom-id&quot;</code>.
+<p>If you want to customize the CSS <code>id</code> field, set <code>id="custom-id"</code>.
 This will ignore <a href="reference.html#default"><code>default.css_id_prefix</code></a>.</p>
 <p>The default id is a normalized version of the admonishment's title,
 prefixed with the <code>default.css_id_prefix</code>,
 with an appended number if multiple blocks would have the same id.</p>
 <p>Setting the <code>id</code> field will <em>ignore</em> all other ids and the duplicate counter.</p>
-<pre><code>```admonish info title=&quot;My Info&quot;, id=&quot;my-special-info&quot;
+<pre><code>```admonish info title="My Info", id="my-special-info"
 Link to this block with `#my-special-info` instead of the default `#admonition-my-info`.
 ```
 </code></pre>
 <h4 id="collapsible"><a class="header" href="#collapsible">Collapsible</a></h4>
 <p>For a block to be initially collapsible, and then be openable, set <code>collapsible=true</code>:</p>
-<pre><code>```admonish title=&quot;Sneaky&quot;, collapsible=true
+<pre><code>```admonish title="Sneaky", collapsible=true
 Content will be hidden initially.
 ```
 </code></pre>
@@ -410,10 +405,10 @@ Content will be hidden initially.
 <pre><code class="language-toml"># book.toml
 
 [[preprocessor.admonish.custom]]
-directive = &quot;expensive&quot;
-icon = &quot;./money-bag.svg&quot;
-color = &quot;#24ab38&quot;
-aliases = [&quot;money&quot;, &quot;cash&quot;, &quot;budget&quot;]
+directive = "expensive"
+icon = "./money-bag.svg"
+color = "#24ab38"
+aliases = ["money", "cash", "budget"]
 </code></pre>
 <p>You must then generate the relevant CSS file, and reference it in the <code>output.html</code> section.
 <code>mdbook-admonish</code> has a helper to quickly do this for you:</p>
@@ -424,7 +419,7 @@ $ mdbook-admonish generate-custom ./mdbook-admonish-custom.css
 
 [output.html]
 # Reference the new file, so it's bundled in with book styles
-additional-css = [&quot;./mdbook-admonish.css&quot;, &quot;./mdbook-admonish-custom.css&quot;]
+additional-css = ["./mdbook-admonish.css", "./mdbook-admonish-custom.css"]
 </code></pre>
 <p>You can then reference the new directive (or alias) like usual in your blocks.</p>
 <pre><code>```admonish expensive
