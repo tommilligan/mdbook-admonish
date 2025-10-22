@@ -6,7 +6,10 @@ mod book_config;
 mod config;
 #[doc(hidden)]
 pub mod custom;
+#[cfg(feature = "parser-markdown")]
 mod markdown;
+#[cfg(feature = "parser-pandoc")]
+mod pandoc;
 mod parse;
 mod preprocessor;
 mod render;

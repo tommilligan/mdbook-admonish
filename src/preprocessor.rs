@@ -7,9 +7,13 @@ use mdbook::{
 
 use crate::{
     book_config::{admonish_config_from_context, Config, RenderMode},
-    markdown::preprocess,
     types::{Overrides, RenderTextMode},
 };
+
+#[cfg(feature = "parser-markdown")]
+use crate::markdown::preprocess;
+#[cfg(feature = "parser-pandoc")]
+use crate::pandoc::preprocess;
 
 pub struct Admonish;
 
