@@ -35,8 +35,10 @@ env_logger = { version = "0.11", default-features = false, optional = true }
 log = "0.4.21"
 mdbook = "0.4.40"
 once_cell = "1.19.0"
+pandoc = { version = "0.8", optional = true }
+pandoc_ast = { version = "0.8", optional = true }
 path-slash = "0.2.1"
-pulldown-cmark = "0.13"
+pulldown-cmark = { version = "0.13", optional = true }
 regex = "1.10.5"
 semver = "1.0.23"
 serde = { version = "1.0.203", features = ["derive"] }
@@ -49,7 +51,9 @@ hex_color = { version = "3.0.0", features = ["serde"] }
 pretty_assertions = "1.4.0"
 
 [features]
-default = ["cli", "cli-install"]
+default = ["cli", "cli-install", "parser-markdown"]
+parser-markdown = ["pulldown-cmark"]
+parser-pandoc = ["pandoc", "pandoc_ast"]
 
 # Enable the command line binary
 cli = ["clap", "env_logger"]
