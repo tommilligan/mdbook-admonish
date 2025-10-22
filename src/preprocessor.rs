@@ -170,8 +170,9 @@ mod test {
         serde_json::from_value(value).unwrap()
     }
 
+    #[cfg(feature = "parser-markdown")]
     #[test]
-    fn run_html() {
+    fn run_markdown_to_html() {
         let content = r#"
 ````admonish title="Title"
 ```rust
@@ -214,6 +215,43 @@ x = 20;
         assert_eq!(Admonish.run(&ctx, book).unwrap(), expected_book)
     }
 
+    #[cfg(feature = "parser-pandoc")]
+    #[test]
+    fn run_pandoc_to_html() {
+        let content = r#"
+:::{.note title="Title"}
+```rust
+let x = 10;
+x = 20;
+```
+:::
+"#;
+        let expected_content = r##"::::: {#admonition-title .admonition .admonish-note role="note" aria-labelledby="admonition-title-title"}
+::: {#admonition-title-title}
+Title
+:::
+
+::: {}
+``` rust
+let x = 10;
+x = 20;
+```
+:::
+:::::
+"##;
+
+        let ctx = mock_context(
+            &json!({
+                "assets_version": "3.0.0"
+            }),
+            "html",
+        );
+        let book = mock_book(content);
+        let expected_book = mock_book(expected_content);
+
+        assert_eq!(Admonish.run(&ctx, book).unwrap(), expected_book)
+    }
+
     #[test]
     fn run_test_preserves_by_default() {
         let content = r#"
@@ -236,8 +274,9 @@ x = 20;
         assert_eq!(Admonish.run(&ctx, book).unwrap(), expected_book)
     }
 
+    #[cfg(feature = "parser-markdown")]
     #[test]
-    fn run_test_can_strip() {
+    fn run_test_can_strip_markdown() {
         let content = r#"
 ````admonish title="Title"
 ```rust
