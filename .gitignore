@@ -1,1 +1,4 @@
+.direnv
+.devenv
+build
 /target
