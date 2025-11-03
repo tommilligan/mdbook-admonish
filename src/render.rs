@@ -131,4 +131,4 @@ fn join_attributes(attributes: &[(impl AsRef<str>, impl AsRef<str>)]) -> String 
     buffer
 }
 
-const ANCHOR_ID_DEFAULT: &str = "default";
+pub const ANCHOR_ID_DEFAULT: &str = "default";
