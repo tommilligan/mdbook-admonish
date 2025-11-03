@@ -219,19 +219,19 @@ x = 20;
     #[test]
     fn run_pandoc_to_html() {
         let content = r#"
-:::{.note title="Title"}
+:::{.admonition kind="warning" title="custom-2#a?b"}
 ```rust
 let x = 10;
 x = 20;
 ```
 :::
 "#;
-        let expected_content = r##"::::: {#admonition-title .admonition .admonish-note role="note" aria-labelledby="admonition-title-title"}
-::: {#admonition-title-title}
-Title
+        let expected_content = r##"::::: {#admonition-custom-2ab .admonition .admonish-warning role="note" aria-labelledby="admonition-custom-2ab-title"}
+::: {#admonition-custom-2ab-title}
+custom-2#a?b
 :::
 
-::: {}
+::: {#admonition-custom-2ab-content}
 ``` rust
 let x = 10;
 x = 20;

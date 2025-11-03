@@ -7,22 +7,34 @@
 }:
 {
   rust = [
-    {
-      packages = [
-        self'.packages.rust-toolchain
-        pkgs.cargo-watch
+    (
+      { config, ... }:
+      {
+        packages = [
+          pkgs.pandoc
+          pkgs.cargo-watch
 
-        # Debugging
-        pkgs.lldb_18
-      ];
-      enterShell = ''
-        repo_dir=$(git rev-parse --show-toplevel)
-        # Set the default output directory.
-        export CARGO_TARGET_DIR="$repo_dir/build"
-        unset repo_dir
+          # Debugging
+          pkgs.lldb_18
+        ];
 
-        just setup
-      '';
-    }
+        languages.rust = {
+          enable = true;
+          toolchainPackage = self'.packages.rust-toolchain;
+        };
+
+        env = {
+          CARGO_TARGET_DIR = "${config.devenv.root}/target";
+        };
+
+        enterShell = ''
+          repo_dir=$(git rev-parse --show-toplevel)
+          # Set the default output directory.
+          unset repo_dir
+
+          just setup
+        '';
+      }
+    )
   ];
 }
