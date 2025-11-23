@@ -1,8 +1,8 @@
 use anyhow::{anyhow, Result};
-use mdbook::{
+use mdbook_preprocessor::{
     book::{Book, BookItem},
     errors::Result as MdbookResult,
-    preprocess::{Preprocessor, PreprocessorContext},
+    {Preprocessor, PreprocessorContext},
 };
 
 use crate::{
@@ -77,10 +77,10 @@ impl Preprocessor for Admonish {
         res.unwrap_or(Ok(())).map(|_| book)
     }
 
-    fn supports_renderer(&self, _renderer: &str) -> bool {
+    fn supports_renderer(&self, renderer: &str) -> Result<bool> {
         // We support all renderers, but will only actually take action
         // if configured to do so - or, if it's the html renderer
-        true
+        Ok(true)
     }
 }
 

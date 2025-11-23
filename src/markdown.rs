@@ -1,4 +1,4 @@
-use mdbook::errors::Result as MdbookResult;
+use mdbook_preprocessor::errors::Result as MdbookResult;
 use pulldown_cmark::{CodeBlockKind::*, Event, Options, Parser, Tag};
 
 use crate::{
