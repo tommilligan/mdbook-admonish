@@ -105,7 +105,7 @@ fn handle_supports(renderer: String) -> ! {
     let supported = Admonish.supports_renderer(&renderer);
 
     // Signal whether the renderer is supported by exiting with 1 or 0.
-    if supported.unwrap() {
+    if supported.unwrap_or_default() {
         process::exit(0);
     } else {
         process::exit(1);
