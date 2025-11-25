@@ -77,7 +77,7 @@ impl Preprocessor for Admonish {
         res.unwrap_or(Ok(())).map(|_| book)
     }
 
-    fn supports_renderer(&self, renderer: &str) -> Result<bool> {
+    fn supports_renderer(&self, _renderer: &str) -> Result<bool> {
         // We support all renderers, but will only actually take action
         // if configured to do so - or, if it's the html renderer
         Ok(true)
@@ -126,7 +126,7 @@ mod test {
 
     fn mock_book(content: &str) -> Book {
         serde_json::from_value(json!({
-            "sections": [
+            "items": [
                 {
                     "Chapter": {
                         "name": "Chapter 1",
@@ -151,7 +151,6 @@ mod test {
                 "book": {
                     "authors": ["AUTHOR"],
                     "language": "en",
-                    "multilingual": false,
                     "src": "src",
                     "title": "TITLE"
                 },
@@ -160,7 +159,7 @@ mod test {
                 }
             },
             "renderer": renderer,
-            "mdbook_version": "0.4.21"
+            "mdbook_version": "0.5.1"
         });
 
         serde_json::from_value(value).unwrap()
