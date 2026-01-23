@@ -10,26 +10,16 @@ use crate::types::{AdmonitionDefaults, BuiltinDirective, BuiltinDirectiveConfig}
 ///
 /// Roundtrips config to string, to avoid linking the plugin's internal version of toml
 /// to the one publically exposed by the mdbook library.
-// FIXME: For now, we're making do with fixed values...
-/***********
 pub(crate) fn admonish_config_from_context(ctx: &PreprocessorContext) -> Result<Config> {
-    let table: String = toml::to_string(
-        ctx.config
-            .get_preprocessor("admonish")
-            .context("No configuration for mdbook-admonish in book.toml")?,
-    )
-    .context("Could not serialize mdbook-admonish config. This is a bug in the toml library.")?;
+    let admonish = ctx
+        .config
+        .get::<toml::Value>("preprocessor.admonish")?
+        .context("No configuration for mdbook-admonish in book.toml")?;
+
+    let table =
+        toml::to_string(&admonish).context("No configuration for mdbook-admonish in book.toml")?;
+
     admonish_config_from_str(&table)
-}
-************/
-pub(crate) fn admonish_config_from_context(_ctx: &PreprocessorContext) -> Result<Config> {
-    admonish_config_from_str(
-        r##"
-command = "mdbook-admonish"
-assets_version = "3.1.0" # do not edit: managed by `mdbook-admonish install`
-after = ["links"]
-"##,
-    )
 }
 
 pub(crate) fn admonish_config_from_str(data: &str) -> Result<Config> {
