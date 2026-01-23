@@ -34,8 +34,8 @@ pub(crate) fn parse_admonition<'a>(
             // Construct a fence capable of enclosing whatever we wrote for the
             // actual input block
             let fence = extracted.fence;
-            let enclosing_fence: String = std::iter::repeat_n(fence.character, fence.length + 1)
-                .collect();
+            let enclosing_fence: String =
+                std::iter::repeat_n(fence.character, fence.length + 1).collect();
             return Some(match on_failure {
                 OnFailure::Continue => {
                     log::warn!(
