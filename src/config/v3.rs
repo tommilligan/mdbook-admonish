@@ -1,7 +1,7 @@
-use super::toml_wrangling::{
-    format_invalid_directive, format_toml_parsing_error, UserInput, RX_DIRECTIVE,
-};
 use super::InstanceConfig;
+use super::toml_wrangling::{
+    RX_DIRECTIVE, UserInput, format_invalid_directive, format_toml_parsing_error,
+};
 use serde::Deserialize;
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]

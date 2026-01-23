@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use mdbook_preprocessor::{
     book::{Book, BookItem},
     errors::Result as MdbookResult,
@@ -6,7 +6,7 @@ use mdbook_preprocessor::{
 };
 
 use crate::{
-    book_config::{admonish_config_from_context, Config, RenderMode},
+    book_config::{Config, RenderMode, admonish_config_from_context},
     markdown::preprocess,
     types::{Overrides, RenderTextMode},
 };
@@ -101,7 +101,7 @@ fn ensure_compatible_assets_version(config: &Config) -> Result<()> {
   Incompatible assets installed: required mdbook-admonish assets version '{requirement}', but did not find a version.
   {USER_ACTION}
   {DOCS_REFERENCE}"#
-            ))
+            ));
         }
     };
 
@@ -122,7 +122,7 @@ fn ensure_compatible_assets_version(config: &Config) -> Result<()> {
 mod test {
     use super::*;
     use pretty_assertions::assert_eq;
-    use serde_json::{json, Value};
+    use serde_json::{Value, json};
 
     fn mock_book(content: &str) -> Book {
         serde_json::from_value(json!({
