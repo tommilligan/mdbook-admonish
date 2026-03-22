@@ -1,5 +1,5 @@
 use anyhow::{Context, Result};
-use mdbook::preprocess::PreprocessorContext;
+use mdbook_preprocessor::PreprocessorContext;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -11,12 +11,14 @@ use crate::types::{AdmonitionDefaults, BuiltinDirective, BuiltinDirectiveConfig}
 /// Roundtrips config to string, to avoid linking the plugin's internal version of toml
 /// to the one publically exposed by the mdbook library.
 pub(crate) fn admonish_config_from_context(ctx: &PreprocessorContext) -> Result<Config> {
-    let table: String = toml::to_string(
-        ctx.config
-            .get_preprocessor("admonish")
-            .context("No configuration for mdbook-admonish in book.toml")?,
-    )
-    .context("Could not serialize mdbook-admonish config. This is a bug in the toml library.")?;
+    let admonish = ctx
+        .config
+        .get::<toml::Value>("preprocessor.admonish")?
+        .context("No configuration for mdbook-admonish in book.toml")?;
+
+    let table =
+        toml::to_string(&admonish).context("No configuration for mdbook-admonish in book.toml")?;
+
     admonish_config_from_str(&table)
 }
 

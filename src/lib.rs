@@ -6,6 +6,7 @@ mod book_config;
 mod config;
 #[doc(hidden)]
 pub mod custom;
+mod id;
 mod markdown;
 mod parse;
 mod preprocessor;

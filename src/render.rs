@@ -1,7 +1,7 @@
-use mdbook::utils::unique_id_from_content;
 use std::borrow::Cow;
 use std::collections::HashMap;
 
+use crate::id::unique_id_from_content;
 use crate::{resolve::AdmonitionMeta, types::CssId};
 
 #[derive(Debug, PartialEq)]

@@ -1,7 +1,8 @@
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
-use mdbook::preprocess::{CmdPreprocessor, Preprocessor};
 use mdbook_admonish::Admonish;
+use mdbook_preprocessor::Preprocessor;
+use semver::{Version, VersionReq};
 use serde::Deserialize;
 use std::fs;
 use std::io;
@@ -79,14 +80,17 @@ fn run(cli: Cli) -> Result<()> {
     }
 }
 
-fn handle_preprocessing() -> std::result::Result<(), mdbook::errors::Error> {
-    let (ctx, book) = CmdPreprocessor::parse_input(io::stdin())?;
+fn handle_preprocessing() -> Result<()> {
+    let (ctx, book) = mdbook_preprocessor::parse_input(io::stdin())?;
 
-    if ctx.mdbook_version != mdbook::MDBOOK_VERSION {
+    let book_version = Version::parse(&ctx.mdbook_version)?;
+    let version_req = VersionReq::parse(mdbook_preprocessor::MDBOOK_VERSION)?;
+
+    if !version_req.matches(&book_version) {
         eprintln!(
             "Warning: The mdbook-admonish preprocessor was built against version \
              {} of mdbook, but we're being called from version {}",
-            mdbook::MDBOOK_VERSION,
+            mdbook_preprocessor::MDBOOK_VERSION,
             ctx.mdbook_version
         );
     }
@@ -101,7 +105,7 @@ fn handle_supports(renderer: String) -> ! {
     let supported = Admonish.supports_renderer(&renderer);
 
     // Signal whether the renderer is supported by exiting with 1 or 0.
-    if supported {
+    if supported.unwrap_or_default() {
         process::exit(0);
     } else {
         process::exit(1);
