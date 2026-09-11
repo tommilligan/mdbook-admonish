@@ -1,12 +1,12 @@
-use anyhow::{anyhow, Result};
-use mdbook::{
+use anyhow::{Result, anyhow};
+use mdbook_preprocessor::{
+    Preprocessor, PreprocessorContext,
     book::{Book, BookItem},
     errors::Result as MdbookResult,
-    preprocess::{Preprocessor, PreprocessorContext},
 };
 
 use crate::{
-    book_config::{admonish_config_from_context, Config, RenderMode},
+    book_config::{Config, RenderMode, admonish_config_from_context},
     markdown::preprocess,
     types::{Overrides, RenderTextMode},
 };
@@ -77,10 +77,10 @@ impl Preprocessor for Admonish {
         res.unwrap_or(Ok(())).map(|_| book)
     }
 
-    fn supports_renderer(&self, _renderer: &str) -> bool {
+    fn supports_renderer(&self, _renderer: &str) -> Result<bool> {
         // We support all renderers, but will only actually take action
         // if configured to do so - or, if it's the html renderer
-        true
+        Ok(true)
     }
 }
 
@@ -101,7 +101,7 @@ fn ensure_compatible_assets_version(config: &Config) -> Result<()> {
   Incompatible assets installed: required mdbook-admonish assets version '{requirement}', but did not find a version.
   {USER_ACTION}
   {DOCS_REFERENCE}"#
-            ))
+            ));
         }
     };
 
@@ -122,11 +122,11 @@ fn ensure_compatible_assets_version(config: &Config) -> Result<()> {
 mod test {
     use super::*;
     use pretty_assertions::assert_eq;
-    use serde_json::{json, Value};
+    use serde_json::{Value, json};
 
     fn mock_book(content: &str) -> Book {
         serde_json::from_value(json!({
-            "sections": [
+            "items": [
                 {
                     "Chapter": {
                         "name": "Chapter 1",
@@ -151,7 +151,6 @@ mod test {
                 "book": {
                     "authors": ["AUTHOR"],
                     "language": "en",
-                    "multilingual": false,
                     "src": "src",
                     "title": "TITLE"
                 },
@@ -160,7 +159,7 @@ mod test {
                 }
             },
             "renderer": renderer,
-            "mdbook_version": "0.4.21"
+            "mdbook_version": "0.5.1"
         });
 
         serde_json::from_value(value).unwrap()

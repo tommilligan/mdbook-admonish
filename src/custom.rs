@@ -2,7 +2,7 @@
 //!
 //! It has unit tests to ensure the output matches that of the compile_assets CSS.
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use hex_color::{Case, HexColor};
 use once_cell::sync::Lazy;
 use regex::Regex;
@@ -19,7 +19,9 @@ fn svg_to_data_url(svg: &str) -> String {
     //
     let mut svg = RX_COLLAPSE_NEWLINES.replace_all(svg, "").to_string();
     if !svg.contains(XMLNS) {
-        log::warn!("Your SVG file does not contain '<svg xmlns=\"{XMLNS}\"', it will likely fail to render.");
+        log::warn!(
+            "Your SVG file does not contain '<svg xmlns=\"{XMLNS}\"', it will likely fail to render."
+        );
     }
 
     svg = svg

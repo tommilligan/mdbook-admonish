@@ -12,5 +12,6 @@ mod preprocessor;
 mod render;
 mod resolve;
 mod types;
+mod unique_id;
 
 pub use crate::preprocessor::Admonish;

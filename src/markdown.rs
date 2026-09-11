@@ -1,4 +1,4 @@
-use mdbook::errors::Result as MdbookResult;
+use mdbook_preprocessor::errors::Result as MdbookResult;
 use pulldown_cmark::{CodeBlockKind::*, Event, Options, Parser, Tag};
 
 use crate::{
@@ -628,7 +628,7 @@ TOML parsing error: TOML parse error at line 1, column 21
   |
 1 | config = { title=" }
   |                     ^
-invalid basic string
+unclosed inline table, expected `}`
 
 ```
 

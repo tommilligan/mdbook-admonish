@@ -1,7 +1,7 @@
-use super::toml_wrangling::{
-    format_invalid_directive, format_toml_parsing_error, UserInput, RX_DIRECTIVE,
-};
 use super::InstanceConfig;
+use super::toml_wrangling::{
+    RX_DIRECTIVE, UserInput, format_invalid_directive, format_toml_parsing_error,
+};
 use serde::Deserialize;
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
@@ -178,11 +178,11 @@ mod test {
             from_config_string(r#"oh!wow titlel=""#).unwrap_err(),
             r#"'oh!wow' is not a valid directive or TOML key-value pair.
 
-TOML parsing error: TOML parse error at line 1, column 14
+TOML parsing error: TOML parse error at line 1, column 19
   |
 1 | config = { oh!wow titlel=" }
-  |              ^
-expected `.`, `=`
+  |                   ^
+missing assignment between key-value pairs, expected `=`
 "#
         );
     }
@@ -195,7 +195,7 @@ expected `.`, `=`
   |
 1 | config = { titlel=" }
   |                      ^
-invalid basic string
+unclosed inline table, expected `}`
 "#
         );
     }
