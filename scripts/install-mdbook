@@ -8,7 +8,7 @@ function eprintln() {
   >&2 echo "$1"
 }
 
-VERSION="0.4.51"
+VERSION="0.5.4"
 
 eprintln "Checking if mdbook $VERSION is installed"
 if [[ "$(mdbook --version)" != "mdbook v$VERSION" ]]; then

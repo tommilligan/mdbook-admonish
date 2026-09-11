@@ -4,47 +4,63 @@
 <div id="admonition-what-is-this-title">
 <p>What <i>is</i> this?</p>
 </div>
+
 <a class="admonition-anchor-link" href="#admonition-what-is-this"></a>
 </div>
+
 <div>
 <p>This book acts as an integration test for <code>mdbook-admonish</code>.</p>
 <p>It verifies that <code>mdbook</code> post-processes our generated HTML in the way we expect.</p>
 </div>
+
 </div>
+
 <div id="admonition-note" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-title">
 <div class="admonition-title">
 <div id="admonition-note-title">
 <p>Note</p>
 </div>
+
 <a class="admonition-anchor-link" href="#admonition-note"></a>
 </div>
+
 <div>
 <p>Simples</p>
 </div>
+
 </div>
+
 <div id="admonition-frog" class="admonition admonish-frog" role="note" aria-labelledby="admonition-frog-title">
 <div class="admonition-title">
 <div id="admonition-frog-title">
 <p>Frog</p>
 </div>
+
 <a class="admonition-anchor-link" href="#admonition-frog"></a>
 </div>
+
 <div>
 <p>Custom frog directive</p>
 </div>
+
 </div>
+
 <div id="admonition-default" class="admonition admonish-warning" role="note">
 <div>
 <p>No title, only body</p>
 </div>
+
 </div>
+
 <div id="admonition-error-rendering-admonishment" class="admonition admonish-bug" role="note" aria-labelledby="admonition-error-rendering-admonishment-title">
 <div class="admonition-title">
 <div id="admonition-error-rendering-admonishment-title">
 <p>Error rendering admonishment</p>
 </div>
+
 <a class="admonition-anchor-link" href="#admonition-error-rendering-admonishment"></a>
 </div>
+
 <div>
 <p>Failed with:</p>
 <pre><code class="language-log">'title="' is not a valid directive or TOML key-value pair.
@@ -53,7 +69,7 @@ TOML parsing error: TOML parse error at line 1, column 21
   |
 1 | config = { title=" }
   |                     ^
-invalid basic string
+unclosed inline table, expected `}`
 
 </code></pre>
 <p>Original markdown input:</p>
@@ -62,61 +78,77 @@ No title, only body
 ```
 </code></pre>
 </div>
+
 </div>
+
 <details id="admonition-note-1" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-1-title">
 <summary class="admonition-title">
 <div id="admonition-note-1-title">
 <p>Note</p>
 </div>
+
 <a class="admonition-anchor-link" href="#admonition-note-1"></a>
 </summary>
 <div>
 <p>Hidden on load</p>
 </div>
+
 </details>
 <div id="admonition-warning" class="admonition admonish-warning" role="note" aria-labelledby="admonition-warning-title">
 <div class="admonition-title">
 <div id="admonition-warning-title">
 <p>Warning</p>
 </div>
+
 <a class="admonition-anchor-link" href="#admonition-warning"></a>
 </div>
+
 <div>
 <p>This is a commonly shared warning!</p>
 </div>
+
 </div>
+
 <div id="admonition-note-2" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-2-title">
 <div class="admonition-title">
 <div id="admonition-note-2-title">
 <p>Note</p>
 </div>
+
 <a class="admonition-anchor-link" href="#admonition-note-2"></a>
 </div>
+
 <div>
 <pre><code class="language-bash">Nested code block
 </code></pre>
 </div>
+
 </div>
+
 <div id="admonition-note-3" class="admonition admonish-note" role="note" aria-labelledby="admonition-note-3-title">
 <div class="admonition-title">
 <div id="admonition-note-3-title">
 <p>Note</p>
 </div>
+
 <a class="admonition-anchor-link" href="#admonition-note-3"></a>
 </div>
+
 <div>
-<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>let x = 10;
 x = 20;
-<span class="boring">}</span></code></pre></pre>
-<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+<span class="boring">}</span></code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>let x = 10;
 let x = 20;
-<span class="boring">}</span></code></pre></pre>
+<span class="boring">}</span></code></pre>
 </div>
+
 </div>
+
 <p>In a list:</p>
 <ol>
 <li>
@@ -131,12 +163,16 @@ let x = 20;
 <div id="admonition-note-4-title">
 <p>Note</p>
 </div>
+
 <a class="admonition-anchor-link" href="#admonition-note-4"></a>
 </div>
+
 <div>
 <p>Thing two</p>
 </div>
+
 </div>
+
 <ol>
 <li>
 <p>Thing two nested</p>
@@ -145,13 +181,17 @@ let x = 20;
 <div id="admonition-note-5-title">
 <p>Note</p>
 </div>
+
 <a class="admonition-anchor-link" href="#admonition-note-5"></a>
 </div>
+
 <div>
 <p>Thing two nested (should not be a code block)
 Regression tests for https://github.com/tommilligan/mdbook-admonish/issues/223</p>
 </div>
+
 </div>
+
 </li>
 </ol>
 </li>
@@ -161,4 +201,3 @@ Regression tests for https://github.com/tommilligan/mdbook-admonish/issues/223</
 </code></pre>
 </li>
 </ol>
-

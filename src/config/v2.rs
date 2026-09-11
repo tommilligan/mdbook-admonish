@@ -1,7 +1,7 @@
-use super::toml_wrangling::{
-    format_invalid_directive, format_toml_parsing_error, UserInput, RX_DIRECTIVE,
-};
 use super::InstanceConfig;
+use super::toml_wrangling::{
+    RX_DIRECTIVE, UserInput, format_invalid_directive, format_toml_parsing_error,
+};
 use once_cell::sync::Lazy;
 use regex::Regex;
 
@@ -186,11 +186,11 @@ mod test {
             from_config_string(r#"oh!wow titlel=""#).unwrap_err(),
             r#"'oh!wow' is not a valid directive or TOML key-value pair.
 
-TOML parsing error: TOML parse error at line 1, column 3
+TOML parsing error: TOML parse error at line 1, column 8
   |
 1 | oh!wow 
-  |   ^
-expected `.`, `=`
+  |        ^
+key with no value, expected `=`
 "#
         );
     }
@@ -203,7 +203,7 @@ expected `.`, `=`
   |
 1 | titlel="
   |         ^
-invalid basic string
+invalid basic string, expected `"`
 "#
         );
     }

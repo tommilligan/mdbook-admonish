@@ -1,5 +1,15 @@
 # Changelog
 
+## v2.0.0
+
+### Changed
+
+- Migrated to support `mdbook` version `0.5`.
+- The internal `mdbook` dependency has been updated to version `0.5`.
+- The internal `toml` dependency has been updated to version `1.1.0`.
+- The internal `toml_edit` dependency has been updated to version `0.25.0`.
+- Minimum supported Rust version (MSRV) is now 1.88.0.
+
 ## v1.20.0
 
 ### Changed
